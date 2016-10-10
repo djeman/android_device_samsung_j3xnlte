@@ -1,0 +1,14 @@
+#
+# system.prop for j320fn
+#
+
+ro.product.model=SM-J320FN
+ro.product.brand=samsung
+ro.product.name=j3xnltexx
+ro.product.device=j3xnlte
+ro.product.board=SC9830I
+ro.chipname=SC9830I
+ro.lcd_min_brightness=0
+ro.lcd_brightness=162
+ro.sf.lcd_density=320
+persist.sys.usb.config=mtp,adb
