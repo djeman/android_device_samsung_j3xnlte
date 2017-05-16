@@ -1,0 +1,13 @@
+
+on cali
+#	mount_all /etc/recovery.fstab
+#	start recovery
+#	start slog
+#	trigger adb_enable
+#
+#service slog /system/bin/slog -t
+#    class main
+#    user root
+
+on property:ro.bootmode=cali
+        setprop ro.config.engcplog.enable 1

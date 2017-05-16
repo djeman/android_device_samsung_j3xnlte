@@ -1,0 +1,257 @@
+# copy from /device/xxxx/recovery/init.rc of GED
+import /init.recovery.board.rc
+
+on early-init
+    # Apply strict SELinux checking of PROT_EXEC on mmap/mprotect calls.
+    write /sys/fs/selinux/checkreqprot 0
+
+    # Set the security context for the init process.
+    # This should occur before anything else (e.g. ueventd) is started.
+    setcon u:r:init:s0
+
+    start ueventd
+    start healthd
+
+on init
+    export PATH /sbin:/system/bin
+    export ANDROID_ROOT /system
+    export ANDROID_DATA /data
+    export EXTERNAL_STORAGE /sdcard
+    export SECONDARY_STORAGE /storage/sdcard0
+
+    symlink /system/etc /etc
+    symlink /system/vendor /vendor
+
+    mkdir /sdcard
+    mkdir /system
+    mkdir /data
+    mkdir /cache
+    mkdir /sideload
+    mount tmpfs tmpfs /tmp
+
+#add for sdcard path as same as android @{
+    mkdir /storage
+    mkdir /storage/sdcard1
+    mkdir /storage/sdcard0
+#@}
+
+    chown root shell /tmp
+    chmod 0775 /tmp
+
+    chown system root /proc/mdbg/assert
+    chown system root /proc/mdbg/wdtirq
+    chown system root /proc/mdbg/at_cmd
+    chown system root /proc/mdbg/loopcheck
+
+    chmod 766 /proc/mdbg/assert
+    chmod 766 /proc/mdbg/wdtirq
+    chmod 766 /proc/mdbg/at_cmd
+    chmod 766 /proc/mdbg/loopcheck
+
+    write /proc/sys/kernel/panic_on_oops 1
+    chown system root /proc/mdbg/assert
+    chown system root /proc/mdbg/wdtirq
+    chown system root /proc/mdbg/at_cmd
+    chown system root /proc/mdbg/loopcheck
+
+    chmod 766 /proc/mdbg/assert
+    chmod 766 /proc/mdbg/wdtirq
+    chmod 766 /proc/mdbg/at_cmd
+    chmod 766 /proc/mdbg/loopcheck	
+
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/bcdDevice 2427
+    write /sys/class/android_usb/android0/idVendor 1782
+    write /sys/class/android_usb/android0/idProduct 4d00
+    write /sys/class/android_usb/android0/functions vser
+    write /sys/class/android_usb/android0/iManufacturer Spreadtrum
+    write /sys/class/android_usb/android0/iProduct "Gadget Serial"
+    write /sys/class/android_usb/android0/iSerial 19761202
+
+on fs
+    mkdir /dev/usb-ffs 0770 shell shell
+    mkdir /dev/usb-ffs/adb 0770 shell shell
+    mount functionfs adb /dev/usb-ffs/adb uid=2000,gid=2000
+
+#Allow others to read fb devices
+    chmod 660 /dev/graphics/fb0
+    chmod 660 /dev/fb0
+
+on boot
+    ifup lo
+    hostname localhost
+    domainname localdomain
+
+#SPRD:add for uboot operation permission @{
+    write /sys/block/mmcblk0boot0/force_ro 0
+    write /sys/block/mmcblk0boot1/force_ro 0
+# @}
+    class_start default
+
+# SPRD: add adb in recovery @{
+on adb_enable
+    write /sys/class/android_usb/android0/iManufacturer Spreadtrum
+    write /sys/class/android_usb/android0/iProduct Spreadtrum Phone
+    write /sys/class/android_usb/android0/iSerial $ro.serialno
+    write /sys/class/android_usb/android0/f_rndis/manufacturer Spreadtrum
+    write /sys/class/android_usb/android0/f_rndis/vendorID 8
+    write /sys/class/android_usb/android0/f_rndis/wceis 1
+
+    mkdir /dev/usb-ffs 0770 shell shell
+    mkdir /dev/usb-ffs/adb 0770 shell shell
+    mount functionfs adb /dev/usb-ffs/adb uid=2000,gid=2000
+    write /sys/class/android_usb/android0/f_ffs/aliases adb
+
+    setprop sys.usb.config adb,vser,gser
+# @}
+# Load properties from /system/ + /factory after fs mount.
+on load_all_props_action
+    load_all_props
+
+# Mount filesystems and start core system services.
+on late-init
+    trigger early-fs
+    trigger fs
+    trigger post-fs
+    trigger post-fs-data
+
+    # Load properties from /system/ + /factory after fs mount. Place
+    # this in another action so that the load will be scheduled after the prior
+    # issued fs triggers have completed.
+    trigger load_all_props_action
+
+    trigger early-boot
+    trigger boot
+
+on property:sys.powerctl=*
+   powerctl ${sys.powerctl}
+
+	
+service modem_control /system/bin/modem_control
+    class cali
+    user system
+    group root
+
+service ueventd /sbin/ueventd
+    critical
+    seclabel u:r:ueventd:s0
+
+service healthd /sbin/healthd -r
+    critical
+    seclabel u:r:healthd:s0
+
+service recovery /sbin/recovery
+    class recovery
+    seclabel u:r:recovery:s0
+
+service adbd /sbin/adbd --root_seclabel=u:r:su:s0 --device_banner=recovery
+    disabled
+    socket adbd stream 660 system system
+    seclabel u:r:adbd:s0
+
+#SPRD:use adb when debug version @{
+#@orig
+## Always start adbd on userdebug and eng builds
+#on property:ro.debuggable=1
+#    write /sys/class/android_usb/android0/enable 1
+#    start adbd
+
+# Always start adbd on non-cali mode
+on property:sys.usb.config=adb,vser,gser
+# SPRD: add adb in recovery @{
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/idVendor 1782
+    write /sys/class/android_usb/android0/idProduct 5d06
+    write /sys/class/android_usb/android0/functions adb,vser,gser
+    write /sys/class/android_usb/android0/enable 1
+    start adbd
+    setprop sys.usb.state $sys.usb.config
+# @}
+
+# Restart adbd so it can run as root
+on property:service.adb.root=1
+    write /sys/class/android_usb/android0/enable 0
+    restart adbd
+    write /sys/class/android_usb/android0/enable 1
+
+on cali
+    mount_all /fstab.sc8830
+    class_start cali
+    insmod /system/lib/modules/mali.ko
+    insmod /system/lib/modules/trout_fm.ko
+
+service wcnd-cali /system/bin/wcnd
+    class cali
+    user root
+    group root system shell wifi inet net_bt_stack
+    seclabel u:r:wcnd:s0
+
+
+service wcnd_eng-cali /system/bin/wcnd -G
+    class cali
+    user root
+    group root system shell wifi inet net_bt_stack
+    disabled
+    oneshot
+    seclabel u:r:wcnd:s0
+
+service console /system/bin/sh
+    console
+    class cali
+    user root
+    group root
+
+service engpcclient /system/bin/engpc
+    class cali
+    user root
+    group root sdcard_rw
+
+#cp_diskserver
+service cp_diskserver_td /system/bin/cp_diskserver t 1
+    class cali
+    user root
+    group root
+    disabled
+
+service cp_diskserver_w /system/bin/cp_diskserver w 1
+    class cali
+    user root
+    group root
+    disabled
+
+service cp_diskserver_l /system/bin/cp_diskserver l 1
+    class cali
+    user root
+    group system radio shell
+    disabled
+    oneshot
+
+service cp_diskserver_tl /system/bin/cp_diskserver tl 1
+    class core
+    user root
+    group system radio shell
+    disabled
+    oneshot
+
+service cp_diskserver_lf /system/bin/cp_diskserver lf 1
+    class cali
+    user root
+    group system radio shell
+    disabled
+    oneshot
+
+on property:persist.modem.w.enable=1
+    start cp_diskserver_w
+
+on property:persist.modem.t.enable=1
+    start cp_diskserver_td
+
+on property:persist.modem.l.enable=1
+    start cp_diskserver_l
+
+on property:persist.modem.tl.enable=1
+    start cp_diskserver_tl
+
+on property:persist.modem.lf.enable=1
+    start cp_diskserver_lf 
+

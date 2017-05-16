@@ -1,0 +1,7 @@
+key 226     HEADSETHOOK     WAKE
+key 107     ENDCALL         WAKE
+key 223     CALL            WAKE
+key 139     MENU            WAKE
+key 114     VOLUME_DOWN     WAKE
+key 115     VOLUME_UP       WAKE
+

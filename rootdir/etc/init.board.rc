@@ -1,0 +1,157 @@
+import init.wifi.rc
+
+on early-boot
+    chmod 660 /proc/cpgge/cp_crash
+    chmod 660 /proc/cpgge/wdtirq
+    chmod 660 /proc/cpgge/stop
+    chmod 660 /proc/cpgge/start
+    chmod 660 /proc/cpgge/modem
+    chmod 660 /proc/cpgge/dsp
+
+    chown system root /proc/cpgge/cp_crash
+    chown system root /proc/cpgge/wdtirq
+    chown system root /proc/cpgge/stop
+    chown system root /proc/cpgge/start
+    chown system root /proc/cpgge/modem
+    chown system root /proc/cpgge/dsp
+
+    chmod 660 /proc/cptl/cp_crash
+    chmod 660 /proc/cptl/wdtirq
+    chmod 660 /proc/cptl/stop
+    chmod 660 /proc/cptl/start
+    chmod 660 /proc/cptl/modem
+    chmod 660 /proc/cptl/tgdsp
+    chmod 660 /proc/cptl/ldsp
+    chmod 660 /proc/cptl/warm
+    chmod 660 /proc/cptl/fixnv
+    chmod 660 /proc/cptl/runnv
+
+    chown system root /proc/cptl/cp_crash
+    chown system root /proc/cptl/wdtirq
+    chown system root /proc/cptl/stop
+    chown system root /proc/cptl/start
+    chown system root /proc/cptl/modem
+    chown system root /proc/cptl/ldsp
+    chown system root /proc/cptl/tgdsp
+    chown system root /proc/cptl/warm
+    chown system root /proc/cptl/fixnv
+    chown system root /proc/cptl/runnv
+
+on boot
+#lun
+    write /sys/class/android_usb/android0/f_mass_storage/board_support_luns 1
+
+# SSWAP
+    write /proc/sys/vm/swappiness 130
+
+# bluetooth
+    chmod 660 /dev/ttyS0
+    chmod 660 /proc/bluetooth/sleep/proto
+    chmod 660 /sys/class/rfkill/rfkill0/state
+    chmod 660 /sys/class/rfkill/rfkill0/type
+    chmod 660 /proc/bluetooth/sleep/btwrite
+    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/state
+    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/type
+    chown bluetooth net_bt_stack /dev/ttyS0
+
+#for Bluesleep
+        chown bluetooth system /proc/bluetooth/sleep/proto
+        chown bluetooth system /proc/bluetooth/sleep/btwrite
+    chown bluetooth shell /productinfo/connectivity_configure.ini
+    chown bluetooth bluetooth /system/etc/connectivity_configure.ini
+#for wifi
+    chmod 666 /productinfo/connectivity_configure.ini
+    chmod 666 /system/etc/connectivity_configure.ini
+
+# Broadcom GPS
+    chown root system /dev/ttyS3
+    chmod 0660 /dev/ttyS3
+    chown root system /sys/class/sec/gps/GPS_PWR_EN/value
+    chmod 0664 /sys/class/sec/gps/GPS_PWR_EN/value
+
+# make sure data_system dir and perms are properly set.
+    mkdir /data/system 0771 system system
+    chown system system /data/system
+    mkdir /data/system/gps 0771 system system
+    chown system system /data/system/gps
+
+# delete gps Factory file
+    rm /data/gps_started
+    rm /data/glonass_started
+    rm /data/smd_started
+    rm /data/sv_cno.info
+
+# OTG_TEST
+    chown system radio /sys/class/host_notify/usb_otg/booster
+    chmod 0660 /sys/class/host_notify/usb_otg/booster
+
+#touchkey
+    chown system system /sys/class/sec/sec_touchkey/touchkey_back
+    chown system system /sys/class/sec/sec_touchkey/touchkey_recent
+    chown system system /sys/class/sec/sec_touchkey/touchkey_threshold
+    chown system system /sys/class/sec/sec_touchkey/touchkey_raw_recent
+    chown system system /sys/class/sec/sec_touchkey/touchkey_raw_back
+    chown system system /sys/class/sec/sec_touchkey/touchkey_firm_update
+
+# GPS
+service gpsd /system/bin/gpsd -c /system/etc/gps.xml
+    class main
+    user gps
+    group system inet net_raw
+    ioprio be 0
+
+service temp_test /data/simpletest
+	class core
+	disabled
+	oneshot
+
+on property:persist.sys.temp.test=1
+	start temp_test
+
+
+service iprenew_bt-pan /system/bin/dhcpcd -n
+    disabled
+    oneshot
+service phoneserver_l /system/bin/phoneserver -m l
+    class core
+    user root
+    group radio system shell
+    disabled
+    oneshot
+
+#lte rild service
+#service lril-daemon /system/bin/rild_sp -l /system/lib/libreference-ril_sp.so -m l -n 0
+#    class core
+#    socket lrild stream 660 root radio
+#    socket lrild-debug stream 660 radio system
+#    disabled
+#    user root
+#    group radio cache inet misc audio sdcard_rw log shell
+#
+#service lril-daemon1 /system/bin/rild_sp -l /system/lib/libreference-ril_sp.so -m l -n 1
+#    class core
+#    socket lrild1 stream 660 root radio
+#    socket lrild-debug1 stream 660 radio system
+#    disabled
+#    user root
+#    group radio cache inet misc audio sdcard_rw log shell
+on post-fs
+#   insmod /system/lib/modules/bcmdhd.ko
+
+# set LMK watermark as {12M,16M,18M,26M,34M,42M}
+on property:lmk.autocalc=false
+    write /sys/module/lowmemorykiller/parameters/adj 0,1,3,9,11,15
+    write /sys/module/lowmemorykiller/parameters/minfree 3072,4096,4608,6656,8704,10752
+    setprop sys.lmk.adj "0,1,3,9,11,15"
+    setprop sys.lmk.minfree "3072,4096,4608,6656,8704,10752"
+
+# chown for engineermode
+chown system system /sys/module/smsg/parameters/assert_trigger
+chown system system /sys/power/avs_log
+
+# SSWAP
+service swapon /sbin/sswap -s
+    class core
+    user root
+    group root
+    oneshot

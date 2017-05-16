@@ -1,0 +1,13 @@
+diff --git a/media/libstagefright/omx/OMXMaster.cpp b/media/libstagefright/omx/OMXMaster.cpp
+index f7bb733..8884ecf 100644
+--- a/media/libstagefright/omx/OMXMaster.cpp
++++ b/media/libstagefright/omx/OMXMaster.cpp
+@@ -41,6 +41,8 @@ OMXMaster::~OMXMaster() {
+ 
+ void OMXMaster::addVendorPlugin() {
+     addPlugin("libstagefrighthw.so");
++    addPlugin("libsomxcore.so");
++    addPlugin("libstagefrighthw_cm.so");
+ }
+ 
+ void OMXMaster::addUserPlugin() {
