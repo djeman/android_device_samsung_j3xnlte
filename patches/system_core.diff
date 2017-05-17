@@ -20,6 +20,65 @@ index afd9f7b..dfa83ae 100644
  };
  
  /*
+diff --git a/init/builtins.cpp b/init/builtins.cpp
+index 1681d17..5cef150 100644
+--- a/init/builtins.cpp
++++ b/init/builtins.cpp
+@@ -22,6 +22,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
++#include <sys/ioctl.h>
+ #include <sys/socket.h>
+ #include <sys/mount.h>
+ #include <sys/resource.h>
+@@ -960,3 +961,14 @@ int do_setusercryptopolicies(int nargs, char **args)
+     }
+     return e4crypt_set_user_crypto_policies(args[1]);
+ }
++
++int do_pipe(int nargs, char **args)
++{
++    mode_t mode = get_mode(args[1]);
++    if (mkfifo(args[2], mode) < 0) {
++	ERROR("peter do pipe error haha\n");
++        return -errno;
++    }
++    return 0;
++}
++
+diff --git a/init/init_parser.cpp b/init/init_parser.cpp
+index c36d36e..a57ab27 100644
+--- a/init/init_parser.cpp
++++ b/init/init_parser.cpp
+@@ -173,6 +173,7 @@ static int lookup_keyword(const char *s)
+         break;
+     case 'p':
+         if (!strcmp(s, "owerctl")) return K_powerctl;
++        if (!strcmp(s, "ipe")) return K_pipe;
+         break;
+     case 'r':
+         if (!strcmp(s, "estart")) return K_restart;
+diff --git a/init/keywords.h b/init/keywords.h
+index 303685d..1d83c1d 100644
+--- a/init/keywords.h
++++ b/init/keywords.h
+@@ -38,6 +38,7 @@ int do_load_persist_props(int nargs, char **args);
+ int do_load_system_props(int nargs, char **args);
+ int do_verity_load_state(int nargs, char **args);
+ int do_verity_update_state(int nargs, char **args);
++int do_pipe(int nargs, char **args);
+ int do_wait(int nargs, char **args);
+ #define __MAKE_KEYWORD_ENUM__
+ #define KEYWORD(symbol, flags, nargs, func) K_##symbol,
+@@ -102,6 +103,7 @@ enum {
+     KEYWORD(wait,        COMMAND, 1, do_wait)
+     KEYWORD(write,       COMMAND, 2, do_write)
+     KEYWORD(writepid,    OPTION,  0, 0)
++    KEYWORD(pipe,        COMMAND, 2, do_pipe)
+ #ifdef __MAKE_KEYWORD_ENUM__
+     KEYWORD_COUNT,
+ };
 diff --git a/libion/Android.mk b/libion/Android.mk
 index 6562cd3..828f659 100644
 --- a/libion/Android.mk
