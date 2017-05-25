@@ -1,13 +1,49 @@
+diff --git a/media/libstagefright/SurfaceMediaSource.cpp b/media/libstagefright/SurfaceMediaSource.cpp
+index 147eb45..ed5c580 100644
+--- a/media/libstagefright/SurfaceMediaSource.cpp
++++ b/media/libstagefright/SurfaceMediaSource.cpp
+@@ -62,6 +62,7 @@ SurfaceMediaSource::SurfaceMediaSource(uint32_t bufferWidth, uint32_t bufferHeig
+ 
+     BufferQueue::createBufferQueue(&mProducer, &mConsumer);
+     mConsumer->setDefaultBufferSize(bufferWidth, bufferHeight);
++    mConsumer->setDefaultBufferFormat(HAL_PIXEL_FORMAT_YCrCb_420_SP);
+     mConsumer->setConsumerUsageBits(GRALLOC_USAGE_HW_VIDEO_ENCODER
+             | GRALLOC_USAGE_HW_TEXTURE
+ #if QTI_BSP
 diff --git a/media/libstagefright/omx/OMXMaster.cpp b/media/libstagefright/omx/OMXMaster.cpp
-index f7bb733..8884ecf 100644
+index f7bb733..055fd43 100644
 --- a/media/libstagefright/omx/OMXMaster.cpp
 +++ b/media/libstagefright/omx/OMXMaster.cpp
-@@ -41,6 +41,8 @@ OMXMaster::~OMXMaster() {
- 
- void OMXMaster::addVendorPlugin() {
-     addPlugin("libstagefrighthw.so");
-+    addPlugin("libsomxcore.so");
-+    addPlugin("libstagefrighthw_cm.so");
+@@ -40,6 +40,8 @@ OMXMaster::~OMXMaster() {
  }
  
- void OMXMaster::addUserPlugin() {
+ void OMXMaster::addVendorPlugin() {
++    addPlugin("libstagefrighthw_cm.so");
++    addPlugin("libsomxcore.so");
+     addPlugin("libstagefrighthw.so");
+ }
+ 
+diff --git a/services/audiopolicy/common/managerdefinitions/include/ConfigParsingUtils.h b/services/audiopolicy/common/managerdefinitions/include/ConfigParsingUtils.h
+index 6f80435..bf854f3 100644
+--- a/services/audiopolicy/common/managerdefinitions/include/ConfigParsingUtils.h
++++ b/services/audiopolicy/common/managerdefinitions/include/ConfigParsingUtils.h
+@@ -72,6 +72,9 @@ const StringToEnum sDeviceTypeToEnumTable[] = {
+     STRING_TO_ENUM(AUDIO_DEVICE_OUT_HDMI_ARC),
+     STRING_TO_ENUM(AUDIO_DEVICE_OUT_SPDIF),
+     STRING_TO_ENUM(AUDIO_DEVICE_OUT_FM),
++    STRING_TO_ENUM(AUDIO_DEVICE_OUT_FM_HEADSET),
++    STRING_TO_ENUM(AUDIO_DEVICE_OUT_FM_SPEAKER),
++    STRING_TO_ENUM(AUDIO_DEVICE_OUT_ALL_FM),
+     STRING_TO_ENUM(AUDIO_DEVICE_OUT_AUX_LINE),
+     STRING_TO_ENUM(AUDIO_DEVICE_OUT_IP),
+ #ifdef AUDIO_EXTN_AFE_PROXY_ENABLED
+@@ -131,6 +134,9 @@ const StringToEnum sDeviceNameToEnumTable[] = {
+     NAME_TO_ENUM("HDMI ARC Out", AUDIO_DEVICE_OUT_HDMI_ARC),
+     NAME_TO_ENUM("S/PDIF Out", AUDIO_DEVICE_OUT_SPDIF),
+     NAME_TO_ENUM("FM transceiver Out", AUDIO_DEVICE_OUT_FM),
++    NAME_TO_ENUM("FM Headset Out", AUDIO_DEVICE_OUT_FM_HEADSET),
++    NAME_TO_ENUM("FM Speaker Out", AUDIO_DEVICE_OUT_FM_SPEAKER),
++    NAME_TO_ENUM("", AUDIO_DEVICE_OUT_ALL_FM),
+     NAME_TO_ENUM("Aux Line Out", AUDIO_DEVICE_OUT_AUX_LINE),
+     NAME_TO_ENUM("IP Out", AUDIO_DEVICE_OUT_IP),
+     NAME_TO_ENUM("Ambient Mic", AUDIO_DEVICE_IN_AMBIENT),

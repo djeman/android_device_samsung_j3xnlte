@@ -5,7 +5,7 @@ bin/gpsd
 bin/sprdSleepLog
 bin/modem_control
 bin/modemd
-bin/download
+#bin/download
 
 # etc
 etc/connectivity_calibration.ini
@@ -94,15 +94,15 @@ vendor/media/LMspeed_508.emd
 vendor/media/PFFprec_600.emd
 
 # drm
-lib/libomacp.so
-lib/libomafldrm.so
-lib/libdrmdecrypt.so
-lib/libwvm.so
-lib/drm/libdrmwvmplugin.so
-lib/drm/libomaplugin.so
-vendor/lib/libWVStreamControlAPI_L3.so
-vendor/lib/libwvdrm_L3.so
-vendor/lib/mediadrm/libwvdrmengine.so
+#lib/libomacp.so
+#lib/libomafldrm.so
+#lib/libdrmdecrypt.so
+#lib/libwvm.so
+#lib/drm/libdrmwvmplugin.so
+#lib/drm/libomaplugin.so
+#vendor/lib/libWVStreamControlAPI_L3.so
+#vendor/lib/libwvdrm_L3.so
+#vendor/lib/mediadrm/libwvdrmengine.so
 
 lib/modules/pskey_bt.txt
 lib/libsdp_crypto.so
@@ -199,14 +199,14 @@ lib/libvariablespeed.so
 #lib/libstagefright_sprd_soft_h264dec.so
 #lib/libstagefright_sprd_soft_mpeg4dec.so
 #lib/libstagefright_sprd_vpxdec.so
-lib/libiwnpi.so
+#lib/libiwnpi.so
 lib/libaudio-ril.so
 lib/libvpu.so
 lib/libvtmanager.so
 lib/libvtstack.so
 lib/libynoise.so
 lib/libeng-audio.so
-lib/libengbt.so
+#lib/libengbt.so
 lib/libengmode.so
 lib/libcalibration.so
 #lib/libdumpdata.so
@@ -216,10 +216,10 @@ lib/liblsc.so
 lib/libmorpho_easy_hdr.so
 lib/libril.so
 lib/libreference-ril.so
-#lib/librilutils.so
+lib/librilutils.so
 
-bin/wcnd
-bin/wcnd_cli
+#bin/wcnd
+#bin/wcnd_cli
 bin/refnotify
 bin/radvd
 bin/cp_diskserver

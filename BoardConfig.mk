@@ -34,10 +34,10 @@ TARGET_KERNEL_CONFIG := j3xnlte_permissive_defconfig
 NEED_KERNEL_MODULE_ROOT := true
 
 SPRD_MODULES:
-	make -C vendor/sprd/open-source/libs/gpu/utgard/driver/mali/ MALI_PLATFORM=sc8830 BUILD=debug KDIR=$(KERNEL_OUT) clean
-	make -C vendor/sprd/open-source/libs/gpu/utgard/driver/mali/ MALI_PLATFORM=sc8830 BUILD=debug KDIR=$(KERNEL_OUT)
-	mv vendor/sprd/open-source/libs/gpu/utgard/driver/mali/mali.ko $(KERNEL_MODULES_OUT)
-	cp vendor/sprd/open-source/libs/wlan/sprdwl.ko $(KERNEL_MODULES_OUT)
+	make -C vendor/sprd/modules/libgpu/gpu/utgard/ MALI_PLATFORM=sc8830 BUILD=debug KDIR=$(KERNEL_OUT) clean
+	make -C vendor/sprd/modules/libgpu/gpu/utgard/ MALI_PLATFORM=sc8830 BUILD=debug KDIR=$(KERNEL_OUT)
+	mv vendor/sprd/modules/libgpu/gpu/utgard/mali.ko $(KERNEL_MODULES_OUT)
+	cp vendor/sprd/wcn/wifi/sprdwl.ko $(KERNEL_MODULES_OUT)
 
 TARGET_KERNEL_MODULES := SPRD_MODULES
 TARGET_IGNORE_RO_BOOT_REVISION := true
@@ -84,12 +84,10 @@ BOARD_HAVE_BLUETOOTH_SPRD := true
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/j3xnlte/bluetooth
 BOARD_BLUEDROID_VENDOR_CONF := device/samsung/j3xnlte/bluetooth/libbt_vndcfg.txt
 
-BOARD_HARDWARE_CLASS += hardware/samsung/cmhw
-
-# Custom RIL class
-BOARD_PROVIDES_RILD := true
-BOARD_PROVIDES_LIBRIL := true
-BOARD_PROVIDES_LIBREFERENCE_RIL := true
+# telephony
+BOARD_USE_VETH := true
+BOARD_SPRD_RIL := true
+USE_BOOT_AT_DIAG := true
 BOARD_RIL_CLASS := ../../../device/samsung/j3xnlte/ril/
 
 # healthd
@@ -103,10 +101,13 @@ EXTENDED_FONT_FOOTPRINT := true
 
 # Graphics
 TARGET_BOARD_PLATFORM_GPU := Mali-400 MP
-USE_SPRD_HWCOMPOSER := true
+TARGET_GPU_PP_CORE := 2
+USE_SPRD_HWCOMPOSER  := true
 USE_OPENGL_RENDERER := true
 USE_OVERLAY_COMPOSER_GPU := true
-OVERLAY_COMPOSER_GPU := true
+NUM_FRAMEBUFFER_SURFACE_BUFFERS := 3
+
+USE_RGB_VIDEO_LAYER  := true
 
 # Storage
 TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/devices/20200000.usb/gadget/lun%d/file"
@@ -122,9 +123,21 @@ TARGET_NO_SENSOR_PERMISSION_CHECK := true
 # WEBGL
 ENABLE_WEBGL := true
 
+# camera configs
+USE_CAMERA_STUB := true
+#zsl capture
+TARGET_BOARD_CAMERA_CAPTURE_MODE := false
+#back camera rotation capture
+TARGET_BOARD_BACK_CAMERA_ROTATION := false
+#front camera rotation capture
+TARGET_BOARD_FRONT_CAMERA_ROTATION := false
+#rotation capture
+TARGET_BOARD_CAMERA_ROTATION_CAPTURE := false
+TARGET_BOARD_CAMERA_HAL_VERSION := HAL3.0
+TARGET_BOARD_CAMERA_ISP_SOFTWARE_VERSION := 2
+
 # Audio
 BOARD_USES_TINYALSA_AUDIO := true
-BOARD_USES_SS_VOIP := true
 TARGET_TINY_ALSA_IGNORE_SILENCE_SIZE := true
 
 # Charger
@@ -138,14 +151,19 @@ BOARD_SAMSUNG_DEVICE := true
 # zygote whitelist
 PATH_WHITELIST_EXTRA_H := "/sys/devices/sec-battery.4/power_supply/battery/batt_lp_charging"
 
-# Wifi
-BOARD_HAVE_SAMSUNG_WIFI := true
-BOARD_WLAN_DEVICE = sprdwl
-WIFI_DRIVER_MODULE_PATH := /lib/modules/sprdwl.ko
-WIFI_DRIVER_FW_PATH_PARAM := /data/misc/wifi/fwpath
+# WIFI configs
 BOARD_WPA_SUPPLICANT_DRIVER := NL80211
-WIFI_DRIVER_MODULE_NAME := sprdwl
-WPA_SUPPLICANT_VERSION := VER_0_8_X
+WPA_SUPPLICANT_VERSION      := VER_2_1_DEVEL
+BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_sprdwl
+BOARD_HOSTAPD_DRIVER        := NL80211
+BOARD_HOSTAPD_PRIVATE_LIB   := lib_driver_cmd_sprdwl
+BOARD_WLAN_DEVICE           := sc2341
+WIFI_DRIVER_FW_PATH_PARAM   := "/data/misc/wifi/fwpath"
+WIFI_DRIVER_FW_PATH_STA     := "sta_mode"
+WIFI_DRIVER_FW_PATH_P2P     := "p2p_mode"
+WIFI_DRIVER_FW_PATH_AP      := "ap_mode"
+WIFI_DRIVER_MODULE_PATH     := "/system/lib/modules/sprdwl.ko"
+WIFI_DRIVER_MODULE_NAME     := "sprdwl"
 
 # Dex
 ifeq ($(HOST_OS),linux)
@@ -166,6 +184,7 @@ TARGET_SYSTEM_PROP := device/samsung/j3xnlte/system.prop
 # CMHW
 BOARD_HARDWARE_CLASS := hardware/samsung/cmhw/
 
+#######################################################
 # TWRP
 RECOVERY_VARIANT := twrp
 

@@ -1,27 +1,28 @@
 diff --git a/include/tinyalsa/asoundlib.h b/include/tinyalsa/asoundlib.h
-index b789573..1a5bf0e 100644
+index b789573..d20ab62 100644
 --- a/include/tinyalsa/asoundlib.h
 +++ b/include/tinyalsa/asoundlib.h
-@@ -257,6 +257,9 @@ int pcm_get_poll_fd(struct pcm *pcm);
+@@ -257,6 +257,10 @@ int pcm_get_poll_fd(struct pcm *pcm);
   */
  int pcm_set_avail_min(struct pcm *pcm, int avail_min);
  
-+/* SPRD: add this function to support changing samplerate */
++/* SPRD: add this function to support changing samplerate @{ */
 +int pcm_set_samplerate(struct pcm *pcm, unsigned int flags, struct pcm_config *config, unsigned short samplerate);
++/* @} */
 +
  /*
   * MIXER API
   */
 diff --git a/pcm.c b/pcm.c
-index bae38ba..e9b2ee1 100644
+index bae38ba..d1ed53c 100644
 --- a/pcm.c
 +++ b/pcm.c
-@@ -1307,3 +1307,55 @@ int pcm_ioctl(struct pcm *pcm, int request, ...)
+@@ -1307,3 +1307,56 @@ int pcm_ioctl(struct pcm *pcm, int request, ...)
  
      return ioctl(pcm->fd, request, arg);
  }
 +
-+/* SPRD: add this function to support changing samplerate */
++/* SPRD: add this function to support changing samplerate @{ */
 +int pcm_set_samplerate(struct pcm *pcm, unsigned int flags, struct pcm_config *config, unsigned short samplerate)
 +{
 +    struct snd_pcm_hw_params params;
@@ -71,4 +72,5 @@ index bae38ba..e9b2ee1 100644
 +//    ALOGW("%s, out,samplerate (%d) ",__func__,samplerate);
 +    return 0;
 +}
++/* @} */
 +

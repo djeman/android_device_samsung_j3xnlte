@@ -221,6 +221,17 @@ PRODUCT_PACKAGES += \
     libexifa \
     libjpega \
     
+# Widewine
+#PRODUCT_COPY_FILES += \
+#    $(LOCAL_PATH)/widevine/etc/permissions/com.google.widevine.software.drm.xml:system/etc/permissions/com.google.widevine.software.drm.xml \
+#    $(LOCAL_PATH)/widevine/framework/com.google.widevine.software.drm.jar:system/framework/com.google.widevine.software.drm.jar \
+#    $(LOCAL_PATH)/widevine/lib/libdrmdecrypt.so:system/lib/libdrmdecrypt.so \
+#    $(LOCAL_PATH)/widevine/vendor/lib/drm/libdrmwvmplugin.so:system/vendor/lib/drm/libdrmwvmplugin.so \
+#    $(LOCAL_PATH)/widevine/vendor/lib/mediadrm/libwvdrmengine.so:system/vendor/lib/mediadrm/libwvdrmengine.so \
+#    $(LOCAL_PATH)/widevine/vendor/lib/libwvdrm_L3.so:system/vendor/lib/libwvdrm_L3.so \
+#    $(LOCAL_PATH)/widevine/vendor/lib/libwvm.so:system/vendor/lib/libwvm.so \
+#    $(LOCAL_PATH)/widevine/vendor/lib/libWVStreamControlAPI_L3.so:system/vendor/lib/libWVStreamControlAPI_L3.so
+
 # KeyUtils
 PRODUCT_PACKAGES += \
     libkeyutils
@@ -238,8 +249,7 @@ PRODUCT_PACKAGES += \
     charger_res_images
 
 PRODUCT_PACKAGES += \
-    libgps_shim \
-    libril_shim
+    libgps_shim
 
 PRODUCT_PACKAGES += \
     libsecril-client \

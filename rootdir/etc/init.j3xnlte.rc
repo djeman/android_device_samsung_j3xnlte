@@ -75,7 +75,7 @@ on post-fs-data
 # ]
 
 on boot
-    export LD_SHIM_LIBS /system/bin/gpsd|libgps_shim.so:/system/bin/rild|libril_shim.so
+    export LD_SHIM_LIBS /system/bin/gpsd|libgps_shim.so
 
     chown root system /sys/module/pomemr/parameters/freepage_order
     chmod 0664 /sys/module/pomemr/parameters/freepage_order    

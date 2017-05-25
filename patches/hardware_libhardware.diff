@@ -1,17 +1,43 @@
 diff --git a/include/hardware/gralloc.h b/include/hardware/gralloc.h
-index 07ac029..6a293f5 100644
+index 07ac029..085f9ec 100644
 --- a/include/hardware/gralloc.h
 +++ b/include/hardware/gralloc.h
-@@ -156,6 +156,12 @@ enum {
+@@ -143,6 +143,7 @@ enum {
+     GRALLOC_USAGE_PRIVATE_2             = 0x40000000,
+     GRALLOC_USAGE_PRIVATE_3             = 0x80000000,
+     GRALLOC_USAGE_PRIVATE_MASK          = 0xF0000000,
++    GRALLOC_USAGE_HW_TILE_ALIGN         = 0x08000000,
+ 
+ #ifdef EXYNOS4_ENHANCEMENTS
+     /* SAMSUNG */
+@@ -156,6 +157,13 @@ enum {
      /* SEC Private usage , for Overlay path at HWC */
      GRALLOC_USAGE_HWC_HWOVERLAY         = 0x20000000,
  #endif
 +
 +#ifdef SPRD_HARDWARE
-+    GRALLOC_USAGE_OVERLAY_BUFFER        =  0x01000000,
-+    GRALLOC_USAGE_VIDEO_BUFFER          =  0x02000000,
-+    GRALLOC_USAGE_CAMERA_BUFFER         =  0x04000000,
++    GRALLOC_USAGE_SPRD_PRIVATE		=  0x01000000,
++    GRALLOC_USAGE_OVERLAY_BUFFER	=  0x03000000,
++    GRALLOC_USAGE_VIDEO_BUFFER		=  0x05000000,
++    GRALLOC_USAGE_CAMERA_BUFFER 	=  0x05000000,
 +#endif
  };
  
  /*****************************************************************************/
+diff --git a/include/hardware/hwcomposer.h b/include/hardware/hwcomposer.h
+index aa466b3..9ce743e 100644
+--- a/include/hardware/hwcomposer.h
++++ b/include/hardware/hwcomposer.h
+@@ -808,6 +808,12 @@ typedef struct hwc_composer_device_1 {
+     int (*setCursorPositionAsync)(struct hwc_composer_device_1 *dev, int disp, int x_pos, int y_pos);
+ 
+     /*
++     *  Sprd add here:
++     *  Get builtin physical display number from vendor.
++     * */
++    int (*getBuiltInDisplayNum)(struct hwc_composer_device_1 *dev, uint32_t *number);
++
++    /*
+      * Reserved for future use. Must be NULL.
+      */
+     void* reserved_proc[1];
