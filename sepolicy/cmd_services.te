@@ -1,0 +1,11 @@
+type cmd_services, domain;
+type cmd_services_exec, exec_type, file_type;
+
+init_daemon_domain(cmd_services)
+
+allow cmd_services shell_exec:file { open read execute execute_no_trans };
+allow cmd_services cmd_services:capability { sys_module dac_read_search dac_override };
+allow cmd_services wifi_data_file:dir { search };
+allow cmd_services wifi_data_file:file { open read };
+allow cmd_services system_file:file { execute_no_trans };
+allow cmd_services debugfs:file { read };

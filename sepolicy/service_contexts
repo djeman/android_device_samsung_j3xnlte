@@ -1,0 +1,10 @@
+atchannel                                 u:object_r:radio_service:s0
+fm                                        u:object_r:mediaserver_service:s0
+sprdsimphonebook                          u:object_r:radio_service:s0
+sprd_phone                                u:object_r:radio_service:s0
+#security                                  u:object_r:system_server_service:s0
+#board_score                               u:object_r:system_server_service:s0
+media.VideoCallEngineService              u:object_r:mediaserver_service:s0
+iglobalconfig                             u:object_r:radio_service:s0
+phasechecknative                          u:object_r:phasecheck_service:s0
+irit                                      u:object_r:radio_service:s0

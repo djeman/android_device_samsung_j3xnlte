@@ -1,0 +1,21 @@
+type GPSenseEngine, domain;
+type GPSenseEngine_exec, exec_type, file_type;
+
+init_daemon_domain(GPSenseEngine)
+
+allow GPSenseEngine serial_device:chr_file { read write open ioctl };
+allow GPSenseEngine gps_device:chr_file { open read write ioctl getattr };
+allow GPSenseEngine system_data_file:sock_file { unlink setattr write create };
+allow GPSenseEngine GPSenseEngine:process { execmem };
+allow GPSenseEngine system_data_file:dir { open read write remove_name add_name };
+allow GPSenseEngine prod_file:dir { open read write search };
+allow GPSenseEngine GPSenseEngine:capability { dac_override };
+allow GPSenseEngine system_server:unix_stream_socket { connectto };
+
+allow GPSenseEngine cg_file:dir { search add_name open read write remove_name };
+allow GPSenseEngine cg_file:file { read write open create getattr setattr append unlink };
+allow GPSenseEngine cg_file:sock_file { setattr unlink create write };
+
+allow GPSenseEngine factorytest:unix_stream_socket { connectto };
+allow GPSenseEngine engpc:unix_stream_socket { connectto };
+allow GPSenseEngine autotest:unix_stream_socket { connectto };

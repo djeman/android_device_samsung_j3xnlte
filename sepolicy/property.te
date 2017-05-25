@@ -1,0 +1,6 @@
+type media_prop, property_type;
+type storage_prop, property_type;
+
+type slog_prop, property_type;
+type ylog_prop, property_type;
+type apr_prop, property_type;

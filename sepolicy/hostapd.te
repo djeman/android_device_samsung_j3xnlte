@@ -1,0 +1,8 @@
+# Create a socket for receiving info from wpa.
+type_transition hostapd wifi_data_file:sock_file system_wpa_socket;
+type_transition hostapd wpa_socket:sock_file system_wpa_socket;
+allow hostapd wpa_socket:dir rw_dir_perms;
+allow hostapd system_wpa_socket:sock_file create_file_perms;
+allow hostapd system_server:unix_dgram_socket sendto;
+#allow hostapd system_wpa_socket:sock_file { read write };
+allow hostapd wifi_data_file:file create;

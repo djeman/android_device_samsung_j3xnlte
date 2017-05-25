@@ -1,0 +1,20 @@
+allow zygote system_data_file:dir { write add_name };
+allow zygote zygote_tmpfs:file { create open };
+allow zygote fuse:file { create read write open };
+allow zygote zygote:capability sys_boot;
+allow zygote proc_sysrq:file { write open };
+
+allow zygote vfat:filesystem unmount;
+allow zygote shell_exec:file execute;
+
+allow zygote servicemanager:binder call;
+allow zygote system_prop:property_service set;
+allow zygote property_socket:sock_file write;
+allow zygote init:unix_stream_socket connectto;
+allow zygote tmpfs:lnk_file create;
+
+allow zygote system_server:binder { call transfer };
+allow zygote activity_service:service_manager find;
+allow zygote window_service:service_manager find;
+allow zygote package_service:service_manager find;
+allow zygote input_service:service_manager find;

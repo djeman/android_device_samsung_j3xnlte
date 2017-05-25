@@ -1,0 +1,22 @@
+type data_on, domain;
+type data_on_exec, exec_type, file_type;
+
+init_daemon_domain(data_on)
+
+allow data_on system_file: file { execute_no_trans };
+allow data_on shell_exec: file { execute_no_trans read };
+allow data_on data_on: netlink_route_socket { create bind setopt getattr write read nlmsg_read nlmsg_write };
+allow data_on init: unix_stream_socket { connectto };
+allow data_on property_socket: sock_file { write };
+allow data_on system_prop: property_service { set };
+allow data_on data_on: capability { net_admin };
+allow data_on proc_net: file { write };
+allow data_on netd_socket: sock_file { write };
+allow data_on netd: unix_stream_socket { connectto };
+allow data_on net_data_file: dir { search };
+allow data_on net_data_file: file { read open getattr };
+allow data_on data_on: rawip_socket { create getopt setopt };
+allow data_on data_on: udp_socket { create bind };
+allow data_on radio_prop: property_service { set };
+allow data_on data_on: capability { net_raw };
+allow data_on dnsproxyd_socket: sock_file { write };

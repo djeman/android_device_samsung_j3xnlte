@@ -1,0 +1,41 @@
+type slogmodem, domain, mlstrustedsubject;
+type slogmodem_exec, exec_type, file_type;
+type slogmodem_data, file_type, data_file_type;
+
+init_daemon_domain(slogmodem)
+
+allow slogmodem property_socket:sock_file { read write };
+allow slogmodem spipe_device:chr_file { read write open };
+allow slogmodem slog_device:chr_file { ioctl open read write };
+allow slogmodem ts_fifo:fifo_file { read write open };
+allow slogmodem debugfs:file { read };
+
+allow slogmodem init:unix_stream_socket connectto;
+# MODEM state channel
+allow slogmodem rild:unix_stream_socket { connectto read write };
+allow slogmodem download:unix_stream_socket { connectto read write };
+allow slogmodem wcnd:unix_stream_socket { connectto read write };
+allow slogmodem refnotify:unix_stream_socket { connectto read write };
+allow slogmodem ctl_default_prop:property_service set;
+allow slogmodem system_prop:property_service set;
+allow slogmodem proc:file { open read };
+allow slogmodem block_device:dir search;
+allow slogmodem mmcblk_device:blk_file { open read };
+
+allow slogmodem storage_file:dir { search write unlink add_name };
+allow slogmodem storage_file:lnk_file { open read write create getattr unlink };
+allow slogmodem mnt_media_rw_file:dir { search open read write };
+allow slogmodem vfat:dir { add_name remove_name rmdir unlink getattr create search open read write };
+allow slogmodem vfat:file { rename getattr create open read write unlink};
+allow slogmodem slogmodem:netlink_kobject_uevent_socket { create read bind getopt };
+
+allow slogmodem slogmodem_data:dir { add_name getattr create search open read remove_name rmdir write unlink };
+allow slogmodem slogmodem_data:file { create getattr open read rename write unlink };
+allow slogmodem slog_file:dir { add_name getattr create search open read remove_name rmdir write unlink };
+allow slogmodem slog_file:file { create getattr open read rename write unlink };
+allow slogmodem shell_data_file:dir { add_name search write unlink };
+allow slogmodem shell_data_file:file { create getattr open read write unlink };
+allow slogmodem fuse:dir { add_name create getattr open read remove_name rmdir search unlink write };
+allow slogmodem fuse:file { create getattr open read rename unlink write };
+allow slogmodem shell_exec:file { execute read open execute_no_trans };
+allow slogmodem system_file:file execute_no_trans;

@@ -1,0 +1,246 @@
+type slogd, domain;
+type slogd_exec, exec_type, file_type;
+
+init_daemon_domain(slogd)
+
+allow slogd shell_data_file:file {getattr write read open create execute_no_trans};
+allow slogd shell_data_file:dir {search remove_name add_name open write};
+allow slogd shell_data_file:sock_file {unlink create};
+allow slogd mmcblk_device:dir {read write};
+allow slogd mmcblk_device:file {open execute_no_trans execute};
+
+allow slogd property_socket:sock_file write;
+allow slogd init:unix_stream_socket connectto;
+allow slogd storage_file:dir {search};
+#allow slogd default_prop:property_service set;
+allow slogd shell_exec:file {read open execute};
+
+allow slogd system_data_file:dir {create read write open remove_name add_name};
+allow slogd shell_exec:file execute_no_trans;
+allow slogd storage_file:lnk_file {read getattr};
+
+
+allow slogd fuse:dir {create write search add_name read remove_name open rmdir rename reparent};
+allow slogd fuse:file {read append create open getattr write unlink rename};
+allow slogd slog_file:dir {reparent open write read search getattr remove_name rmdir rename add_name create};
+allow slogd slog_file:file {create getattr write unlink read append open rename};
+
+allow slogd anr_data_file:dir {search setattr read};
+allow slogd anr_data_file:file {read open getattr};
+
+allow slogd bluetooth_data_file:dir search;
+allow slogd bluetooth_data_file:file {read write open getattr};
+
+allow slogd bluetooth:dir {getattr read search open};
+allow slogd bluetooth:file {read open};
+allow slogd bluetooth:lnk_file {getattr read};
+
+allow slogd tombstone_data_file:dir {read setattr};
+
+
+allow slogd system_data_file:file open;
+
+allow slogd system_file:file execute_no_trans;
+
+allow slogd init:dir {getattr search read open};
+allow slogd init:file {read open};
+allow slogd init:lnk_file {getattr read};
+allow slogd kernel:dir {read search getattr open};
+allow slogd kernel:file {read open};
+allow slogd kernel:lnk_file {getattr read};
+allow slogd kernel:system syslog_mod;
+
+allow slogd ueventd:dir {open read getattr search};
+allow slogd ueventd:file {open read};
+allow slogd ueventd:lnk_file {getattr read};
+allow slogd logd:file {open read};
+allow slogd logd:dir {open read getattr search};
+allow slogd logd:lnk_file {getattr read};
+allow slogd vold:file {open read};
+allow slogd vold:dir {open read getattr search};
+allow slogd vold:lnk_file {read getattr};
+
+allow slogd gatekeeperd:file {open read};
+allow slogd gatekeeperd:dir {open read getattr search};
+allow slogd gatekeeperd:lnk_file {read getattr};
+
+allow slogd healthd:file {open read};
+allow slogd healthd:dir {open read search getattr};
+allow slogd healthd:lnk_file {getattr read };
+
+allow slogd surfaceflinger:dir {open read search getattr};
+allow slogd surfaceflinger:file {open read};
+allow slogd surfaceflinger:fd use;
+allow slogd surfaceflinger:lnk_file {read getattr};
+
+allow slogd lmkd:file {open read};
+allow slogd lmkd:dir {open read search getattr};
+allow slogd lmkd:lnk_file {getattr read};
+
+allow slogd servicemanager:dir {open read search getattr};
+allow slogd servicemanager:file {open read};
+allow slogd servicemanager:binder call;
+allow slogd servicemanager:lnk_file {read getattr};
+
+allow slogd surfaceflinger:binder {transfer call};
+
+allow slogd rild:dir {open read search getattr};
+allow slogd rild:file {open read};
+allow slogd rild:lnk_file {getattr read};
+allow slogd batterysrv:file {open read};
+allow slogd batterysrv:dir {open read search getattr};
+allow slogd batterysrv:lnk_file {read getattr};
+allow slogd shell:file {open read};
+allow slogd shell:dir {open read search getattr};
+allow slogd shell:lnk_file {getattr read};
+
+allow slogd netd:file {open read};
+allow slogd netd:dir {open read search getattr};
+allow slogd netd:lnk_file {getattr read};
+
+allow slogd debuggerd:dir {search getattr read open};
+allow slogd debuggerd:file {read open};
+allow slogd debuggerd:lnk_file {read getattr};
+
+allow slogd engpc:file {open read};
+allow slogd engpc:dir {open read search getattr};
+allow slogd engpc:lnk_file {getattr read};
+allow slogd cp_diskserver:file {open read};
+allow slogd cp_diskserver:dir {open read search getattr};
+allow slogd cp_diskserver:lnk_file {read getattr};
+allow slogd drmserver:dir {open getattr search read};
+allow slogd drmserver:file {open read};
+allow slogd drmserver:lnk_file {read getattr};
+allow slogd mediaserver:dir {open getattr search read};
+allow slogd mediaserver:file {open read};
+allow slogd mediaserver:lnk_file {read getattr};
+allow slogd installd:dir {open getattr search read};
+allow slogd installd:file {open read};
+allow slogd installd:lnk_file {read getattr};
+allow slogd keystore:dir {open getattr search read};
+allow slogd keystore:file {open read};
+allow slogd keystore:lnk_file {getattr read};
+allow slogd wcnd:dir {open getattr search read};
+allow slogd wcnd:file {open read};
+allow slogd wcnd:lnk_file {getattr read};
+
+#allow slogd phasecheckserver:dir {search open getattr};
+#allow slogd phasecheckserver:file {open };
+#allow slogd phasecheckserver:lnk_file {read getattr};
+allow slogd zygote:dir {open read search getattr};
+allow slogd zygote:file {open read};
+allow slogd zygote:lnk_file {getattr read};
+allow slogd zygote_exec:file {execute getattr read open execute_no_trans};
+
+allow slogd refnotify:dir {open read getattr search};
+allow slogd refnotify:file {open read};
+allow slogd refnotify:lnk_file {getattr read};
+allow slogd adbd:dir {open getattr read search};
+allow slogd adbd:file {open read};
+allow slogd adbd:lnk_file {getattr read};
+allow slogd bootanim:dir {read getattr search open};
+allow slogd bootanim:file {read open};
+
+#allow slogd slogd:capability sys_ptrace;
+allow slogd slogd:capability {setgid setuid chown sys_admin dac_override net_raw sys_nice};
+allow slogd debugfs:file {read getattr};
+
+allow slogd sysfs_lowmemorykiller:file {read open getattr};
+
+allow slogd proc:file {write};
+
+allow slogd slogd:capability2 syslog;
+
+allow slogd srtd:dir {open read getattr search};
+allow slogd srtd:file {open read};
+allow slogd srtd:lnk_file {getattr read};
+
+allow slogd log_device:chr_file read;
+
+allow slogd system_server:dir {getattr search open read};
+allow slogd system_server:file {read open};
+allow slogd system_server:lnk_file {getattr read};
+
+allow slogd slog_prop:property_service set;
+
+
+allow slogd download:dir {read search open getattr};
+allow slogd download:file {read open};
+allow slogd download:lnk_file {getattr read};
+
+
+allow slogd surfaceflinger_service:service_manager find;
+
+allow slogd graphics_device:dir search;
+allow slogd graphics_device:chr_file read;
+
+allow slogd platform_app:dir {search getattr read open};
+allow slogd platform_app:file {read open};
+allow slogd platform_app:lnk_file {read getattr};
+allow slogd untrusted_app:dir {search getattr open};
+allow slogd untrusted_app:file {read open};
+allow slogd untrusted_app:lnk_file {read getattr};
+allow slogd system_app:lnk_file {getattr read};
+allow slogd system_app:dir {getattr search};
+allow slogd system_app:file {read open};
+allow slogd wpa:dir {getattr search open read};
+allow slogd wpa:file {read open};
+allow slogd wpa:lnk_file {getattr read};
+allow slogd sdcardd:dir {search getattr read open};
+allow slogd sdcardd:file {read open};
+allow slogd sdcardd:lnk_file {getattr read};
+allow slogd download:file {read open};
+allow slogd download:lnk_file {getattr read};
+
+allow slogd radio:dir {search getattr read open};
+allow slogd radio:file {read open};
+
+allow slogd pstorefs:dir search;
+
+allow slogd refnotify:dir {open read getattr search};
+allow slogd refnotify:file {open read};
+allow slogd refnotify:lnk_file {getattr read};
+allow slogd radio:lnk_file {read getattr};
+
+allow slogd mnt_media_rw_file:dir search;
+allow slogd slogmodem:dir {read search open getattr};
+allow slogd slogmodem:file {open read};
+allow slogd slogmodem:lnk_file {getattr read};
+
+allow slogd activity_service:service_manager find;
+
+allow slogd slogd:packet_socket {setopt create ioctl getopt read write};
+allow slogd tombstone_data_file:file {open read getattr};
+allow slogd tombstone_data_file:dir {read setattr search};
+allow slogd logcat_exec:file {getattr execute read open execute_no_trans};
+allow slogd proc_sysrq:file {getattr};
+
+allow slogd iqfeed:dir {search getattr read};
+allow slogd slogd:netlink_socket create;
+
+allow slogd aprd:dir {open search getattr};
+allow slogd aprd:file {open read};
+allow slogd aprd:lnk_file {getattr read};
+allow slogd modem_control:dir {search getattr read open};
+allow slogd modem_control:file {read open};
+allow slogd modem_control:lnk_file {getattr read};
+
+#allow slogd ip_monitor:dir {getattr search read open};
+#allow slogd ip_monitor:file {read open };
+#allow slogd ip_monitor:lnk_file {getattr read};
+
+allow slogd gnss_download:dir {search};
+allow slogd logdr_socket:sock_file {write};
+allow slogd logd:unix_stream_socket {connectto};
+userdebug_or_eng(`
+ allow slogd perfprofd:file {open read};
+ allow slogd perfprofd:dir {open read getattr search};
+ allow slogd slogd:netlink_socket {create bind write read getattr};
+ allow slogd device:dir {open read create getattr remove_name write add_name};
+ allow slogd device:file {open read create write unlink getattr append};
+ allow slogd device:netlink_socket {create setopt bind getattr write read};
+ allow slogd perfprofd:lnk_file {read getattr};
+ allow slogd su:file {read open};
+ allow slogd su:dir {getattr search read open};
+ allow slogd su:lnk_file {getattr read};
+ ')

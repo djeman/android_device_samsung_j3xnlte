@@ -1,0 +1,4 @@
+allow sdcardd system_data_file:dir { open read write add_name remove_name };
+allow sdcardd tmpfs:dir mounton;
+
+allow sdcardd storage_file:dir mounton;

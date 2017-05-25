@@ -1,0 +1,13 @@
+type refnotify, domain;
+type refnotify_exec, exec_type, file_type;
+init_daemon_domain(refnotify)
+
+allow refnotify refnotify_device:chr_file { open read write ioctl };
+allow refnotify spipe_device:chr_file { open read write ioctl };
+allow refnotify bm_device:chr_file { open write read ioctl};
+allow refnotify cache_file:dir { write add_name };
+allow refnotify sysfs:file write;
+allow refnotify property_socket:sock_file write;
+allow refnotify cache_file:fifo_file { open write create};
+allow refnotify init:unix_stream_socket connectto;
+allow refnotify powerctl_prop:property_service set;

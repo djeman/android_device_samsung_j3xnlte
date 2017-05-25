@@ -1,0 +1,15 @@
+type srtd, domain, mlstrustedsubject;
+type srtd_exec, exec_type, file_type;
+
+	
+init_daemon_domain(srtd) 
+
+allow srtd shell_exec:file {read open execute execute_no_trans};		
+allow srtd system_file:file { execute_no_trans };
+allow srtd srtd:capability { kill ipc_lock dac_override };
+allow srtd untrusted_app:process { signull };
+#allow srtd system_data_file:file { write open create setattr };
+allow srtd platform_app:unix_stream_socket connectto;
+allow srtd untrusted_app:unix_stream_socket connectto;
+allow srtd fuse:dir { search };
+allow srtd system_data_file:dir { write open add_name create setattr };

@@ -1,0 +1,41 @@
+type modem_control, domain;
+type modem_control_exec, exec_type, file_type;
+
+init_daemon_domain(modem_control)
+
+
+allow modem_control sysfs:file write;
+allow modem_control sysfs_wake_lock:file { open read write };
+allow modem_control modem_control:netlink_kobject_uevent_socket { create setopt bind read };
+allow modem_control prod_file:dir { search open read write remove_name add_name};
+allow modem_control prod_file:file { open read write lock unlink getattr setattr create rw_file_perms };
+allow modem_control modem_control:capability { net_admin chown fsetid };
+
+allow modem_control slog_device:chr_file { open read write };
+allow modem_control property_socket:sock_file write;
+allow modem_control init:unix_stream_socket connectto;
+allow modem_control shell_exec:file { read open execute execute_no_trans };
+
+allow modem_control system_prop:property_service set;
+allow modem_control system_file:file execute_no_trans;
+
+allow modem_control logdr_socket:sock_file write;
+allow modem_control logd:unix_stream_socket connectto;
+allow modem_control block_device:dir search;
+allow modem_control mmcblk_device:blk_file { open read write };
+allow modem_control modem_control:capability { sys_nice dac_override dac_read_search sys_boot };
+allow modem_control property_data_file:dir { search getattr};
+allow modem_control property_data_file:file { getattr};
+allow modem_control unlabeled:file { open read write lock getattr setattr};
+allow modem_control ctl_default_prop:property_service set;
+allow modem_control vfat:dir { search add_name create write };
+allow modem_control bm_device:chr_file { open write read ioctl};
+allow modem_control vfat:file { create open read write };
+allow modem_control tty_device:chr_file { read write open };
+allow modem_control cache_file:dir { write open create read add_name remove_name rmdir };
+allow modem_control cache_file:file { write open create read unlink };
+allow modem_control proc_sysrq:file { write open create read };
+allow modem_control cp_diskserver:dir search;
+allow modem_control cp_diskserver:file { read open};
+allow modem_control proc:file {write setattr};
+allow modem_control spipe_device:chr_file { read write open };

@@ -1,0 +1,2 @@
+allow isolated_app asec_apk_file:file { getattr open read };
+allow isolated_app asec_public_file:file { execute };

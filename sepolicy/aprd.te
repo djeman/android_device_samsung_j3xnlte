@@ -1,0 +1,22 @@
+type aprd, domain;
+type aprd_exec, exec_type, file_type;
+
+init_daemon_domain(aprd)
+
+allow aprd aprd:capability dac_override;
+allow aprd aprd:capability2 syslog;
+
+allow aprd property_socket:sock_file write;
+allow aprd apr_prop:property_service set;
+
+allow aprd init:unix_stream_socket connectto;
+allow aprd rild:unix_stream_socket connectto;
+allow aprd wcnd:unix_stream_socket connectto;
+
+allow aprd apr_data_file:file { create open read write getattr rename};
+allow aprd apr_data_file:dir { write search add_name remove_name};
+
+allow aprd anr_data_file:dir read;
+allow aprd tombstone_data_file:dir read;
+allow aprd system_data_file:dir read;
+allow aprd log_device:chr_file read;

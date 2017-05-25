@@ -1,0 +1,5 @@
+allow netd kernel:system module_request;
+allow netd netd:capability { net_bind_service sys_module };
+allow netd init:socket { read write };
+
+allow netd init:tcp_socket { read write getopt setopt };

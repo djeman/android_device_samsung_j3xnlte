@@ -1,0 +1,22 @@
+type gnss_download, domain;
+type gnss_download_exec, exec_type, file_type;
+init_daemon_domain(gnss_download)
+allow gnss_download wcn_device:chr_file { open read write ioctl };
+allow gnss_download serial_device:chr_file { open read write ioctl };
+allow gnss_download block_device:dir { search };
+allow gnss_download mmcblk_device:blk_file { open read write };
+allow gnss_download slog_device:chr_file { read write open };
+allow gnss_download init:unix_stream_socket { read write connectto sendto };
+allow gnss_download ctl_default_prop:property_service { set };
+allow gnss_download system_prop:property_service { set };
+allow gnss_download proc:file { read write };
+allow gnss_download gnss_download:netlink_socket { create setopt bind getattr write read };
+allow gnss_download gnss_download:udp_socket { ioctl create setopt bind getattr write read };
+allow gnss_download shell_exec:file { execute read open execute_no_trans };
+allow gnss_download system_file:file execute_no_trans;
+allow gnss_download gnss_download:tcp_socket { create };
+allow gnss_download gnss_download:capability { dac_override dac_read_search };
+allow gnss_download prod_file:dir { search open write add_name };
+allow gnss_download prod_file:file { create read write open rw_file_perms setattr };
+allow gnss_download gnss_file:dir { create search add_name open read write remove_name };
+allow gnss_download gnss_file:file { read write open create getattr setattr append unlink };

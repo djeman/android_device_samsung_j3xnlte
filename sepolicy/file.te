@@ -1,0 +1,22 @@
+#Type for prodnv file
+type prod_file,file_type;
+type srt_socket, file_type, mlstrustedobject;
+type hprofs_file, file_type, data_file_type, mlstrustedobject;
+type oem_file,file_type;
+type ylog_file, file_type, data_file_type;
+type mmitest_file, file_type, data_file_type;
+type cg_file, file_type, data_file_type;
+
+type slog_file, file_type, data_file_type;
+
+#Type for engpc
+type engpc_data, file_type, data_file_type;
+
+# apr
+type apr_data_file, file_type, data_file_type;
+
+#Type for mlog
+type mlog_file, file_type, data_file_type;
+
+#GNSS
+type gnss_file, file_type, data_file_type;

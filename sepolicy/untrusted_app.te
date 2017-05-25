@@ -1,0 +1,32 @@
+allow untrusted_app proc_sysrq:file getattr;
+allow untrusted_app sysfs_lowmemorykiller:file getattr;
+allow untrusted_app usermodehelper:file getattr;
+allow untrusted_app sysfs_wake_lock:file getattr;
+allow untrusted_app proc_security:file read;
+# SPRD: Add for fix bug391618 @{
+allow untrusted_app radio_data_file:dir { search read };
+allow untrusted_app radio_data_file:file open;
+# @}
+
+allow untrusted_app exec_type:file r_file_perms;
+allow untrusted_app tmpfs:lnk_file r_file_perms;
+
+allow untrusted_app srt_socket:sock_file {read write getattr };
+allow untrusted_app srtd:unix_stream_socket {read write getattr connectto};
+allow untrusted_app hprofs_file:dir { open create read write getattr search add_name remove_name };
+allow untrusted_app hprofs_file:file { open create read write getattr unlink };
+
+allow untrusted_app asec_apk_file:file execute;
+
+allow untrusted_app oem_file:file r_file_perms;
+allow untrusted_app oem_file:dir r_dir_perms;
+
+allow untrusted_app slogd:file {getattr open read};
+allow untrusted_app slogd:dir {getattr search};
+#allow untrusted_app slogd_exec:file {execute};
+allow untrusted_app logd:file {getattr open read};
+allow untrusted_app logd:dir {search getattr};
+allow untrusted_app log_device:chr_file {read};
+allow untrusted_app logd_exec:file {execute};
+allow untrusted_app ueventd:dir {getattr search};
+allow untrusted_app ueventd:file {read open getattr};

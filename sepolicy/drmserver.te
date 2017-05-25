@@ -1,0 +1,6 @@
+allow drmserver fuse:file open;
+allow drmserver storage_file:dir search;
+allow drmserver storage_file:lnk_file read;
+allow drmserver mmcblk_device:file { open create write read };
+allow drmserver prod_file:dir { search open read write add_name };
+allow drmserver prod_file:file { open read write create getattr };

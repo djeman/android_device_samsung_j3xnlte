@@ -1,0 +1,74 @@
+allow init init:capability sys_module;
+allow init shell_data_file:dir { write add_name remove_name };
+allow init shell_data_file:file { read open create unlink write };
+allow init shell_data_file:sock_file { create getattr unlink };
+allow init init:process execmem;
+allow init fuse:dir { search open read write add_name create unlink remove_name };
+allow init fuse:file { open write read append create unlink getattr rename };
+allow init init:packet_socket { create ioctl setopt read getopt };
+allow init radio:process signal;
+allow init vfat:dir {write add_name create};
+allow init vfat:file {create write};
+
+r_dir_file(init, sdcard_type)
+
+###for bug:400224 {
+allow init init:tcp_socket { create connect write read };
+allow init port:tcp_socket name_connect;
+### }
+
+allow init mediaserver:process signal;
+
+allow init ashmem_device:chr_file execute;
+
+allow init vfat :dir {read write add_name create remove_name open };
+allow init vfat :file {read write rename create open };
+
+allow init init:udp_socket { ioctl create setopt getopt bind write read };
+allow init port:udp_socket name_bind;
+allow init node:udp_socket node_bind;
+
+allow init block_device:blk_file { read open create };
+allow init mmcblk_device:blk_file write;
+allow init init:rawip_socket { create getopt setopt };
+allow init socket_device:sock_file { create setattr write unlink};
+allow init tmpfs:lnk_file create;
+
+userdebug_or_eng(`
+    allow init { system_file shell_exec }:file execute_no_trans;
+')
+
+allow init system_data_file:file append;
+allow init property_socket:sock_file write;
+allow init pstorefs:dir mounton;
+
+allow init logd:unix_stream_socket connectto;
+allow init logdr_socket:sock_file write;
+allow init sysfs_lowmemorykiller:file getattr;
+allow init debugfs:file getattr;
+
+###for bug:472144 {
+allow init init:netlink_route_socket {create setopt bind getattr write read nlmsg_read nlmsg_write };
+### }
+
+allow init kmsg_device:chr_file write;
+
+allow init system_file:file {execmod};
+allow init system_data_file:sock_file { create write read };
+allow init system_server:unix_stream_socket connectto;
+
+allow init engpc:unix_stream_socket { connectto };
+allow init input_device:chr_file { getattr ioctl };
+allow init sensors_device:chr_file { write ioctl };
+allow init wcnd:unix_stream_socket { connectto };
+allow init factorytest:unix_stream_socket { connectto };
+allow init self:capability { sys_nice };
+allow init gps_device:chr_file { write ioctl };
+allow init self:capability2 { block_suspend };
+allow init proc_bluetooth_writable:file { open write };
+allow init wpa_socket:sock_file { open write read };
+allow init wpa:unix_dgram_socket sendto;
+allow init serial_device:chr_file { read write open ioctl };
+allow init bluetooth_data_file:file { create read write open unlink rename getattr setattr };
+allow init audio_device:fifo_file { create open write read };
+allow init storage_file:lnk_file read;

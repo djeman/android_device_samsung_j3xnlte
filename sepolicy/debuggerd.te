@@ -1,0 +1,13 @@
+allow debuggerd usermodehelper:file { read open getattr };
+allow debuggerd tmpfs:dir { write add_name create };
+allow debuggerd shell_exec:file { execute execute_no_trans };
+allow debuggerd graphics_device:dir {search};
+
+userdebug_or_eng(`
+    allow debuggerd usermodehelper:file write;
+')
+
+allow debuggerd debuggerd_tmpfs:file { create open setattr};
+allow debuggerd fuse:dir { search write add_name create read open };
+allow debuggerd fuse:file { create write open setattr };
+allow debuggerd log_device:chr_file read;

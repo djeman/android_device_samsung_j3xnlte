@@ -1,0 +1,20 @@
+type charge, domain;
+type charge_exec, exec_type, file_type;
+
+init_daemon_domain(charge)
+
+allow charge device:dir { write read open };
+allow charge shell_exec:file { execute read open execute_no_trans };
+allow charge graphics_device:dir { search };
+allow charge input_device:dir { read open search};
+allow charge charge:capability { dac_override dac_read_search sys_boot};
+allow charge graphics_device:chr_file { open read write };
+allow charge refnotify_device:chr_file { read open };
+allow charge input_device:chr_file { open read ioctl };
+###allow charge system_file:file execmod;
+allow charge device:chr_file { create unlink };
+allow charge graphics_device:chr_file { write ioctl };
+allow charge sysfs:file { write };
+allow charge sysfs_wake_lock:file { open read write };
+allow charge prod_file:dir { search getattr read open };
+allow charge prod_file:file { getattr open read write ioctl unlink lock setattr};

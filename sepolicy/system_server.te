@@ -1,0 +1,39 @@
+allow system_server socket_device:sock_file write;
+allow system_server drmserver:unix_stream_socket connectto;
+allow system_server mediaserver_service:service_manager add;
+allow system_server hostapd:unix_dgram_socket sendto;
+allow system_server wcnd:unix_stream_socket { connectto sendto };
+allow system_server dnsmasq:unix_stream_socket { connectto };
+
+allow system_server fuse:dir search;
+
+allow system_server sensors_device:chr_file read;
+allow system_server tmpfs:lnk_file r_file_perms;
+allow system_server bootanim_exec:file {execute read open execute_no_trans};
+allow system_server radio_device:chr_file write;
+allow system_server serial_device:chr_file { read write open ioctl };
+allow system_server wcn_device:chr_file { read write open ioctl };
+allow system_server gnss_download:unix_stream_socket { connectto sendto };
+
+allow system_server self:capability sys_module;
+
+allow system_server storage_prop:property_service set;
+allow system_server wcn_device:chr_file { read write open ioctl };
+allow system_server gnss_download:unix_stream_socket { connectto sendto };
+
+allow system_server prod_file:file r_file_perms;
+allow system_server prod_file:dir r_dir_perms;
+
+allow system_server cg_file:dir { search add_name open read write remove_name };
+allow system_server cg_file:file { read write open create getattr setattr append unlink };
+allow system_server cg_file:sock_file { setattr unlink create write };
+allow system_server GPSenseEngine:unix_stream_socket { connectto };
+allow system_server slogmodem:unix_stream_socket { connectto };
+allow system_server frp_block_device:blk_file {open read write getattr setattr ioctl};
+allow system_server thermald:unix_stream_socket { connectto };
+
+allow system_server gnss_file:dir { create search add_name open read write remove_name };
+allow system_server gnss_file:file { read write open create getattr setattr append unlink };
+allow system_server shell_exec:file { execute read open execute_no_trans };
+allow system_server prod_file:dir { open create read write getattr search add_name remove_name };
+allow system_server prod_file:file { open create read write setattr getattr unlink };

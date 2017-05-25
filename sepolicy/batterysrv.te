@@ -1,0 +1,12 @@
+type batterysrv, domain;
+type batterysrv_exec, exec_type, file_type;
+type self_system_data_file, file_type, data_file_type;
+
+init_daemon_domain(batterysrv)
+allow batterysrv batterysrv:netlink_kobject_uevent_socket { create setopt bind read };
+allow batterysrv self:capability { net_admin dac_override };
+allow batterysrv prod_file:dir { rw_file_perms search add_name };
+allow batterysrv prod_file:file { rw_file_perms create };
+allow batterysrv system_data_file:dir { rw_file_perms add_name };
+allow batterysrv self_system_data_file:file { rw_file_perms create };
+allow batterysrv sysfs:file write; 

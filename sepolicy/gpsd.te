@@ -1,0 +1,31 @@
+allow gpsd sysfs_wake_lock:file { open read write };
+allow gpsd serial_device:chr_file { open ioctl read write };
+allow gpsd gps_data_file:dir { create };
+allow gpsd tmpfs:dir { add_name write };
+allow gpsd gpsd_tmpfs:file { create };
+allow system_server gps_data_file:dir { add_name search write };
+allow system_server gps_data_file:fifo_file { create w_file_perms setattr read };
+allow gpsd gnss_file:dir { create search add_name open read write remove_name };
+allow gpsd gnss_file:file { read write open create getattr setattr append unlink };
+allow gpsd net_data_file:dir search;
+allow gpsd shell:netlink_socket {create read write};
+allow gpsd socket_device:sock_file write;
+allow gpsd wcn_device:chr_file { read write open ioctl };
+allow gpsd shell_exec:file { execute };
+allow gpsd wpa_socket:dir rw_dir_perms;
+allow gpsd system_wpa_socket:sock_file create_file_perms;
+type_transition gpsd wifi_data_file:sock_file system_wpa_socket;
+type_transition gpsd wpa_socket:sock_file system_wpa_socket;
+allow gpsd wpa_socket:sock_file unlink;
+allow gpsd wifi_data_file:dir create_dir_perms;
+allow gpsd wifi_data_file:file create_file_perms;
+unix_socket_send(gpsd, wpa, wpa)
+# Use netlink uevent sockets.
+allow gpsd self:netlink_kobject_uevent_socket create_socket_perms;
+
+# Use generic netlink sockets.
+allow gpsd self:netlink_socket create_socket_perms;
+
+# Set and get routes directly via netlink.
+allow gpsd self:netlink_route_socket nlmsg_write;
+allow gpsd system_app:unix_stream_socket { connectto read write sendto getattr};

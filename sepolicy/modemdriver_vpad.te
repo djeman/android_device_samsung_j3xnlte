@@ -1,0 +1,8 @@
+type modemdriver_vpad, domain;
+type modemdriver_vpad_exec, exec_type, file_type;
+init_daemon_domain(modemdriver_vpad)
+
+allow modemdriver_vpad modemdriver_vpad_device:chr_file { open read write ioctl };
+#allow modemdriver_vpad system_data_file:file { open read write create };
+allow modemdriver_vpad system_data_file:fifo_file { open read write setattr getattr create };
+allow modemdriver_vpad system_data_file:dir { write add_name create remove_name };

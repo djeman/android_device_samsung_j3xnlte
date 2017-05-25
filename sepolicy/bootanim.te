@@ -1,0 +1,6 @@
+# bootanimation oneshot service
+
+binder_call(bootanim, mediaserver)
+allow bootanim mediaserver_service:service_manager find;
+allow mediaserver bootanim:binder call;
+allow mediaserver bootanim:fd use;

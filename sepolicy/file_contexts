@@ -1,0 +1,157 @@
+#############################
+# productinfo files
+#
+/productinfo(/.*)?      u:object_r:prod_file:s0
+#############################
+# systeminfo files
+#
+/systeminfo(/.*)?       u:object_r:prod_file:s0
+#############################
+# device files
+#
+/dev/mali0              u:object_r:gpu_device:s0
+/dev/rtc0               u:object_r:refnotify_device:s0
+/dev/sprd_gsp           u:object_r:graphics_device:s0
+/dev/lis3dh_acc         u:object_r:sensors_device:s0
+/dev/ltr_558als         u:object_r:sensors_device:s0
+/dev/sprd_sensor        u:object_r:sensors_device:s0
+/dev/sprd_rotation      u:object_r:sensors_device:s0
+/dev/sprd_isp           u:object_r:camera_device:s0
+/dev/sprd_scale         u:object_r:camera_device:s0
+/dev/sprd_image         u:object_r:camera_device:s0
+/dev/ttyV1              u:object_r:gps_device:s0
+/dev/sprd_vsp           u:object_r:video_device:s0
+/dev/sprd_coda7l        u:object_r:video_device:s0
+/dev/sprd_vpp           u:object_r:video_device:s0
+/dev/sprd_jpg           u:object_r:graphics_device:s0
+
+/dev/sdiag_lte          u:object_r:slog_device:s0
+/dev/slog_lte           u:object_r:slog_device:s0
+
+/dev/slog_w             u:object_r:slog_device:s0
+/dev/iq_mem             u:object_r:slog_device:s0
+/dev/ttyGS[0-9]         u:object_r:serial_device:s0
+/dev/stty_w[0-9]*       u:object_r:tty_device:s0
+/dev/vser               u:object_r:serial_device:s0
+
+/dev/sttybt0            u:object_r:hci_attach_dev:s0
+/dev/autotst 		u:object_r:autotest_device:s0
+
+/dev/socket/rild2        u:object_r:rild_socket:s0
+/dev/socket/rild3        u:object_r:rild_socket:s0
+/dev/socket/srtserver    u:object_r:srt_socket:s0
+
+/dev/stty_td[0-9]*       u:object_r:tty_device:s0
+/dev/stty_lte[0-9]*      u:object_r:tty_device:s0
+
+/dev/Trout_FM            u:object_r:audio_device:s0
+/dev/pipe                u:object_r:audio_device:s0
+/dev/block/mmcblk0p[0-9]* u:object_r:mmcblk_device:s0
+/dev/block/mmcblk0boot0  u:object_r:mmcblk_device:s0
+/dev/block/mmcblk0boot1  u:object_r:mmcblk_device:s0
+/dev/block/mmcblk0p17    u:object_r:mmcblk_device:s0
+/dev/block/mmcblk0p18    u:object_r:frp_block_device:s0
+/dev/block/mmcblk0p19    u:object_r:mmcblk_device:s0
+/dev/block/mmcblk0p20    u:object_r:mmcblk_device:s0
+/dev/block/mmcblk0p21    u:object_r:mmcblk_device:s0
+/dev/block/mmcblk0p22    u:object_r:mmcblk_device:s0
+/dev/block/mmcblk0p23    u:object_r:mmcblk_device:s0
+/dev/block/mmcblk1p1    u:object_r:mmcblk_device:s0
+/dev/sprd_efuse_otp      u:object_r:efuse_device:s0
+/dev/slog_wcn            u:object_r:slog_device:s0
+/dev/sprd_bm             u:object_r:bm_device:s0
+/dev/fm                  u:object_r:fm_device:s0
+/dev/spipe_wcn[0-9]*     u:object_r:spipe_device:s0
+/dev/spipe_w[0-9]*       u:object_r:spipe_device:s0
+/dev/spipe_lte[0-9]*     u:object_r:spipe_device:s0
+/dev/power_ctl       u:object_r:wcn_device:s0
+/dev/download        u:object_r:wcn_device:s0
+/dev/block/platform/sdio_emmc/by-name/boot  u:object_r:boot_block_device:s0
+/dev/block/platform/sdio_emmc/by-name/recovery  u:object_r:recovery_block_device:s0
+/dev/block/platform/sdio_emmc/by-name/persist  u:object_r:frp_block_device:s0
+
+/dev/gnss_download        u:object_r:wcn_device:s0
+/dev/gnss_dbg        u:object_r:wcn_device:s0
+/dev/slog_gnss           u:object_r:slog_device:s0
+/dev/cgxdrv          u:object_r:gps_device:s0
+/dev/ttyV0           u:object_r:gps_device:s0
+/dev/spipe_lte9      u:object_r:modemdriver_vpad_device:s0
+#############################
+# System files
+#
+/system/bin/data_on.sh  u:object_r:data_on_exec:s0
+/system/bin/data_off.sh u:object_r:data_off_exec:s0
+/system/bin/mplayer     u:object_r:mediaserver_exec:s0
+/system/bin/wcnd     	u:object_r:wcnd_exec:s0
+/system/bin/engpc       u:object_r:engpc_exec:s0
+/system/bin/autotest    u:object_r:autotest_exec:s0
+/system/bin/charge u:object_r:charge_exec:s0
+/system/xbin/zram.sh 	u:object_r:zram_exec:s0
+/system/xbin/srtd    	u:object_r:srtd_exec:s0
+/system/bin/refnotify   u:object_r:refnotify_exec:s0
+/system/bin/modemd      u:object_r:rild_exec:s0
+/system/bin/phoneserver u:object_r:rild_exec:s0
+/system/bin/modem_control u:object_r:modem_control_exec:s0
+/system/bin/rild_sp u:object_r:rild_exec:s0
+/system/bin/cp_diskserver u:object_r:cp_diskserver_exec:s0
+/system/bin/download    u:object_r:download_exec:s0
+/system/bin/gnss_download    u:object_r:gnss_download_exec:s0
+/system/bin/slogmodem	u:object_r:slogmodem_exec:s0
+/system/bin/factorytest u:object_r:factorytest_exec:s0
+/system/bin/phasecheckserver u:object_r:phasecheckserver_exec:s0
+/system/bin/tune2fs       u:object_r:fsck_exec:s0
+/system/bin/resize2fs     u:object_r:fsck_exec:s0
+/system/bin/GPSenseEngine       u:object_r:GPSenseEngine_exec:s0
+
+/system/bin/batterysrv u:object_r:batterysrv_exec:s0
+/system/bin/gpsd        u:object_r:gpsd_exec:s0
+/system/bin/cmd_services       u:object_r:cmd_services_exec:s0
+/system/bin/modemDriver_vpad_main u:object_r:modemdriver_vpad_exec:s0
+/dev/block/zram0 u:object_r:zram_block_device:s0
+
+/data/modem_log(/.*)?	u:object_r:slogmodem_data:s0
+/data/local/englog(/.*)?    u:object_r:engpc_data:s0
+/system/bin/thermald        u:object_r:thermald_exec:s0
+############################
+#for sharkl64
+#
+/dev/epl2182_pls        u:object_r:sensors_device:s0
+
+# for core dump
+/data/corefile(/.*)?    u:object_r:coredump_file:s0
+
+# for hprofiles
+/data/misc/hprofs(/.*)?   u:object_r:hprofs_file:s0
+
+# CP time synchronization FIFO
+/data/w_timesyncfifo	u:object_r:ts_fifo:s0
+/data/td_timesyncfifo	u:object_r:ts_fifo:s0
+/data/l_timesyncfifo	u:object_r:ts_fifo:s0
+
+#for factorytest
+/data/cg(/.*)? u:object_r:cg_file:s0
+/data/local/factorytest_log(/.*)?    u:object_r:mmitest_file:s0
+#for slog
+/system/bin/slog u:object_r:slogd_exec:s0
+/data/slog(/.*)? u:object_r:slog_file:s0
+
+#add for data/local/media
+/data/local/media(/.*)? u:object_r:media_data_file:s0
+
+# apr files
+/system/bin/collect_apr u:object_r:aprd_exec:s0
+/data/sprdinfo(/.*)? u:object_r:apr_data_file:s0
+/data/apr.conf u:object_r:apr_data_file:s0
+
+# for mlog
+/data/mlog(/.*)? u:object_r:mlog_file:s0
+
+#charge test file
+/data/.battery_nv		u:object_r:self_system_data_file:s0
+
+#for ylog
+/system/bin/ylog u:object_r:ylog_exec:s0
+/data/ylog(/.*)? u:object_r:ylog_file:s0
+
+#GNSS
+/data/gnss(/.*)? u:object_r:gnss_file:s0

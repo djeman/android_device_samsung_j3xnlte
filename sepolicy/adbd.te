@@ -1,0 +1,12 @@
+allow adbd system_data_file:dir { open read };
+allow adbd system_data_file:file open;
+
+allow adbd tmpfs:lnk_file read;
+allow adbd prod_file:file {getattr setattr read write open };
+allow adbd prod_file:dir {getattr search };
+allow adbd block_device:dir search;
+allow adbd slog_file:dir {read getattr open search};
+allow adbd slog_file:file {open read getattr};
+allow adbd slogmodem_data:dir {read getattr open search};
+allow adbd slogmodem_data:file {open read getattr};
+allow adbd slogd_exec:file getattr;

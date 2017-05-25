@@ -1,0 +1,24 @@
+allow shell tmpfs:lnk_file { getattr read };
+allow shell shell_data_file:sock_file write;
+allow shell prod_file:dir getattr;
+
+### for bug:472144 {
+allow shell net_data_file:dir search;
+### }
+
+allow shell log_device:chr_file read;
+allow shell ctl_default_prop:property_service set;
+allow shell slog_file:dir {search getattr read open write remove_name rmdir};
+allow shell ylog_file:dir {search getattr read open write remove_name rmdir};
+allow shell ylog_file:file {getattr read write open unlink};
+allow shell slog_file:file {getattr read write open unlink};
+allow shell shell:netlink_socket {create read write};
+allow shell slogd:unix_stream_socket connectto;
+allow shell slogd_exec:file {getattr};
+allow shell slogmodem:unix_stream_socket {connectto read write};
+allow shell ylog:unix_stream_socket connectto;
+allow shell shell:packet_socket create;
+allow shell prod_file:dir search;
+
+allow shell ylog_exec:file {getattr};
+allow shell ylog_prop:property_service {set};

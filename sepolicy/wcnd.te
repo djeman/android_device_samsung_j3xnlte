@@ -1,0 +1,58 @@
+type wcnd, domain, mlstrustedsubject;
+type wcnd_exec, exec_type, file_type;
+
+init_daemon_domain(wcnd)
+
+allow wcnd prod_file:dir { search write add_name };
+allow wcnd prod_file:file { read write open create getattr };
+allow wcnd property_socket:sock_file write;
+allow wcnd spipe_device:chr_file { read write open };
+allow wcnd slog_device:chr_file { read write open };
+allow wcnd hci_attach_dev:chr_file { read write open ioctl };
+
+allow wcnd wifi_data_file:dir { search write add_name };
+allow wcnd wifi_data_file:file { create read write open getattr setattr };
+allow wcnd bluetooth_data_file:dir { search write add_name remove_name getattr setattr };
+allow wcnd bluetooth_data_file:file { create read write open unlink rename getattr setattr };
+
+allow wcnd init:unix_stream_socket connectto;
+allow wcnd init:dir search;
+allow wcnd init:file { read open };
+allow wcnd kernel:dir search;
+allow wcnd kernel:file { read open };
+allow wcnd bluetooth:dir search;
+allow wcnd bluetooth:file { read open };
+allow wcnd bluetooth:process { signal };
+allow wcnd wpa:dir search;
+allow wcnd wpa:file { read open };
+allow wcnd wpa:process { signal };
+allow wcnd block_device:dir search;
+allow wcnd download:unix_stream_socket { connectto };
+allow wcnd ctl_default_prop:property_service set;
+allow wcnd system_prop:property_service set;
+allow wcnd proc:file write;
+
+allow wcnd wcnd:netlink_socket { create setopt bind getattr write read };
+allow wcnd wcnd:udp_socket { ioctl create setopt bind getattr write read };
+allow wcnd netd:unix_stream_socket { connectto };
+allow wcnd netd_socket:sock_file { write read };
+
+allow wcnd shell_exec:file { execute read open execute_no_trans };
+allow wcnd system_file:file execute_no_trans;
+
+allow wcnd wcnd:tcp_socket { create };
+allow wcnd fuse:dir { search };
+allow wcnd proc_bluetooth_writable:file { open write };
+allow wcnd serial_device:chr_file { read write open ioctl };
+allow wcnd debugfs:file { read };
+allow wcnd wcnd:capability { setuid dac_override net_admin kill };
+allow wcnd mmcblk_device:blk_file { read open };
+allow wcnd system_data_file:file { open };
+allow wcnd system_data_file:dir { add_name write create };
+allow wcnd unlabeled:file { open read getattr };
+
+allow wcnd fm_device:chr_file { open read write ioctl };
+
+allow wcnd platform_app:dir search;
+allow wcnd platform_app:file { read open };
+allow wcnd platform_app:process { signal };

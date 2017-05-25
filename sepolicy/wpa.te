@@ -1,0 +1,7 @@
+allow wpa prod_file:dir search;
+allow wpa prod_file:file { read open };
+allow wpa rild:unix_stream_socket connectto;
+allow wpa init:unix_dgram_socket { sendto };
+allow wpa autotest:unix_dgram_socket { sendto };
+allow wpa factorytest:unix_dgram_socket { sendto };
+unix_socket_send(wpa, system_wpa, gpsd)

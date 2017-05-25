@@ -1,0 +1,26 @@
+allow mediaserver proc:file write;
+allow mediaserver system_data_file:fifo_file { open read write setattr getattr create };
+
+allow mediaserver audio_device:fifo_file {open read write create };
+allow mediaserver audio_device:file {open read write create };
+allow mediaserver system_data_file:dir { write add_name create };
+allow mediaserver graphics_device:dir search;
+allow mediaserver graphics_device:chr_file rw_file_perms;
+allow mediaserver sensors_device:chr_file rw_file_perms;
+allow mediaserver camera_device:chr_file rw_file_perms;
+allow mediaserver mediaserver:capability sys_nice;
+allow mediaserver sysfs_wake_lock:file { open read write };
+
+allow mediaserver engpc:binder call;
+
+allow mediaserver system_file:file execmod;
+allow mediaserver media_prop:property_service set;
+allow mediaserver radio_service:service_manager find;
+allow mediaserver spipe_device:chr_file { read write open };
+
+allow mediaserver media_data_file:fifo_file { open read write setattr create };
+allow mediaserver media_data_file:dir { open read write search add_name create };
+allow mediaserver media_data_file:file { open read write setattr getattr create };
+
+allow mediaserver mlog_file:file rw_file_perms;
+allow mediaserver mlog_file:dir create_dir_perms; 

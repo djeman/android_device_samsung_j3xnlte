@@ -1,0 +1,16 @@
+#sprd add for zram!
+
+type zram, domain;
+type zram_exec, exec_type, file_type;
+
+init_daemon_domain(zram)
+
+allow zram shell_exec:file { read execute_no_trans };
+allow zram system_file:file execute_no_trans;
+allow zram sysfs:file write;
+allow zram proc:file write;
+allow zram block_device:dir search;
+
+allow zram self:capability sys_admin;
+
+allow zram zram_block_device:blk_file { read write open getattr };

@@ -1,0 +1,21 @@
+type phasecheckserver, domain;
+type phasecheckserver_exec, exec_type, file_type;
+
+init_daemon_domain(phasecheckserver)
+
+binder_use(phasecheckserver)
+binder_service(phasecheckserver)
+
+allow phasecheckserver phasecheckserver:netlink_kobject_uevent_socket { create setopt bind read };
+allow phasecheckserver self:capability { net_admin dac_override };
+allow phasecheckserver prod_file:dir { rw_file_perms search add_name };
+allow phasecheckserver prod_file:file rw_file_perms;
+#allow phasecheckserver system_data_file:dir { rw_file_perms add_name };
+#allow phasecheckserver system_data_file:file { rw_file_perms create };
+allow phasecheckserver sysfs:file write;
+allow phasecheckserver servicemanager:binder { call transfer };
+allow phasecheckserver phasecheck_service:service_manager add;
+allow phasecheckserver block_device:dir search;
+allow phasecheckserver tmpfs:dir { write add_name };
+allow phasecheckserver mmcblk_device:blk_file { open read write };
+allow phasecheckserver phasecheckserver_tmpfs:file create;

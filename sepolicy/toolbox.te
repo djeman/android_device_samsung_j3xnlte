@@ -1,0 +1,48 @@
+#allow toolbox kernel:dir { search getattr read open };
+#allow toolbox kernel:file { read open };
+#allow toolbox init:dir { search read open getattr };
+#allow toolbox init:file { read open };
+#allow toolbox ueventd:dir { search read getattr open };
+#allow toolbox ueventd:file { read open };
+#allow toolbox logd:dir {search getattr read open };
+#allow toolbox logd:file { read open };
+#allow toolbox vold:dir {search getattr read open };
+#allow toolbox vold:file { read open };
+
+#allow toolbox gatekeeperd:dir {search getattr read open };
+#allow toolbox gatekeeperd:file { open read };
+
+userdebug_or_eng(`
+#    allow toolbox perfprofd:dir {search getattr read open};
+#    allow toolbox perfprofd:file { read open };
+')
+
+#allow toolbox healthd:dir {search getattr read open};
+#allow toolbox healthd:file { read open };
+#allow toolbox lmkd:dir {search getattr read open};
+#allow toolbox lmkd:file { read open };
+
+allow toolbox self:capability { dac_override };
+
+allow toolbox init:unix_stream_socket { read write connectto };
+allow toolbox init:fifo_file {write getattr };
+allow toolbox property_socket:sock_file write;
+allow toolbox system_prop:property_service set;
+
+#allow toolbox { batterysrv wcnd rild servicemanager surfaceflinger shell download netd keystore installd mediaserver drmserver debuggerd cp_diskserver engpc slogmodem }:dir { search getattr open read };
+#allow toolbox { batterysrv wcnd rild servicemanager surfaceflinger shell download netd keystore installd mediaserver drmserver debuggerd cp_diskserver engpc slogmodem }:file { read open };
+
+allow toolbox domain:dir { search getattr open read };
+allow toolbox domain:file { read open };
+allow toolbox radio_prop:property_service set;
+allow toolbox init:fifo_file read;
+
+allow toolbox console_device:chr_file { ioctl getattr read write };
+allow toolbox ctl_default_prop:property_service { set };
+allow toolbox kernel:system { syslog_read };
+allow toolbox system_data_file:dir { add_name create getattr open read remove_name rmdir search unlink write };
+allow toolbox shell_data_file:dir { add_name create getattr open read remove_name rmdir search unlink write };
+
+allow toolbox toolbox:capability { sys_module };
+allow toolbox wifi_data_file:file { open read };
+allow toolbox wifi_data_file:dir { search  };

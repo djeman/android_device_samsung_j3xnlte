@@ -1,0 +1,31 @@
+##########################
+# property service keys
+#
+#
+
+persist.msms.           u:object_r:radio_prop:s0
+
+media.dump.switch u:object_r:media_prop:s0
+media.dump.path u:object_r:media_prop:s0
+volte.incall.camera.enable u:object_r:media_prop:s0
+persist.volte.cmr.fps u:object_r:media_prop:s0
+
+
+persist.storage         u:object_r:storage_prop:s0
+sys.internal.emulated   u:object_r:storage_prop:s0
+
+slog.reload                u:object_r:slog_prop:s0
+slog.step              u:object_r:slog_prop:s0
+slog.top_logdir u:object_r:slog_prop:s0
+
+ylog.killed             u:object_r:ylog_prop:s0
+persist.ylog.enabled   u:object_r:ylog_prop:s0
+
+
+ylog.svc.   u:object_r:ylog_prop:s0
+
+flag.apr.bootmode u:object_r:apr_prop:s0
+
+#add for MSR test
+com.sprd.szsde.running  u:object_r:system_prop:s0
+com.sprd.szsde.reboot  u:object_r:system_prop:s0

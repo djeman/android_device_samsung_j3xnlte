@@ -1,0 +1,31 @@
+type download, domain;
+type download_exec, exec_type, file_type;
+
+init_daemon_domain(download)
+
+allow download wcn_device:chr_file { open read write ioctl };
+allow download serial_device:chr_file { open read write ioctl };
+allow download block_device:dir { search };
+allow download mmcblk_device:blk_file { open read write };
+
+allow download slog_device:chr_file { read write open };
+allow download init:unix_stream_socket { read write connectto sendto };
+allow download ctl_default_prop:property_service { set };
+allow download system_prop:property_service { set };
+allow download proc:file { read write };
+
+
+allow download download:netlink_socket { create setopt bind getattr write read };
+allow download download:udp_socket { ioctl create setopt bind getattr write read };
+
+allow download shell_exec:file { execute read open execute_no_trans };
+allow download system_file:file execute_no_trans;
+
+allow download download:tcp_socket { create };
+allow download download:capability { dac_override dac_read_search };
+
+
+allow download prod_file:dir { search open write add_name };
+allow download prod_file:file { create read write open rw_file_perms setattr };
+
+allow download property_socket:sock_file { write read };

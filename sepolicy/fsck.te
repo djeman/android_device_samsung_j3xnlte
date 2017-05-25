@@ -1,0 +1,6 @@
+allow fsck mmcblk_device:chr_file { read write };
+allow fsck mmcblk_device:blk_file { read write getattr open ioctl };
+allow fsck self:capability dac_override;
+
+allow fsck kmsg_device:chr_file {open write};
+allow fsck device:dir write;

@@ -1,0 +1,14 @@
+type iqfeed, domain;
+type iqfeed_exec, exec_type, file_type;
+
+init_daemon_domain(iqfeed)
+
+allow iqfeed ctl_default_prop:property_service set;
+allow iqfeed system_prop:property_service set;
+
+allow iqfeed slog_device:chr_file { getattr ioctl open read write };
+
+allow iqfeed shell_data_file:dir { add_name search write unlink };
+allow iqfeed shell_data_file:file { create getattr open read write unlink };
+allow iqfeed fuse:dir { add_name create getattr open read remove_name rmdir search unlink write };
+allow iqfeed fuse:file { create getattr open read rename unlink write };

@@ -1,0 +1,15 @@
+type spipe_device, dev_type;
+type slog_device, dev_type;
+type mmcblk_device, dev_type;
+type refnotify_device, dev_type;
+type efuse_device, dev_type;
+type bm_device, dev_type;
+type wcn_device, dev_type;
+type ts_fifo, dev_type;
+type modemdriver_vpad_device, dev_type;
+
+# zram block device
+type zram_block_device, dev_type;
+
+type fm_device, dev_type, mlstrustedobject;
+type autotest_device, dev_type;

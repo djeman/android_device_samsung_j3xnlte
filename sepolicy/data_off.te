@@ -1,0 +1,16 @@
+type data_off, domain;
+type data_off_exec, exec_type, file_type;
+
+init_daemon_domain(data_off)
+
+allow data_off system_file: file { execute_no_trans };
+allow data_off shell_exec: file { execute_no_trans read };
+allow data_off data_off: netlink_route_socket { create bind setopt getattr write read nlmsg_read nlmsg_write };
+allow data_off init: unix_stream_socket { connectto };
+allow data_off property_socket: sock_file { write };
+allow data_off system_prop: property_service { set };
+allow data_off data_off: capability { net_admin };
+allow data_off proc_net: file { write };
+allow data_off netd_socket: sock_file { write };
+allow data_off netd: unix_stream_socket { connectto };
+allow data_off net_data_file: dir { search };
