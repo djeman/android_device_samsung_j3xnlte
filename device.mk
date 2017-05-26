@@ -37,16 +37,16 @@ PRODUCT_COPY_FILES += \
 
 # Audio configuration
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/audio/audio_hw.xml:system/etc/audio_hw.xml \
-    $(LOCAL_PATH)/audio/audio_para:system/etc/audio_para \
-    $(LOCAL_PATH)/audio/audio_policy.conf:system/etc/audio_policy.conf \
-    $(LOCAL_PATH)/audio/codec_pga.xml:system/etc/codec_pga.xml \
-    $(LOCAL_PATH)/audio/tiny_hw.xml:system/etc/tiny_hw.xml
+    $(LOCAL_PATH)/configs/audio/audio_hw.xml:system/etc/audio_hw.xml \
+    $(LOCAL_PATH)/configs/audio/audio_para:system/etc/audio_para \
+    $(LOCAL_PATH)/configs/audio/audio_policy.conf:system/etc/audio_policy.conf \
+    $(LOCAL_PATH)/configs/audio/codec_pga.xml:system/etc/codec_pga.xml \
+    $(LOCAL_PATH)/configs/audio/tiny_hw.xml:system/etc/tiny_hw.xml
 
 # BT configuration
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/bluetooth/iop_bt.db:system/etc/bluetooth/iop_bt.db \
-    $(LOCAL_PATH)/bluetooth/iop_device_list.conf:system/etc/bluetooth/iop_device_list.conf
+    $(LOCAL_PATH)/configs/bluetooth/iop_bt.db:system/etc/bluetooth/iop_bt.db \
+    $(LOCAL_PATH)/configs/bluetooth/iop_device_list.conf:system/etc/bluetooth/iop_device_list.conf
 
 # Media Profile
 PRODUCT_COPY_FILES += \
@@ -54,8 +54,8 @@ PRODUCT_COPY_FILES += \
     frameworks/av/media/libstagefright/data/media_codecs_google_telephony.xml:system/etc/media_codecs_google_telephony.xml \
     frameworks/av/media/libstagefright/data/media_codecs_google_video_le.xml:system/etc/media_codecs_google_video_le.xml \
     frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml \
-    $(LOCAL_PATH)/media/media_codecs.xml:system/etc/media_codecs.xml \
-    $(LOCAL_PATH)/media/media_profiles.xml:system/etc/media_profiles.xml
+    $(LOCAL_PATH)/configs/media/media_codecs.xml:system/etc/media_codecs.xml \
+    $(LOCAL_PATH)/configs/media/media_profiles.xml:system/etc/media_profiles.xml
 
 # Keylayouts
 PRODUCT_COPY_FILES += \
@@ -66,6 +66,28 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/keylayout/sprd-gpio-keys.kl:system/usr/keylayout/sprd-gpio-keys.kl \
     $(LOCAL_PATH)/keylayout/Synaptics_RMI4_TouchPad_Sensor.idc:system/usr/idc/Synaptics_RMI4_TouchPad_Sensor.idc \
     $(LOCAL_PATH)/keylayout/Synaptics_HID_TouchPad.idc:system/usr/idc/Synaptics_HID_TouchPad.idc
+
+# Proprietaries drm
+#PRODUCT_COPY_FILES += \
+#    $(LOCAL_PATH)/proprietaries/system/etc/permissions/com.google.widevine.software.drm.xml:system/etc/permissions/com.google.widevine.software.drm.xml \
+#    $(LOCAL_PATH)/proprietaries/system/framework/com.google.widevine.software.drm.jar:system/framework/com.google.widevine.software.drm.jar \
+#    $(LOCAL_PATH)/proprietaries/system/lib/libdrmdecrypt.so:system/lib/libdrmdecrypt.so \
+#    $(LOCAL_PATH)/proprietaries/system/vendor/lib/drm/libdrmwvmplugin.so:system/vendor/lib/drm/libdrmwvmplugin.so \
+#    $(LOCAL_PATH)/proprietaries/system/vendor/lib/mediadrm/libwvdrmengine.so:system/vendor/lib/mediadrm/libwvdrmengine.so \
+#    $(LOCAL_PATH)/proprietaries/system/vendor/lib/libwvdrm_L3.so:system/vendor/lib/libwvdrm_L3.so \
+#    $(LOCAL_PATH)/proprietaries/system/vendor/lib/libwvm.so:system/vendor/lib/libwvm.so \
+#    $(LOCAL_PATH)/proprietaries/system/vendor/lib/libWVStreamControlAPI_L3.so:system/vendor/lib/libWVStreamControlAPI_L3.so
+
+# Proprietaries libomx
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/proprietaries/system/lib/libomx_avcdec_hw_sprd.so:system/lib/libomx_avcdec_hw_sprd.so \
+    $(LOCAL_PATH)/proprietaries/system/lib/libomx_avcdec_sw_sprd.so:system/lib/libomx_avcdec_sw_sprd.so \
+    $(LOCAL_PATH)/proprietaries/system/lib/libomx_avcenc_hw_sprd.so:system/lib/libomx_avcenc_hw_sprd.so \
+    $(LOCAL_PATH)/proprietaries/system/lib/libomx_m4vh263dec_hw_sprd.so:system/lib/libomx_m4vh263dec_hw_sprd.so \
+    $(LOCAL_PATH)/proprietaries/system/lib/libomx_m4vh263dec_sw_sprd.so:system/lib/libomx_m4vh263dec_sw_sprd.so \
+    $(LOCAL_PATH)/proprietaries/system/lib/libomx_m4vh263enc_hw_sprd.so:system/lib/libomx_m4vh263enc_hw_sprd.so \
+    $(LOCAL_PATH)/proprietaries/system/lib/libomx_mp3dec_sprd.so:system/lib/libomx_mp3dec_sprd.so \
+    $(LOCAL_PATH)/proprietaries/system/lib/libomx_vpxdec_hw_sprd.so:system/lib/libomx_vpxdec_hw_sprd.so
 
 # Device uses high-density artwork where available
 PRODUCT_AAPT_CONFIG := normal hdpi xhdpi
@@ -128,11 +150,10 @@ PRODUCT_PACKAGES += \
     Tag \
     com.android.nfc_extras
 
-# NFC configuration
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/nfc/libnfc-brcm.conf:system/etc/libnfc-brcm.conf \
-    $(LOCAL_PATH)/nfc/libnfc-nxp.conf:system/etc/libnfc-nxp.conf \
-    $(LOCAL_PATH)/nfc/nfcee_access.xml:system/etc/nfcee_access.xml
+    $(LOCAL_PATH)/configs/nfc/libnfc-brcm.conf:system/etc/libnfc-brcm.conf \
+    $(LOCAL_PATH)/configs/nfc/libnfc-nxp.conf:system/etc/libnfc-nxp.conf \
+    $(LOCAL_PATH)/configs/nfc/nfcee_access.xml:system/etc/nfcee_access.xml
 
 # WPA supplicant
 PRODUCT_PACKAGES += \
@@ -144,9 +165,9 @@ PRODUCT_PACKAGES += \
     wpa_supplicant.conf
 
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/mcs.ini:system/etc/wifi/mcs.ini \
-    $(LOCAL_PATH)/configs/wpa_supplicant_overlay.conf:system/etc/wifi/wpa_supplicant_overlay.conf \
-    $(LOCAL_PATH)/configs/p2p_supplicant_overlay.conf:system/etc/wifi/p2p_supplicant_overlay.conf
+    $(LOCAL_PATH)/configs/wpa_supplicant/mcs.ini:system/etc/wifi/mcs.ini \
+    $(LOCAL_PATH)/configs/wpa_supplicant/wpa_supplicant_overlay.conf:system/etc/wifi/wpa_supplicant_overlay.conf \
+    $(LOCAL_PATH)/configs/wpa_supplicant/p2p_supplicant_overlay.conf:system/etc/wifi/p2p_supplicant_overlay.conf
 
 # Usb accessory
 PRODUCT_PACKAGES += \
@@ -213,24 +234,13 @@ PRODUCT_PACKAGES += \
     libstrongswan
 
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/strongswan.conf:system/etc/strongswan.conf
+    $(LOCAL_PATH)/configs/strongswan/strongswan.conf:system/etc/strongswan.conf
 
 # libexifa, libjpega, libexif
 PRODUCT_PACKAGES += \
     libexif \
     libexifa \
-    libjpega \
-    
-# Widewine
-#PRODUCT_COPY_FILES += \
-#    $(LOCAL_PATH)/widevine/etc/permissions/com.google.widevine.software.drm.xml:system/etc/permissions/com.google.widevine.software.drm.xml \
-#    $(LOCAL_PATH)/widevine/framework/com.google.widevine.software.drm.jar:system/framework/com.google.widevine.software.drm.jar \
-#    $(LOCAL_PATH)/widevine/lib/libdrmdecrypt.so:system/lib/libdrmdecrypt.so \
-#    $(LOCAL_PATH)/widevine/vendor/lib/drm/libdrmwvmplugin.so:system/vendor/lib/drm/libdrmwvmplugin.so \
-#    $(LOCAL_PATH)/widevine/vendor/lib/mediadrm/libwvdrmengine.so:system/vendor/lib/mediadrm/libwvdrmengine.so \
-#    $(LOCAL_PATH)/widevine/vendor/lib/libwvdrm_L3.so:system/vendor/lib/libwvdrm_L3.so \
-#    $(LOCAL_PATH)/widevine/vendor/lib/libwvm.so:system/vendor/lib/libwvm.so \
-#    $(LOCAL_PATH)/widevine/vendor/lib/libWVStreamControlAPI_L3.so:system/vendor/lib/libWVStreamControlAPI_L3.so
+    libjpega 
 
 # KeyUtils
 PRODUCT_PACKAGES += \
@@ -272,7 +282,6 @@ PRODUCT_PACKAGES += \
     libstagefright_sprd_soft_h264dec \
     libstagefright_sprd_soft_mpeg4dec \
     libstagefright_sprd_vpxdec \
-    libstagefright_sprd_aacdec \
     libstagefright_soft_imaadpcmdec \
     libstagefright_soft_mjpgdec \
     libdumpdata \
@@ -286,7 +295,9 @@ PRODUCT_PACKAGES += \
     libstagefrighthw_cm \
     libstagefrighthw \
     libomxvpu \
-    batterysrv
+    batterysrv \
+    iwnpi \
+    libbt-vendor
 
 # RIL
 PRODUCT_PROPERTY_OVERRIDES += \

@@ -78,11 +78,14 @@ TARGET_BOOTANIMATION_PRELOAD := true
 TARGET_BOOTANIMATION_TEXTURE_CACHE := true
 
 # Bluetooth
+# select WCN
 BOARD_HAVE_BLUETOOTH := true
-BOARD_HAVE_SAMSUNG_BLUETOOTH := true
-BOARD_HAVE_BLUETOOTH_SPRD := true
-BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/j3xnlte/bluetooth
-BOARD_BLUEDROID_VENDOR_CONF := device/samsung/j3xnlte/bluetooth/libbt_vndcfg.txt
+SPRD_WCNBT_CHISET := marlin
+BOARD_SPRD_WCNBT_MARLIN := true
+SPRD_EXTERNAL_WCN :=true
+
+BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/j3xnlte/configs/bluetooth
+BOARD_BLUEDROID_VENDOR_CONF := device/samsung/j3xnlte/configs/bluetooth/libbt_vndcfg.txt
 
 # telephony
 BOARD_USE_VETH := true
