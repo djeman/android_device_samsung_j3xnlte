@@ -11,15 +11,14 @@ index 147eb45..ed5c580 100644
              | GRALLOC_USAGE_HW_TEXTURE
  #if QTI_BSP
 diff --git a/media/libstagefright/omx/OMXMaster.cpp b/media/libstagefright/omx/OMXMaster.cpp
-index f7bb733..055fd43 100644
+index f7bb733..c7b85a4 100644
 --- a/media/libstagefright/omx/OMXMaster.cpp
 +++ b/media/libstagefright/omx/OMXMaster.cpp
-@@ -40,6 +40,8 @@ OMXMaster::~OMXMaster() {
+@@ -40,6 +40,7 @@ OMXMaster::~OMXMaster() {
  }
  
  void OMXMaster::addVendorPlugin() {
 +    addPlugin("libstagefrighthw_cm.so");
-+    addPlugin("libsomxcore.so");
      addPlugin("libstagefrighthw.so");
  }
  

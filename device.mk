@@ -272,6 +272,9 @@ PRODUCT_PACKAGES += \
     libstagefright_sprd_soft_h264dec \
     libstagefright_sprd_soft_mpeg4dec \
     libstagefright_sprd_vpxdec \
+    libstagefright_sprd_aacdec \
+    libstagefright_soft_imaadpcmdec \
+    libstagefright_soft_mjpgdec \
     libdumpdata \
     libnvexchange \
     libvbpga \
@@ -281,7 +284,8 @@ PRODUCT_PACKAGES += \
     audio_policy.sc8830 \
     libaudioresampler \
     libstagefrighthw_cm \
-    libstagefrighthw
+    libstagefrighthw \
+    libomxvpu
 
 # RIL
 PRODUCT_PROPERTY_OVERRIDES += \
