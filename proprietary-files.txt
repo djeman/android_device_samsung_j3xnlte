@@ -223,7 +223,7 @@ lib/librilutils.so
 bin/refnotify
 bin/radvd
 bin/cp_diskserver
-bin/batterysrv
+#bin/batterysrv
 bin/calibration_init
 bin/sprd_res_monitor
 bin/slog

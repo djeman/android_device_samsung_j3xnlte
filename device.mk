@@ -285,7 +285,8 @@ PRODUCT_PACKAGES += \
     libaudioresampler \
     libstagefrighthw_cm \
     libstagefrighthw \
-    libomxvpu
+    libomxvpu \
+    batterysrv
 
 # RIL
 PRODUCT_PROPERTY_OVERRIDES += \
