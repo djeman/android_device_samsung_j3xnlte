@@ -66,6 +66,9 @@ BOARD_HAS_LARGE_FILESYSTEM := true
 TARGET_USERIMAGES_USE_EXT4 := true
 BOARD_SUPPRESS_SECURE_ERASE := true
 
+# CMHW
+BOARD_HARDWARE_CLASS := hardware/samsung/cmhw/
+
 # Init
 TARGET_INIT_VENDOR_LIB := libinit_j3lte
 TARGET_RECOVERY_DEVICE_MODULES := libinit_j3lte
@@ -80,9 +83,8 @@ TARGET_BOOTANIMATION_TEXTURE_CACHE := true
 # Bluetooth
 # select WCN
 BOARD_HAVE_BLUETOOTH := true
-SPRD_WCNBT_CHISET := marlin
+SPRD_WCNBT_CHISET := marlin2
 BOARD_SPRD_WCNBT_MARLIN := true
-SPRD_EXTERNAL_WCN :=true
 
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/j3xnlte/configs/bluetooth
 BOARD_BLUEDROID_VENDOR_CONF := device/samsung/j3xnlte/configs/bluetooth/libbt_vndcfg.txt
@@ -98,9 +100,6 @@ BOARD_HAL_STATIC_LIBRARIES := libhealthd.j3xnlte
 
 # lights
 TARGET_PROVIDES_LIBLIGHT := true
-
-# Include an expanded selection of fonts
-EXTENDED_FONT_FOOTPRINT := true
 
 # Graphics
 TARGET_BOARD_PLATFORM_GPU := Mali-400 MP
@@ -118,7 +117,7 @@ BOARD_VOLD_DISC_HAS_MULTIPLE_MAJORS := true
 BOARD_VOLD_MAX_PARTITIONS := 65
 
 # Enable HW based full disk encryption
-# TARGET_HW_DISK_ENCRYPTION := true
+#TARGET_HW_DISK_ENCRYPTION := true
 
 # Sensors
 TARGET_NO_SENSOR_PERMISSION_CHECK := true
@@ -146,10 +145,9 @@ TARGET_TINY_ALSA_IGNORE_SILENCE_SIZE := true
 # Charger
 BACKLIGHT_PATH := "/sys/class/backlight/panel/brightness"
 BOARD_CHARGER_ENABLE_SUSPEND := true
+BOARD_NO_CHARGER_LED := true
 BOARD_CHARGING_MODE_BOOTING_LPM := "/sys/class/power_supply/battery/batt_lp_charging"
 CHARGING_ENABLED_PATH := "/sys/class/power_supply/battery/batt_lp_charging"
-BOARD_CHARGER_SHOW_PERCENTAGE := true
-BOARD_SAMSUNG_DEVICE := true
 
 # zygote whitelist
 PATH_WHITELIST_EXTRA_H := "/sys/devices/sec-battery.4/power_supply/battery/batt_lp_charging"
@@ -168,6 +166,9 @@ WIFI_DRIVER_FW_PATH_AP      := "ap_mode"
 WIFI_DRIVER_MODULE_PATH     := "/system/lib/modules/sprdwl.ko"
 WIFI_DRIVER_MODULE_NAME     := "sprdwl"
 
+# Include an expanded selection of fonts
+EXTENDED_FONT_FOOTPRINT := true
+
 # Dex
 ifeq ($(HOST_OS),linux)
   ifeq ($(TARGET_BUILD_VARIANT),user)
@@ -183,9 +184,6 @@ BOARD_SEPOLICY_DIRS += \
 
 # build.prop
 TARGET_SYSTEM_PROP := device/samsung/j3xnlte/system.prop
-
-# CMHW
-BOARD_HARDWARE_CLASS := hardware/samsung/cmhw/
 
 #######################################################
 # TWRP

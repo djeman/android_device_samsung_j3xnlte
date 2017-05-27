@@ -1,0 +1,109 @@
+diff --git a/Android.mk b/Android.mk
+index b398132..54d9d0e 100644
+--- a/Android.mk
++++ b/Android.mk
+@@ -33,6 +33,16 @@ ifeq ($(strip $(AUDIO_FEATURE_ENABLED_SPLIT_A2DP)),true)
+   bdroid_CFLAGS += -DBTA_AV_SPLIT_A2DP_DEF_FREQ_48KHZ
+ endif
+ 
++ifeq ($(BOARD_SPRD_WCNBT_MARLIN), true)
++  bdroid_CFLAGS += -DSPRD_WCNBT_MARLIN
++  ifneq ($(strip $(WCN_EXTENSION)),true)
++    bdroid_CFLAGS += -DSPRD_WCNBT_MARLIN_15A
++  endif
++endif
++ifeq ($(BOARD_SPRD_WCNBT_SR2351), true)
++  bdroid_CFLAGS += -DSPRD_WCNBT_SR2351
++endif
++
+ bdroid_CFLAGS += \
+   -Wall \
+   -Wno-unused-parameter \
+diff --git a/hci/src/hci_layer.c b/hci/src/hci_layer.c
+index ed1c7ee..4b8c9b8 100644
+--- a/hci/src/hci_layer.c
++++ b/hci/src/hci_layer.c
+@@ -250,6 +250,11 @@ static future_t *start_up(void) {
+     // TODO(sharvil): gracefully propagate failures from this layer.
+   }
+ 
++#if defined (SPRD_WCNBT_SR2351) || defined (SPRD_WCNBT_MARLIN)
++//prevent crash in startup timeout
++  startup_future = future_new();
++#endif
++
+   int power_state = BT_VND_PWR_OFF;
+ #if (defined (BT_CLEAN_TURN_ON_DISABLED) && BT_CLEAN_TURN_ON_DISABLED == TRUE)
+   LOG_WARN("%s not turning off the chip before turning on.", __func__);
+@@ -266,7 +271,10 @@ static future_t *start_up(void) {
+   power_state = BT_VND_PWR_ON;
+   vendor->send_command(VENDOR_CHIP_POWER_CONTROL, &power_state);
+ 
+-  startup_future = future_new();
++#if defined (SPRD_WCNBT_SR2351) || defined (SPRD_WCNBT_MARLIN)
++#else
++   startup_future = future_new();
++#endif
+   LOG_DEBUG("%s starting async portion", __func__);
+   thread_post(thread, event_finish_startup, NULL);
+   return startup_future;
+diff --git a/include/bt_target.h b/include/bt_target.h
+index 6e9a835..81a32b9 100644
+--- a/include/bt_target.h
++++ b/include/bt_target.h
+@@ -40,6 +40,55 @@
+ #include "gki_target.h"
+ #include "dyn_mem.h"    /* defines static and/or dynamic memory for components */
+ 
++/* SPRD bluetooth stack configuration */
++#ifdef SPRD_WCNBT_SR2351
++#define HCILP_INCLUDED FALSE
++#define BTM_WBS_INCLUDED FALSE
++#define BLE_INCLUDED FALSE
++#define BTA_GATT_INCLUDED FALSE
++#define SPRD_FEATURE_QOS TRUE
++#define SPRD_FEATURE_SLOG TRUE
++#define SPRD_FEATURE_STARUP TRUE
++#define SPRD_FEATURE_NONSIG TRUE
++#define BTM_DEFAULT_SCAN_TYPE       BTM_SCAN_TYPE_STANDARD
++#define SPRD_FEATURE_AOBFIX TRUE
++#define PORT_RX_BUF_HIGH_WM 34
++#elif SPRD_WCNBT_MARLIN
++#define HCILP_INCLUDED TRUE
++#define BTM_WBS_INCLUDED TRUE
++#define BLE_INCLUDED TRUE
++#define BTA_GATT_INCLUDED TRUE
++#define SPRD_FEATURE_QOS TRUE
++#define SPRD_FEATURE_SLOG TRUE
++#define SPRD_FEATURE_NONSIG TRUE
++#define BTIF_HF_WBS_PREFERRED TRUE
++#define BTM_DEFAULT_SCAN_TYPE       BTM_SCAN_TYPE_STANDARD
++#define SPRD_FEATURE_AOBFIX TRUE
++#define SPRD_FEATURE_UARTCL TRUE
++#define PORT_RX_BUF_HIGH_WM 34
++#ifdef SPRD_WCNBT_MARLIN_15A
++#define SPRD_FEATURE_STARUP TRUE
++#else
++#define SPRD_FEATURE_STARUP FALSE
++#endif
++#endif
++
++#ifndef SPRD_FEATURE_QOS
++#define SPRD_FEATURE_QOS FALSE
++#endif
++
++#ifndef SPRD_FEATURE_SLOG
++#define SPRD_FEATURE_SLOG FALSE
++#endif
++
++#ifndef SPRD_FEATURE_STARUP
++#define SPRD_FEATURE_STARUP FALSE
++#endif
++
++#ifndef SPRD_FEATURE_NONSIG
++#define SPRD_FEATURE_NONSIG FALSE
++#endif
++
+ //------------------Added from bdroid_buildcfg.h---------------------
+ #ifndef I2SPCM_SLAVE_BRCM
+ #define I2SPCM_SLAVE_BRCM FALSE

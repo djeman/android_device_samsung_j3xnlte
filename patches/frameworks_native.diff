@@ -117,21 +117,48 @@ index 3da720f..b1557c3 100644
  
      GraphicBuffer();
 diff --git a/include/ui/PixelFormat.h b/include/ui/PixelFormat.h
-index f26fecb..1a4894d 100644
+index f26fecb..09de5c1 100644
 --- a/include/ui/PixelFormat.h
 +++ b/include/ui/PixelFormat.h
-@@ -60,6 +60,11 @@ enum {
+@@ -60,6 +60,21 @@ enum {
      PIXEL_FORMAT_BGRA_8888   = HAL_PIXEL_FORMAT_BGRA_8888,   // 4x8-bit BGRA
      PIXEL_FORMAT_RGBA_5551   = 6,                            // 16-bit ARGB
      PIXEL_FORMAT_RGBA_4444   = 7,                            // 16-bit ARGB
 +#ifdef SPRD_HARDWARE
-+    PIXEL_FORMAT_YCbCr_420_P  = HAL_PIXEL_FORMAT_YCbCr_420_P,
-+    PIXEL_FORMAT_YCbCr_420_SP = HAL_PIXEL_FORMAT_YCbCr_420_SP,
++    PIXEL_FORMAT_YCbCr_422_SP = HAL_PIXEL_FORMAT_YCbCr_422_SP,
 +    PIXEL_FORMAT_YCrCb_420_SP = HAL_PIXEL_FORMAT_YCrCb_420_SP,
++    PIXEL_FORMAT_YCbCr_422_P = HAL_PIXEL_FORMAT_YCbCr_422_P,
++    PIXEL_FORMAT_YCbCr_420_P = HAL_PIXEL_FORMAT_YCbCr_420_P,
++    PIXEL_FORMAT_YCbCr_422_I = HAL_PIXEL_FORMAT_YCbCr_422_I,
++    PIXEL_FORMAT_YCbCr_420_I = HAL_PIXEL_FORMAT_YCbCr_420_I,
++    PIXEL_FORMAT_CbYCrY_422_I = HAL_PIXEL_FORMAT_CbYCrY_422_I,
++    PIXEL_FORMAT_CbYCrY_420_I = HAL_PIXEL_FORMAT_CbYCrY_420_I,
++    PIXEL_FORMAT_YCbCr_420_SP_TILED = HAL_PIXEL_FORMAT_YCbCr_420_SP_TILED,
++    PIXEL_FORMAT_YCbCr_420_SP = HAL_PIXEL_FORMAT_YCbCr_420_SP,
++    PIXEL_FORMAT_YCrCb_420_SP_TILED = HAL_PIXEL_FORMAT_YCrCb_420_SP_TILED,
++    PIXEL_FORMAT_YCrCb_422_SP = HAL_PIXEL_FORMAT_YCrCb_422_SP,
++    PIXEL_FORMAT_YCrCb_420_P  = HAL_PIXEL_FORMAT_YCrCb_420_P,
 +#endif
  };
  
  typedef int32_t PixelFormat;
+diff --git a/libs/binder/IPCThreadState.cpp b/libs/binder/IPCThreadState.cpp
+index af18e11..8fcc8a6 100644
+--- a/libs/binder/IPCThreadState.cpp
++++ b/libs/binder/IPCThreadState.cpp
+@@ -1148,6 +1148,12 @@ status_t IPCThreadState::executeCommand(int32_t cmd)
+         mProcess->spawnPooledThread(false);
+         break;
+         
++    // SPRD: Sometimes, doing binder operation in destructor could reveiving BR_TRANSACTION_COMPLETE here.
++    //       We handle this command simply and avoid crash.
++    case BR_TRANSACTION_COMPLETE:
++        ALOGE("*** BAD COMMAND: BR_TRANSACTION_COMPLETE(%x) for executeCommand from Binder driver\n", cmd);
++        break;
++
+     default:
+         printf("*** BAD COMMAND %d received from Binder driver\n", cmd);
+         result = UNKNOWN_ERROR;
 diff --git a/services/surfaceflinger/Android.mk b/services/surfaceflinger/Android.mk
 index 25fa503..063e77f 100644
 --- a/services/surfaceflinger/Android.mk

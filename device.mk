@@ -297,7 +297,8 @@ PRODUCT_PACKAGES += \
     libomxvpu \
     batterysrv \
     iwnpi \
-    libbt-vendor
+    libbt-vendor \
+    liboemcrypto
 
 # RIL
 PRODUCT_PROPERTY_OVERRIDES += \
