@@ -95,7 +95,7 @@ PRODUCT_AAPT_PREF_CONFIG := xhdpi
 
 # Set default USB interface
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
-persist.sys.usb.config=mtp
+persist.sys.usb.config=mtp,adb
 
 # TinyAlsa utils
 PRODUCT_PACKAGES += \
@@ -307,7 +307,8 @@ PRODUCT_PACKAGES += \
     dhcp6relay \
     cp_diskserver \
     phasecheckserver \
-    radvd
+    radvd \
+    refnotify
 
 # RIL
 PRODUCT_PROPERTY_OVERRIDES += \

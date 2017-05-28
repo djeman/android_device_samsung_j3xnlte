@@ -80,15 +80,6 @@ TARGET_SCREEN_WIDTH := 720
 TARGET_BOOTANIMATION_PRELOAD := true
 TARGET_BOOTANIMATION_TEXTURE_CACHE := true
 
-# Bluetooth
-# select WCN
-BOARD_HAVE_BLUETOOTH := true
-SPRD_WCNBT_CHISET := marlin2
-BOARD_SPRD_WCNBT_MARLIN := true
-
-BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/j3xnlte/configs/bluetooth
-BOARD_BLUEDROID_VENDOR_CONF := device/samsung/j3xnlte/configs/bluetooth/libbt_vndcfg.txt
-
 # telephony
 BOARD_USE_VETH := true
 BOARD_SPRD_RIL := true
@@ -153,6 +144,15 @@ CHARGING_ENABLED_PATH := "/sys/class/power_supply/battery/batt_lp_charging"
 # zygote whitelist
 PATH_WHITELIST_EXTRA_H := "/sys/devices/sec-battery.4/power_supply/battery/batt_lp_charging"
 
+# Bluetooth
+# select WCN
+BOARD_HAVE_BLUETOOTH := true
+SPRD_WCNBT_CHISET := marlin2
+BOARD_SPRD_WCNBT_MARLIN := true
+
+BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/j3xnlte/configs/bluetooth
+BOARD_BLUEDROID_VENDOR_CONF := device/samsung/j3xnlte/configs/bluetooth/libbt_vndcfg.txt
+
 # WIFI configs
 BOARD_WPA_SUPPLICANT_DRIVER := NL80211
 WPA_SUPPLICANT_VERSION      := VER_2_1_DEVEL
@@ -166,6 +166,9 @@ WIFI_DRIVER_FW_PATH_P2P     := "p2p_mode"
 WIFI_DRIVER_FW_PATH_AP      := "ap_mode"
 WIFI_DRIVER_MODULE_PATH     := "/system/lib/modules/sprdwl.ko"
 WIFI_DRIVER_MODULE_NAME     := "sprdwl"
+
+CUSTOM_EXTRA := MACH_SAMSUNG
+MACH_SAMSUNG := true
 
 # Include an expanded selection of fonts
 EXTENDED_FONT_FOOTPRINT := true
