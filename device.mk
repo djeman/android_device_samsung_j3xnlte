@@ -300,7 +300,11 @@ PRODUCT_PACKAGES += \
     libbt-vendor \
     liboemcrypto \
     modem_control \
-    modemd
+    modemd \
+    dhcp6s \
+    dhcp6c \
+    dhcp6ctl \
+    dhcp6relay
 
 # RIL
 PRODUCT_PROPERTY_OVERRIDES += \
