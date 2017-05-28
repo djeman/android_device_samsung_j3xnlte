@@ -255,8 +255,8 @@ PRODUCT_PACKAGES += \
     dm_verity_hash
 
 PRODUCT_PACKAGES += \
-    charger \
-    charger_res_images
+    charge \
+    charge_res_images
 
 PRODUCT_PACKAGES += \
     libgps_shim
