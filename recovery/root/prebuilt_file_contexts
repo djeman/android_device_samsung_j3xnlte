@@ -12,6 +12,7 @@
 /ueventd\..*		u:object_r:rootfs:s0
 
 # Executables
+/charge			u:object_r:rootfs:s0
 /charger		u:object_r:rootfs:s0
 /init			u:object_r:rootfs:s0
 /sbin(/.*)?		u:object_r:rootfs:s0
