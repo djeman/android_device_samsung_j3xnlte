@@ -304,7 +304,8 @@ PRODUCT_PACKAGES += \
     dhcp6s \
     dhcp6c \
     dhcp6ctl \
-    dhcp6relay
+    dhcp6relay \
+    cp_diskserver
 
 # RIL
 PRODUCT_PROPERTY_OVERRIDES += \
