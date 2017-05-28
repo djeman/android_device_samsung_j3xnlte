@@ -299,7 +299,8 @@ PRODUCT_PACKAGES += \
     iwnpi \
     libbt-vendor \
     liboemcrypto \
-    modem_control
+    modem_control \
+    modemd
 
 # RIL
 PRODUCT_PROPERTY_OVERRIDES += \
