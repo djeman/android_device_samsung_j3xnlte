@@ -306,7 +306,8 @@ PRODUCT_PACKAGES += \
     dhcp6ctl \
     dhcp6relay \
     cp_diskserver \
-    phasecheckserver
+    phasecheckserver \
+    radvd
 
 # RIL
 PRODUCT_PROPERTY_OVERRIDES += \
