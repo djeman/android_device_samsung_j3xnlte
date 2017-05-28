@@ -298,7 +298,8 @@ PRODUCT_PACKAGES += \
     batterysrv \
     iwnpi \
     libbt-vendor \
-    liboemcrypto
+    liboemcrypto \
+    modem_control
 
 # RIL
 PRODUCT_PROPERTY_OVERRIDES += \
