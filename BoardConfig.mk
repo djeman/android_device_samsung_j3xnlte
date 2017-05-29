@@ -146,8 +146,10 @@ CHARGING_ENABLED_PATH := "/sys/class/power_supply/battery/batt_lp_charging"
 # zygote whitelist
 PATH_WHITELIST_EXTRA_H := "/sys/devices/sec-battery.4/power_supply/battery/batt_lp_charging"
 
-# Bluetooth
 # select WCN
+WCN_EXTENSION := true
+
+# Bluetooth
 BOARD_HAVE_BLUETOOTH := true
 SPRD_WCNBT_CHISET := marlin2
 BOARD_SPRD_WCNBT_MARLIN := true

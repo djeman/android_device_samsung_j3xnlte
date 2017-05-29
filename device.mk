@@ -196,30 +196,6 @@ PRODUCT_PACKAGES += \
     ueventd.sc8830.rc \
     sswap
 
-PRODUCT_PACKAGES += \
-    libjackshm \
-    libjackserver \
-    libjack \
-    libjacklogger \
-    androidshmservice \
-    jackd \
-    jack_dummy \
-    jack_alsa \
-    jack_opensles \
-    jack_loopback \
-    in \
-    out \
-    jack_connect \
-    jack_disconnect \
-    jack_lsp \
-    jack_showtime \
-    jack_simple_client \
-    jack_transport \
-    libasound \
-    libglib-2.0 \
-    libgthread-2.0 \
-    libfluidsynth
-
 # e2fsprog
 PRODUCT_PACKAGES += \
     e2fsck \
@@ -308,7 +284,10 @@ PRODUCT_PACKAGES += \
     cp_diskserver \
     phasecheckserver \
     radvd \
-    refnotify
+    refnotify \
+    download \
+    wcnd \
+    wcnd_cli
 
 # RIL
 PRODUCT_PROPERTY_OVERRIDES += \
