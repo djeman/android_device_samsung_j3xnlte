@@ -43,13 +43,6 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/audio/codec_pga.xml:system/etc/codec_pga.xml \
     $(LOCAL_PATH)/configs/audio/tiny_hw.xml:system/etc/tiny_hw.xml
 
-# modules symlinks
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/proprietaries/system/lib/modules/autotst.ko:system/lib/modules/autotst.ko \
-    $(LOCAL_PATH)/proprietaries/system/lib/modules/mali.ko:system/lib/modules/mali.ko \
-    $(LOCAL_PATH)/proprietaries/system/lib/modules/mmc_test.ko:system/lib/modules/mmc_test.ko \
-    $(LOCAL_PATH)/proprietaries/system/lib/modules/sprdwl.ko:system/lib/modules/sprdwl.ko \
-
 # BT configuration
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/bluetooth/iop_bt.db:system/etc/bluetooth/iop_bt.db \
