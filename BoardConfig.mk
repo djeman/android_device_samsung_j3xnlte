@@ -1,8 +1,6 @@
 
 TARGET_OTA_ASSERT_DEVICE := j3xnlte,j3xnltexx
 
-USE_CAMERA_STUB := true
-
 # inherit from the proprietary version
 -include vendor/samsung/j3xnlte/BoardConfigVendor.mk
 
@@ -20,6 +18,7 @@ TARGET_CPU_SMP := true
 ARCH_ARM_HAVE_TLS_REGISTER := true
 
 BOARD_NEEDS_MEMORYHEAPION_SPRD := true
+BOARD_USE_EMMC := true
 
 DEVICE_RESOLUTION := 720x1280
 

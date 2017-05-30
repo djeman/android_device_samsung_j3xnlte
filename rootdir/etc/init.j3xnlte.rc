@@ -1,4 +1,5 @@
 import /init.j3xnlte_base.rc
+import /init.rilcommon.rc
 
 on init
     # SEC_SELINUX

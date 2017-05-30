@@ -287,7 +287,22 @@ PRODUCT_PACKAGES += \
     refnotify \
     download \
     wcnd \
-    wcnd_cli
+    wcnd_cli \
+    slog \
+    slogctl \
+    tcp \
+    slog.conf \
+    slog.conf.user \
+    slogmodem \
+    flush_slog_modem \
+    cplogctl \
+    sprd_res_monitor \
+    sprd_monitor-userdebug.conf \
+    sprd_monitor-user.conf \
+    monitor.conf \
+    capture_oprofile.sh \
+    liboprofiledaemon \
+    engpc
 
 # RIL
 PRODUCT_PROPERTY_OVERRIDES += \
