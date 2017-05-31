@@ -12,7 +12,7 @@ PATCHES=$BASE/device/$VENDOR/$DEVICE/patches/sprd-diff
 
 # bionic need a binary file
 cp -f $PATCHES/libsprd_jemalloc.a $BASE/bionic/libc/libsprd_jemalloc.a
-echo -e "\e[32m* File bionic/libc/libsprd_jemalloc.a added\e[39m"
+echo -e "\e[32mFile bionic/libc/libsprd_jemalloc.a added\e[39m\n"
 
 # apply all patches (only 2 subdirectories)
 for FILE in $PATCHES/*.diff
@@ -22,9 +22,10 @@ do
 	RELPATH=${SNAME/_/\/}
 
 	cd $BASE/$RELPATH
+	echo -e "\e[36m* Select directory ${RELPATH}\e[39m"
 	patch -p1 < $PATCHES/$FILENAME
-	echo -e "\e[32m* Folder ${RELPATH} patched\e[39m"
+	echo -e "\e[32mDirectory ${RELPATH} patched\e[39m\n"
 done
 
-echo -e "\e[32m* All mods added"
+echo -e "\e[32m-- All mods added --\e[39m\n"
 

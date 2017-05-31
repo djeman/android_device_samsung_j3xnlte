@@ -12,7 +12,7 @@ PATCHES=$BASE/device/$VENDOR/$DEVICE/patches/sprd-diff
 
 # bionic need a binary file
 rm -f $BASE/bionic/libc/libsprd_jemalloc.a
-echo -e "\e[32m* File bionic/libc/libsprd_jemalloc.a removed\e[39m"
+echo -e "\e[32mFile bionic/libc/libsprd_jemalloc.a removed\e[39m\n"
 
 # remove all patches (only 2 subdirectories)
 for FILE in $PATCHES/*.diff
@@ -22,9 +22,10 @@ do
 	RELPATH=${SNAME/_/\/}
 
 	cd $BASE/$RELPATH
+	echo -e "\e[36m* Select directory ${RELPATH}\e[39m"
 	patch -R -p1 < $PATCHES/$FILENAME
-	echo -e "\e[32m* Folder ${RELPATH} unpatched\e[39m"
+	echo -e "\e[32mDirectory ${RELPATH} unpatched\e[39m\n"
 done
 
-echo -e "\e[32m* All mods removed"
+echo -e "\e[32m-- All mods removed --\e[39m\n"
 
