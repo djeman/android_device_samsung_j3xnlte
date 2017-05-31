@@ -178,6 +178,9 @@ WIFI_DRIVER_MODULE_NAME     := "sprdwl"
 # Include an expanded selection of fonts
 EXTENDED_FONT_FOOTPRINT := true
 
+# SPRD
+TARGET_USE_SPRD_JEMALLOC := true
+
 # Dex
 ifeq ($(HOST_OS),linux)
   ifeq ($(TARGET_BUILD_VARIANT),user)
