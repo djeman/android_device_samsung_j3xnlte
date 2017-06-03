@@ -50,6 +50,7 @@ lib/libomission_avoidance.so
 lib/libsec-ril.so
 lib/libsec-ril-dsds.so
 lib/libsecnativefeature.so
+lib/libsecril-client
 
 # Audio
 lib/libaudiosa.so
@@ -217,6 +218,7 @@ lib/libmorpho_easy_hdr.so
 lib/libril.so
 lib/libreference-ril.so
 lib/librilutils.so
+lib/libsecril-client.so
 
 #bin/wcnd
 #bin/wcnd_cli
@@ -234,4 +236,5 @@ bin/dhcp6s
 bin/dhcp6c
 bin/iwnpi
 bin/rild
-
+bin/smdexe
+bin/macloader

@@ -34,10 +34,6 @@ allow init init:rawip_socket { create getopt setopt };
 allow init socket_device:sock_file { create setattr write unlink};
 allow init tmpfs:lnk_file create;
 
-userdebug_or_eng(`
-    allow init { system_file shell_exec }:file execute_no_trans;
-')
-
 allow init system_data_file:file append;
 allow init property_socket:sock_file write;
 allow init pstorefs:dir mounton;

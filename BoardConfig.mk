@@ -87,9 +87,6 @@ TARGET_BOOTANIMATION_PRELOAD := true
 TARGET_BOOTANIMATION_TEXTURE_CACHE := true
 
 # telephony
-BOARD_USE_VETH := true
-BOARD_SPRD_RIL := true
-USE_BOOT_AT_DIAG := true
 BOARD_RIL_CLASS := ../../../device/samsung/j3xnlte/ril/
 
 # healthd
@@ -99,7 +96,7 @@ BOARD_HAL_STATIC_LIBRARIES := libhealthd.j3xnlte
 TARGET_PROVIDES_LIBLIGHT := true
 
 # Graphics
-TARGET_BOARD_PLATFORM_GPU := Mali-400 MP
+TARGET_BOARD_PLATFORM_GPU := utgard
 TARGET_GPU_PP_CORE := 2
 USE_SPRD_HWCOMPOSER  := true
 USE_OPENGL_RENDERER := true
@@ -119,6 +116,10 @@ BOARD_VOLD_MAX_PARTITIONS := 65
 # Sensors
 TARGET_NO_SENSOR_PERMISSION_CHECK := true
 
+# NFC
+BOARD_NFC_CHIPSET := pn547
+BOARD_NFC_HAL_SUFFIX := $(TARGET_BOARD_PLATFORM)
+
 # WEBGL
 ENABLE_WEBGL := true
 
@@ -137,7 +138,6 @@ TARGET_BOARD_CAMERA_ISP_SOFTWARE_VERSION := 2
 
 # Audio
 BOARD_USES_TINYALSA_AUDIO := true
-TARGET_TINY_ALSA_IGNORE_SILENCE_SIZE := true
 
 # Charger
 BACKLIGHT_PATH := "/sys/class/backlight/panel/brightness"
@@ -150,12 +150,9 @@ CHARGING_ENABLED_PATH := "/sys/class/power_supply/battery/batt_lp_charging"
 # zygote whitelist
 PATH_WHITELIST_EXTRA_H := "/sys/devices/sec-battery.4/power_supply/battery/batt_lp_charging"
 
-# select WCN
-WCN_EXTENSION := true
-
 # Bluetooth
 BOARD_HAVE_BLUETOOTH := true
-SPRD_WCNBT_CHISET := marlin2
+SPRD_WCNBT_CHISET := marlin
 BOARD_SPRD_WCNBT_MARLIN := true
 
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/j3xnlte/configs/bluetooth
@@ -179,7 +176,7 @@ WIFI_DRIVER_MODULE_NAME     := "sprdwl"
 EXTENDED_FONT_FOOTPRINT := true
 
 # SPRD
-TARGET_USE_SPRD_JEMALLOC := true
+# TARGET_USE_SPRD_JEMALLOC := true
 
 # DRM
 BOARD_WIDEVINE_OEMCRYPTO_LEVEL := 3
@@ -195,7 +192,7 @@ endif
 
 # SELinux
 BOARD_SEPOLICY_DIRS += \
-    device/samsung/j3ltespr/sepolicy
+    device/samsung/j3xnlte/sepolicy
 
 # build.prop
 TARGET_SYSTEM_PROP := device/samsung/j3xnlte/system.prop

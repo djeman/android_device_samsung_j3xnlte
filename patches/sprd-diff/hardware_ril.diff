@@ -1,0 +1,18 @@
+diff --git a/reference-ril/Android.mk b/reference-ril/Android.mk
+index d9908c1..551ae65 100644
+--- a/reference-ril/Android.mk
++++ b/reference-ril/Android.mk
+@@ -1,5 +1,7 @@
+ # Copyright 2006 The Android Open Source Project
+ 
++ifneq ($(BOARD_PROVIDES_LIBREFERENCE_RIL),true)
++
+ # XXX using libutils for simulator build only...
+ #
+ LOCAL_PATH:= $(call my-dir)
+@@ -45,3 +47,5 @@ else
+   LOCAL_MODULE:= reference-ril
+   include $(BUILD_EXECUTABLE)
+ endif
++
++endif # BOARD_PROVIDES_LIBREFERENCE_RIL

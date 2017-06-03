@@ -68,15 +68,15 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/keylayout/Synaptics_HID_TouchPad.idc:system/usr/idc/Synaptics_HID_TouchPad.idc
 
 # Proprietaries drm
-#PRODUCT_COPY_FILES += \
-#    $(LOCAL_PATH)/proprietaries/system/etc/permissions/com.google.widevine.software.drm.xml:system/etc/permissions/com.google.widevine.software.drm.xml \
-#    $(LOCAL_PATH)/proprietaries/system/framework/com.google.widevine.software.drm.jar:system/framework/com.google.widevine.software.drm.jar \
-#    $(LOCAL_PATH)/proprietaries/system/lib/libdrmdecrypt.so:system/lib/libdrmdecrypt.so \
-#    $(LOCAL_PATH)/proprietaries/system/vendor/lib/drm/libdrmwvmplugin.so:system/vendor/lib/drm/libdrmwvmplugin.so \
-#    $(LOCAL_PATH)/proprietaries/system/vendor/lib/mediadrm/libwvdrmengine.so:system/vendor/lib/mediadrm/libwvdrmengine.so \
-#    $(LOCAL_PATH)/proprietaries/system/vendor/lib/libwvdrm_L3.so:system/vendor/lib/libwvdrm_L3.so \
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/proprietaries/system/etc/permissions/com.google.widevine.software.drm.xml:system/etc/permissions/com.google.widevine.software.drm.xml \
+    $(LOCAL_PATH)/proprietaries/system/framework/com.google.widevine.software.drm.jar:system/framework/com.google.widevine.software.drm.jar \
+    $(LOCAL_PATH)/proprietaries/system/lib/libdrmdecrypt.so:system/lib/libdrmdecrypt.so \
+    $(LOCAL_PATH)/proprietaries/system/vendor/lib/drm/libdrmwvmplugin.so:system/vendor/lib/drm/libdrmwvmplugin.so \
+    $(LOCAL_PATH)/proprietaries/system/vendor/lib/mediadrm/libwvdrmengine.so:system/vendor/lib/mediadrm/libwvdrmengine.so \
+    $(LOCAL_PATH)/proprietaries/system/vendor/lib/libwvdrm_L3.so:system/vendor/lib/libwvdrm_L3.so \
+    $(LOCAL_PATH)/proprietaries/system/vendor/lib/libWVStreamControlAPI_L3.so:system/vendor/lib/libWVStreamControlAPI_L3.so
 #    $(LOCAL_PATH)/proprietaries/system/vendor/lib/libwvm.so:system/vendor/lib/libwvm.so \
-#    $(LOCAL_PATH)/proprietaries/system/vendor/lib/libWVStreamControlAPI_L3.so:system/vendor/lib/libWVStreamControlAPI_L3.so
 
 # Proprietaries libomx
 PRODUCT_COPY_FILES += \
@@ -104,9 +104,32 @@ PRODUCT_PACKAGES += \
     tinymix \
     tinypcminfo
 
+PRODUCT_PACKAGES += \
+    libjackshm \
+    libjackserver \
+    libjack \
+    libjacklogger \
+    androidshmservice \
+    jackd \
+    jack_dummy \
+    jack_alsa \
+    jack_opensles \
+    jack_loopback \
+    in \
+    out \
+    jack_connect \
+    jack_disconnect \
+    jack_lsp \
+    jack_showtime \
+    jack_simple_client \
+    jack_transport \
+    libasound \
+    libglib-2.0 \
+    libgthread-2.0 \
+    libfluidsynth
+
 # Misc. libs
 PRODUCT_PACKAGES += \
-    libsecril-client \
     libstlport \
     libboringssl-compat
 
@@ -159,7 +182,6 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     dhcpcd.conf \
     hostapd \
-    macloader \
     libwpa_client \
     wpa_supplicant \
     wpa_supplicant.conf
@@ -235,10 +257,9 @@ PRODUCT_PACKAGES += \
     charge_res_images
 
 PRODUCT_PACKAGES += \
-    libgps_shim
+    libdmitry
 
 PRODUCT_PACKAGES += \
-    libsecril-client \
     power.sc8830 \
     lights.sc8830 \
     hwcomposer.sc8830 \
@@ -273,7 +294,6 @@ PRODUCT_PACKAGES += \
     libomxvpu \
     batterysrv \
     iwnpi \
-    libbt-vendor \
     liboemcrypto \
     modem_control \
     modemd \
@@ -302,7 +322,9 @@ PRODUCT_PACKAGES += \
     monitor.conf \
     capture_oprofile.sh \
     liboprofiledaemon \
-    engpc
+    engpc \
+    hcidump \
+    libbt-vendor
 
 # RIL
 PRODUCT_PROPERTY_OVERRIDES += \

@@ -1,5 +1,4 @@
 import /init.j3xnlte_base.rc
-import /init.rilcommon.rc
 
 on init
     # SEC_SELINUX
@@ -76,7 +75,7 @@ on post-fs-data
 # ]
 
 on boot
-    export LD_SHIM_LIBS /system/bin/gpsd|libgps_shim.so
+    export LD_SHIM_LIBS /system/bin/gpsd|libdmitry.so
 
     chown root system /sys/module/pomemr/parameters/freepage_order
     chmod 0664 /sys/module/pomemr/parameters/freepage_order    
