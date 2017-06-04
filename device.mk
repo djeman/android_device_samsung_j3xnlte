@@ -257,7 +257,8 @@ PRODUCT_PACKAGES += \
     charge_res_images
 
 PRODUCT_PACKAGES += \
-    libdmitry
+    libdmitry \
+    libril_shim
 
 PRODUCT_PACKAGES += \
     power.sc8830 \

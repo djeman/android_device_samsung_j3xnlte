@@ -88,6 +88,7 @@ TARGET_BOOTANIMATION_TEXTURE_CACHE := true
 
 # telephony
 BOARD_RIL_CLASS := ../../../device/samsung/j3xnlte/ril/
+COMMON_GLOBAL_CFLAGS += -DDISABLE_ASHMEM_TRACKING
 
 # healthd
 BOARD_HAL_STATIC_LIBRARIES := libhealthd.j3xnlte
