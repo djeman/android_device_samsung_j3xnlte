@@ -3,8 +3,8 @@ bin/at_distributor
 bin/mfgloader
 bin/gpsd
 bin/sprdSleepLog
-bin/modem_control
-bin/modemd
+#bin/modem_control
+#bin/modemd
 #bin/download
 
 # etc
@@ -202,11 +202,11 @@ lib/libvariablespeed.so
 #lib/libstagefright_sprd_vpxdec.so
 #lib/libiwnpi.so
 lib/libaudio-ril.so
-lib/libvpu.so
+#lib/libvpu.so
 lib/libvtmanager.so
 lib/libvtstack.so
 lib/libynoise.so
-lib/libeng-audio.so
+#lib/libeng-audio.so
 #lib/libengbt.so
 lib/libengmode.so
 lib/libcalibration.so
@@ -222,19 +222,19 @@ lib/libsecril-client.so
 
 #bin/wcnd
 #bin/wcnd_cli
-bin/refnotify
-bin/radvd
-bin/cp_diskserver
+#bin/refnotify
+#bin/radvd
+#bin/cp_diskserver
 #bin/batterysrv
 bin/calibration_init
-bin/sprd_res_monitor
-bin/slog
-bin/slogctl
-bin/slogmodem
-bin/engpc
-bin/dhcp6s
-bin/dhcp6c
-bin/iwnpi
+#bin/sprd_res_monitor
+#bin/slog
+#bin/slogctl
+#bin/slogmodem
+#bin/engpc
+#bin/dhcp6s
+#bin/dhcp6c
+#bin/iwnpi
 bin/rild
 bin/smdexe
 bin/macloader

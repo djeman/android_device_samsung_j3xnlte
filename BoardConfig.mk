@@ -24,6 +24,8 @@ DEVICE_RESOLUTION := 720x1280
 
 TARGET_BOOTLOADER_BOARD_NAME := SC9830I
 
+BOARD_VENDOR := samsung
+
 #TARGET_PREBUILT_KERNEL := device/samsung/j3xnlte/kernel
 #TARGET_PREBUILT_DTB := device/samsung/j3xnlte/dt.img
 
@@ -34,16 +36,7 @@ NEED_KERNEL_MODULE_ROOT := true
 
 SPRD_MODULES:
 	make -C vendor/sprd/modules/libgpu/gpu/utgard/ MALI_PLATFORM=sc8830 BUILD=debug KDIR=$(KERNEL_OUT) clean
-	make -C vendor/sprd/modules/libgpu/gpu/utgard/ MALI_PLATFORM=sc8830 BUILD=debug KDIR=$(KERNEL_OUT)
-	mv vendor/sprd/modules/libgpu/gpu/utgard/mali.ko $(KERNEL_MODULES_OUT)
 	make -C vendor/sprd/wcn/wifi/sc2331/6.0/ SPRDWL_PLATFORM=sc8830 USING_PP_CORE=2 BUILD=debug KDIR=$(KERNEL_OUT) clean
-	make -C vendor/sprd/wcn/wifi/sc2331/6.0/ SPRDWL_PLATFORM=sc8830 USING_PP_CORE=2 BUILD=debug KDIR=$(KERNEL_OUT)
-	mv vendor/sprd/wcn/wifi/sc2331/6.0/sprdwl.ko $(KERNEL_MODULES_OUT)
-	mkdir -p $(PRODUCT_OUT)/system/lib/modules
-	ln -sf /lib/modules/autotst.ko $(PRODUCT_OUT)/system/lib/modules/autotst.ko
-	ln -sf /lib/modules/mali.ko $(PRODUCT_OUT)/system/lib/modules/mali.ko
-	ln -sf /lib/modules/mmc_test.ko $(PRODUCT_OUT)/system/lib/modules/mmc_test.ko
-	ln -sf /lib/modules/sprdwl.ko $(PRODUCT_OUT)/system/lib/modules/sprdwl.ko
 
 TARGET_KERNEL_MODULES := SPRD_MODULES
 TARGET_IGNORE_RO_BOOT_REVISION := true
@@ -87,9 +80,12 @@ TARGET_BOOTANIMATION_PRELOAD := true
 TARGET_BOOTANIMATION_TEXTURE_CACHE := true
 
 # telephony
+BOARD_PROVIDES_RILD := true
+BOARD_PROVIDES_LIBRIL := true
+BOARD_PROVIDES_LIBREFERENCE_RIL := true
+
 USE_BOOT_AT_DIAG := true
 BOARD_RIL_CLASS := ../../../device/samsung/j3xnlte/ril/
-COMMON_GLOBAL_CFLAGS += -DDISABLE_ASHMEM_TRACKING
 
 # healthd
 BOARD_HAL_STATIC_LIBRARIES := libhealthd.j3xnlte
@@ -103,7 +99,7 @@ TARGET_GPU_PP_CORE := 2
 USE_SPRD_HWCOMPOSER  := true
 USE_OPENGL_RENDERER := true
 USE_OVERLAY_COMPOSER_GPU := true
-NUM_FRAMEBUFFER_SURFACE_BUFFERS := 2
+NUM_FRAMEBUFFER_SURFACE_BUFFERS := 3
 
 USE_RGB_VIDEO_LAYER  := true
 
@@ -154,7 +150,7 @@ PATH_WHITELIST_EXTRA_H := "/sys/devices/sec-battery.4/power_supply/battery/batt_
 
 # Bluetooth
 BOARD_HAVE_BLUETOOTH := true
-SPRD_WCNBT_CHISET := marlin2
+SPRD_WCNBT_CHISET := marlin
 BOARD_SPRD_WCNBT_MARLIN := true
 
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/j3xnlte/configs/bluetooth

@@ -325,11 +325,12 @@ PRODUCT_PACKAGES += \
     liboprofiledaemon \
     engpc \
     hcidump \
-    libbt-vendor
+    libbt-vendor \
+    librilutils
 
 # RIL
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.telephony.ril_class=SamsungSPRDRIL
+    ro.telephony.ril_class=SlteRIL
 
 # Storage
 PRODUCT_PROPERTY_OVERRIDES += \

@@ -108,3 +108,4 @@
 
 # Google FRP
 /dev/block/platform/sdio_emmc/by-name/PERSISTENT    0660    system    system
+
