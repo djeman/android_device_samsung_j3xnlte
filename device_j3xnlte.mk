@@ -8,3 +8,7 @@ PRODUCT_NAME := full_j3xnlte
 PRODUCT_DEVICE := j3xnlte
 PRODUCT_BRAND := samsung
 PRODUCT_MANUFACTURER := samsung
+
+# Camera
+PRODUCT_PACKAGES += \
+    Snap
