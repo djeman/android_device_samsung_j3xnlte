@@ -22,9 +22,11 @@ import android.content.Context;
 import android.telephony.Rlog;
 import android.os.Message;
 import android.os.Parcel;
+import android.os.SystemProperties;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.SignalStrength;
 import android.telephony.SmsManager;
+import android.telephony.TelephonyManager;
 import com.android.internal.telephony.uicc.IccCardApplicationStatus;
 import com.android.internal.telephony.uicc.IccCardStatus;
 import com.android.internal.telephony.uicc.IccRefreshResponse;
@@ -337,6 +339,14 @@ public class SlteRIL extends RIL {
         return ret;
     }
 
+    public void setSimPower(final int n, final Message m) {
+        final RILRequest rr = RILRequest.obtain(10023, m);
+        rr.mParcel.writeInt(1);
+        rr.mParcel.writeInt(n);
+        this.riljLog(rr.serialString() + "> " + requestToString(rr.mRequest) + " int : " + n);
+        this.send(rr);
+    }
+
     @Override
     protected void
     processUnsolicited(Parcel p) {
@@ -379,6 +389,9 @@ public class SlteRIL extends RIL {
             case RIL_UNSOL_AM:
                 ret = responseString(p);
                 break;
+            case RIL_UNSOL_RIL_CONNECTED:
+                ret = responseInts(p);
+                break;
             default:
                 // Rewind the Parcel
                 p.setDataPosition(dataPosition);
@@ -393,6 +406,18 @@ public class SlteRIL extends RIL {
                 String strAm = (String)ret;
                 // Add debug to check if this wants to execute any useful am command
                 Rlog.v(RILJ_LOG_TAG, "XMM7260: am=" + strAm);
+                break;
+            case RIL_UNSOL_RIL_CONNECTED:
+                if (RILJ_LOGD) unsljLogRet(newResponse, ret);
+
+                setSimPower(9, null);
+                SystemProperties.set("ril.rildreset", "0");
+
+                if ((TelephonyManager.getDefault().getPhoneCount() < 2) || 
+                        (this.mInstanceId.intValue() != 1))
+                    setRadioPower(false, null);
+                setCellInfoListRate(Integer.MAX_VALUE, null);
+                notifyRegistrantsRilConnectionChanged(((int[])ret)[0]);
                 break;
         }
     }

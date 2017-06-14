@@ -26,6 +26,9 @@ TARGET_BOOTLOADER_BOARD_NAME := SC9830I
 
 BOARD_VENDOR := samsung
 
+# Include path
+TARGET_SPECIFIC_HEADER_PATH := device/samsung/j3xnlte/include
+
 #TARGET_PREBUILT_KERNEL := device/samsung/j3xnlte/kernel
 #TARGET_PREBUILT_DTB := device/samsung/j3xnlte/dt.img
 
@@ -78,6 +81,7 @@ BOARD_SUPPRESS_SECURE_ERASE := true
 BOARD_HARDWARE_CLASS := hardware/samsung/cmhw/
 
 # Init
+TARGET_PROVIDES_INIT_RC := true
 TARGET_INIT_VENDOR_LIB := libinit_j3lte
 TARGET_RECOVERY_DEVICE_MODULES := libinit_j3lte
 TARGET_UNIFIED_DEVICE := true
@@ -89,10 +93,8 @@ TARGET_BOOTANIMATION_PRELOAD := true
 TARGET_BOOTANIMATION_TEXTURE_CACHE := true
 
 # telephony
-BOARD_PROVIDES_RILD := true
 BOARD_PROVIDES_LIBRIL := true
-BOARD_PROVIDES_LIBREFERENCE_RIL := true
-
+BOARD_MODEM_TYPE := tss310
 USE_BOOT_AT_DIAG := true
 BOARD_RIL_CLASS := ../../../device/samsung/j3xnlte/ril/
 

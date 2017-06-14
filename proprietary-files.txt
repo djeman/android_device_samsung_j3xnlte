@@ -6,8 +6,41 @@ bin/sprdSleepLog
 #bin/modem_control
 #bin/modemd
 #bin/download
+bin/bih_config.sh
+bin/bootchecker
+bin/ext_symlink.sh
+bin/ext_data.sh
+bin/ext_kill.sh
+bin/inputfreq.sh
+bin/recoveryfreq.sh
+bin/IPSecService
+bin/ddexe
+bin/connfwexe
+bin/wlandutservice
+bin/scs
+bin/gps.cer
+#bin/wcnd
+#bin/wcnd_cli
+#bin/refnotify
+#bin/radvd
+#bin/cp_diskserver
+#bin/batterysrv
+bin/calibration_init
+#bin/sprd_res_monitor
+#bin/slog
+#bin/slogctl
+#bin/slogmodem
+#bin/engpc
+#bin/dhcp6s
+#bin/dhcp6c
+#bin/iwnpi
+#bin/rild
+bin/smdexe
+bin/macloader
 
 # etc
+etc/plmn_delta.bin
+etc/plmn_se13.bin
 etc/connectivity_calibration.ini
 etc/connectivity_configure.ini
 etc/feature_default.xml
@@ -50,7 +83,7 @@ lib/libomission_avoidance.so
 lib/libsec-ril.so
 lib/libsec-ril-dsds.so
 lib/libsecnativefeature.so
-lib/libsecril-client
+#lib/libsecril-client
 
 # Audio
 lib/libaudiosa.so
@@ -88,28 +121,12 @@ lib/soundfx/libaudioeffectoffload.so
 lib/soundfx/libaudiosa_sec.so
 lib/soundfx/libmyspace.so
 
-# vendor
-vendor/firmware/libpn548ad_fw.so
-vendor/firmware/vbc_eq
-vendor/media/LMspeed_508.emd
-vendor/media/PFFprec_600.emd
-
-# drm
-#lib/libomacp.so
-#lib/libomafldrm.so
-#lib/libdrmdecrypt.so
-#lib/libwvm.so
-#lib/drm/libdrmwvmplugin.so
-#lib/drm/libomaplugin.so
-#vendor/lib/libWVStreamControlAPI_L3.so
-#vendor/lib/libwvdrm_L3.so
-#vendor/lib/mediadrm/libwvdrmengine.so
-
 lib/modules/pskey_bt.txt
+
 lib/libsdp_crypto.so
 lib/libsec_devenc.so
 
-lib/libsAMRNB.so
+lib/libsAMRN.so
 lib/libsAMRWB.so
 lib/libsaiv_codec.so
 lib/libsomp.so
@@ -153,20 +170,6 @@ lib/libsft_af_ctrl.so
 lib/libshdace.so
 lib/libsimageis_jni.so
 
-bin/bih_config.sh
-bin/bootchecker
-bin/ext_symlink.sh
-bin/ext_data.sh
-bin/ext_kill.sh
-bin/inputfreq.sh
-bin/recoveryfreq.sh
-bin/IPSecService
-bin/ddexe
-bin/connfwexe
-bin/wlandutservice
-bin/scs
-bin/gps.cer
-
 #lib/libstagefrighthw_cm.so
 lib/libwrappergps.so
 lib/libaccauthentication_jni.so
@@ -186,7 +189,7 @@ lib/libbt-iopdb_mod.so
 #lib/libatchannel.so
 lib/libae.so
 lib/libawb.so
-lib/libbt-vendor.so
+#lib/libbt-vendor.so
 #lib/libstagefrighthw.so
 lib/libvariablespeed.so
 #lib/libvbeffect.so
@@ -201,7 +204,6 @@ lib/libvariablespeed.so
 #lib/libstagefright_sprd_soft_mpeg4dec.so
 #lib/libstagefright_sprd_vpxdec.so
 #lib/libiwnpi.so
-lib/libaudio-ril.so
 #lib/libvpu.so
 lib/libvtmanager.so
 lib/libvtstack.so
@@ -215,26 +217,25 @@ lib/libdeflicker.so
 #lib/libnvexchange.so
 lib/liblsc.so
 lib/libmorpho_easy_hdr.so
-lib/libril.so
-lib/libreference-ril.so
-lib/librilutils.so
-lib/libsecril-client.so
+#lib/libril.so
+#lib/libreference-ril.so
+#lib/librilutils.so
+#lib/libsecril-client.so
 
-#bin/wcnd
-#bin/wcnd_cli
-#bin/refnotify
-#bin/radvd
-#bin/cp_diskserver
-#bin/batterysrv
-bin/calibration_init
-#bin/sprd_res_monitor
-#bin/slog
-#bin/slogctl
-#bin/slogmodem
-#bin/engpc
-#bin/dhcp6s
-#bin/dhcp6c
-#bin/iwnpi
-bin/rild
-bin/smdexe
-bin/macloader
+# drm
+#lib/libomacp.so
+#lib/libomafldrm.so
+#lib/libdrmdecrypt.so
+#lib/libwvm.so
+#lib/drm/libdrmwvmplugin.so
+#lib/drm/libomaplugin.so
+#vendor/lib/libWVStreamControlAPI_L3.so
+#vendor/lib/libwvdrm_L3.so
+#vendor/lib/mediadrm/libwvdrmengine.so
+
+# vendor
+vendor/firmware/libpn548ad_fw.so
+vendor/firmware/vbc_eq
+vendor/media/LMspeed_508.emd
+vendor/media/PFFprec_600.emd
+

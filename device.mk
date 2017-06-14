@@ -216,7 +216,10 @@ PRODUCT_PACKAGES += \
     init.sc8830_ss.rc \
     init.wifi.rc \
     ueventd.sc8830.rc \
-    sswap
+    init.rc \
+    sswap \
+    bgcompact \
+    ffu
 
 # e2fsprog
 PRODUCT_PACKAGES += \
@@ -257,8 +260,7 @@ PRODUCT_PACKAGES += \
     charge_res_images
 
 PRODUCT_PACKAGES += \
-    libdmitry \
-    libril_shim
+    libdmitry
 
 PRODUCT_PACKAGES += \
     power.sc8830 \
@@ -326,7 +328,8 @@ PRODUCT_PACKAGES += \
     engpc \
     hcidump \
     libbt-vendor \
-    librilutils
+    librilutils \
+    libbm
 
 # RIL
 PRODUCT_PROPERTY_OVERRIDES += \
