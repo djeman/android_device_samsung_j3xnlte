@@ -18,3 +18,6 @@ PRODUCT_PACKAGES += \
     FMRadio \
     libfmjni \
     libfmcust \
+
+# Dalvik Heap config
+$(call inherit-product, frameworks/native/build/phone-xhdpi-2048-dalvik-heap.mk)
