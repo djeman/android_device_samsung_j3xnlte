@@ -12,3 +12,8 @@ PRODUCT_MANUFACTURER := samsung
 # Camera
 PRODUCT_PACKAGES += \
     Snap
+
+# FM Radio
+PRODUCT_PACKAGES += \
+    FMRadio \
+    libfmjni
