@@ -1,5 +1,5 @@
 
-TARGET_OTA_ASSERT_DEVICE := j3xnlte,j3xnltexx
+TARGET_OTA_ASSERT_DEVICE := j3xnlte,j3xnltexx,j2xlte,j2xltedd,j3xlte
 
 # inherit from the proprietary version
 -include vendor/samsung/j3xnlte/BoardConfigVendor.mk
