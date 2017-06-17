@@ -1,3 +1,17 @@
+diff --git a/data/keyboards/Generic.kl b/data/keyboards/Generic.kl
+index f10ba96..6e45c69 100644
+--- a/data/keyboards/Generic.kl
++++ b/data/keyboards/Generic.kl
+@@ -247,6 +247,9 @@ key 224   BRIGHTNESS_DOWN
+ key 225   BRIGHTNESS_UP
+ key 226   HEADSETHOOK
+ 
++# samsung
++key 254   APP_SWITCH
++
+ key 256   BUTTON_1
+ key 257   BUTTON_2
+ key 258   BUTTON_3
 diff --git a/media/java/android/media/AudioSystem.java b/media/java/android/media/AudioSystem.java
 index 927cd87..1d5c8de 100644
 --- a/media/java/android/media/AudioSystem.java
