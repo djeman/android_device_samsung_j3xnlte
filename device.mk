@@ -260,7 +260,8 @@ PRODUCT_PACKAGES += \
     charge_res_images
 
 PRODUCT_PACKAGES += \
-    libdmitry
+    libdmitry \
+    libril_shim
 
 PRODUCT_PACKAGES += \
     power.sc8830 \
@@ -346,6 +347,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # Default props
 ADDITIONAL_DEFAULT_PROPERTIES += \
     telephony.lteOnCdmaDevice=0 \
+    ro.telephony.default_cdma_sub=1 \
     persist.radio.apm_sim_not_pwdn=1 \
     persist.radio.add_power_save=1 \
     rild.libpath=/system/lib/libsec-ril.so \
