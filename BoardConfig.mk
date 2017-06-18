@@ -18,6 +18,9 @@ TARGET_CPU_SMP := true
 ARCH_ARM_HAVE_TLS_REGISTER := true
 WITH_SU := true
 
+# Remove "system.new.dat" format.System files are now in "system" folder of the ROM Package.(Easy for development purpose)
+BLOCK_BASED_OTA :=false
+
 BOARD_NEEDS_MEMORYHEAPION_SPRD := true
 BOARD_USE_EMMC := true
 
