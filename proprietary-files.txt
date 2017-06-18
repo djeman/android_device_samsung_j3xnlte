@@ -39,7 +39,6 @@ bin/smdexe
 bin/macloader
 
 # etc
-etc/plmn_delta.bin
 etc/plmn_se13.bin
 etc/connectivity_calibration.ini
 etc/connectivity_configure.ini
