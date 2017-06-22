@@ -300,7 +300,6 @@ PRODUCT_PACKAGES += \
     iwnpi \
     liboemcrypto \
     modem_control \
-    modemd \
     dhcp6s \
     dhcp6c \
     dhcp6ctl \

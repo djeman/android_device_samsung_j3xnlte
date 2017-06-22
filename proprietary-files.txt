@@ -4,7 +4,7 @@ bin/mfgloader
 bin/gpsd
 bin/sprdSleepLog
 #bin/modem_control
-#bin/modemd
+bin/modemd
 #bin/download
 bin/bih_config.sh
 bin/bootchecker
