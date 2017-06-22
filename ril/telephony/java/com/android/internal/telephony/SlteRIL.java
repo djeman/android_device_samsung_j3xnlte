@@ -46,8 +46,6 @@ public class SlteRIL extends RIL {
     static final boolean RILJ_LOGV = true;
 
     private static final int RIL_REQUEST_DIAL_EMERGENCY_CALL = 10001;
-    private static final int RIL_REQUEST_SET_SIM_POWER = 10023;
-    private static final int RIL_REQUEST_QUERY_CNAP = 10029;
 
     private static final int RIL_UNSOL_GPS_NOTI = 11009;
     private static final int RIL_UNSOL_AM = 11010;
@@ -256,33 +254,85 @@ public class SlteRIL extends RIL {
     }
 
     @Override
+    public void setUiccSubscription(int appIndex, boolean activate, Message result) {
+        riljLog("setUiccSubscription " + appIndex + " " + activate);
+
+        // Fake response (note: should be sent before mSubscriptionStatusRegistrants or
+        // SubscriptionManager might not set the readiness correctly)
+        AsyncResult.forMessage(result, 0, null);
+        result.sendToTarget();
+
+        // TODO: Actually turn off/on the radio (and don't fight with the ServiceStateTracker)
+        if (mSubscriptionStatusRegistrants != null)
+            mSubscriptionStatusRegistrants.notifyRegistrants(
+                    new AsyncResult (null, new int[] { activate ? 1 : 0 }, null));
+    }
+
+    @Override
+    public void setDataAllowed(boolean allowed, Message result) {
+        int simId = mInstanceId == null ? 0 : mInstanceId;
+        if (allowed) {
+            riljLog("Setting data subscription to sim [" + simId + "]");
+            invokeOemRilRequestRaw(new byte[] {0x9, 0x4}, result);
+        } else {
+            riljLog("Do nothing when turn-off data on sim [" + simId + "]");
+            if (result != null) {
+                AsyncResult.forMessage(result, 0, null);
+                result.sendToTarget();
+            }
+        }
+    }
+
+    @Override
+    public void getRadioCapability(Message response) {
+        String rafString = mContext.getResources().getString(
+            com.android.internal.R.string.config_radio_access_family);
+        riljLog("getRadioCapability: returning static radio capability [" + rafString + "]");
+        if (response != null) {
+            Object ret = makeStaticRadioCapability();
+            AsyncResult.forMessage(response, ret, null);
+            response.sendToTarget();
+        }
+    }
+
+    @Override
+    protected RadioState getRadioStateFromInt(int stateInt) {
+        RadioState state;
+        switch (stateInt) {
+        case 13: state = RadioState.RADIO_ON; break;
+        default:
+            state = super.getRadioStateFromInt(stateInt);
+        }
+        return state;
+    }
+
+    @Override
+    public void getHardwareConfig(Message response) {
+        unsupportedRequest("getHardwareConfig", response);
+    }
+
+    @Override
     public void startLceService(int reportIntervalMs, boolean pullMode, Message response) {
-        riljLog("Link Capacity Estimate (LCE) service is not supported!");
+        unsupportedRequest("startLceService", response);
+    }
+
+    @Override
+    public void stopLceService(Message response) {
+        unsupportedRequest("stopLceService", response);
+    }
+
+    @Override
+    public void pullLceData(Message response) {
+        unsupportedRequest("pullLceData", response);
+    }
+
+    private void unsupportedRequest(String methodName, Message response) {
+        riljLog("[" + getClass().getSimpleName() + "] Ignore call to: " + methodName);
         if (response != null) {
             AsyncResult.forMessage(response, null, new CommandException(
                     CommandException.Error.REQUEST_NOT_SUPPORTED));
             response.sendToTarget();
         }
-    }
-
-    public void setSimPower(final int n, final Message response) {
-        final RILRequest rr = RILRequest.obtain(RIL_REQUEST_SET_SIM_POWER, response);
-        rr.mParcel.writeInt(1);
-        rr.mParcel.writeInt(n);
-        this.riljLog(rr.serialString() + "> " + requestToString(rr.mRequest) + " int : " + n);
-        this.send(rr);
-    }
-
-    private Object 
-    responseSimPowerDone(final Parcel p) {
-        Rlog.d(RILJ_LOG_TAG, "ResponseSimPowerDone");
-        final int num = p.readInt();
-        final int[] values = new int[num];
-        for (int i = 0; i < num; ++i) {
-            values[i] = p.readInt();
-        }
-        Rlog.d(RILJ_LOG_TAG, "ResponseSimPowerDone : " + values[0]);
-        return values[0];
     }
 
     @Override
@@ -340,7 +390,7 @@ public class SlteRIL extends RIL {
             case RIL_REQUEST_SWITCH_WAITING_OR_HOLDING_AND_ACTIVE: ret =  responseVoid(p); break;
             case RIL_REQUEST_CONFERENCE: ret =  responseVoid(p); break;
             case RIL_REQUEST_UDUB: ret =  responseVoid(p); break;
-            case RIL_REQUEST_LAST_CALL_FAIL_CAUSE: ret =  responseInts(p); break;
+            case RIL_REQUEST_LAST_CALL_FAIL_CAUSE: ret =  responseFailCause(p); break;
             case RIL_REQUEST_SIGNAL_STRENGTH: ret =  responseSignalStrength(p); break;
             case RIL_REQUEST_VOICE_REGISTRATION_STATE: ret =  responseStrings(p); break;
             case RIL_REQUEST_DATA_REGISTRATION_STATE: ret =  responseStrings(p); break;
@@ -378,7 +428,6 @@ public class SlteRIL extends RIL {
             case RIL_REQUEST_SET_MUTE: ret =  responseVoid(p); break;
             case RIL_REQUEST_GET_MUTE: ret =  responseInts(p); break;
             case RIL_REQUEST_QUERY_CLIP: ret =  responseInts(p); break;
-            case RIL_REQUEST_QUERY_CNAP: ret =  responseInts(p); break;
             case RIL_REQUEST_LAST_DATA_CALL_FAIL_CAUSE: ret =  responseInts(p); break;
             case RIL_REQUEST_DATA_CALL_LIST: ret =  responseDataCallList(p); break;
             case RIL_REQUEST_RESET_RADIO: ret =  responseVoid(p); break;
@@ -461,8 +510,6 @@ public class SlteRIL extends RIL {
             case RIL_REQUEST_GET_ACTIVITY_INFO: ret = responseActivityData(p); break;
             case RIL_REQUEST_SET_MAX_TRANSMIT_POWER: ret = responseVoid(p); break;
 
-            case RIL_REQUEST_SET_SIM_POWER: ret = responseSimPowerDone(p); break;
-
             default:
                 throw new RuntimeException("Unrecognized solicited response: " + rr.mRequest);
             //break;
@@ -520,6 +567,24 @@ public class SlteRIL extends RIL {
                         mIccStatusChangedRegistrants.notifyRegistrants();
                     }
                     break;
+                case RIL_REQUEST_GET_RADIO_CAPABILITY: {
+                    // Ideally RIL's would support this or at least give NOT_SUPPORTED
+                    // but the hammerhead RIL reports GENERIC :(
+                    // TODO - remove GENERIC_FAILURE catching: b/21079604
+                    if (REQUEST_NOT_SUPPORTED == error ||
+                            GENERIC_FAILURE == error) {
+                        // we should construct the RAF bitmask the radio
+                        // supports based on preferred network bitmasks
+                        ret = makeStaticRadioCapability();
+                        error = 0;
+                    }
+                    break;
+                }
+                case RIL_REQUEST_GET_ACTIVITY_INFO:
+                    ret = new ModemActivityInfo(0, 0, 0,
+                            new int [ModemActivityInfo.TX_POWER_LEVELS], 0, 0);
+                    error = 0;
+                    break;
             }
 
             if (error != 0) rr.onError(error, ret);
@@ -556,7 +621,6 @@ public class SlteRIL extends RIL {
         response = p.readInt();
 
         try {switch(response) {
-            case RIL_UNSOL_RIL_CONNECTED: ret = responseInts(p); break;
             case RIL_UNSOL_GPS_NOTI: ret = responseVoid(p); break;
             case RIL_UNSOL_AM: ret = responseString(p); break;
             case RIL_UNSOL_UART: ret = responseRaw(p); break;
@@ -576,35 +640,6 @@ public class SlteRIL extends RIL {
         }
 
         switch (response) {
-            case RIL_UNSOL_RIL_CONNECTED:
-                Rlog.i("RILJ", "!@Boot_SVC : RIL_UNSOL_RIL_CONNECTED");
-                if (RILJ_LOGD) unsljLogRet(response, ret);
-
-                for (int i=0;i<10;i++) {
-                    Rlog.d("RILJ", "[CGG] Notify ril connected event to CP!");
-                    setSimPower(9, null);
-
-                    try {
-                        Thread.sleep(500);
-                    } catch (Exception e) {}
-
-                    if (!SystemProperties.get("ril.RildInit", "").equals("1"))
-                        Rlog.d("RILJ", "Rild is not ready, reTry " + i + "times");
-                    else
-                        break;
-                }
-
-                Rlog.d("RILJ", "[CGG] rildreset property value set as zero!");
-                SystemProperties.set("ril.rildreset", "0");
-
-                if ((TelephonyManager.getDefault().getPhoneCount() > 1) && (mInstanceId.intValue() == 1))
-                    Rlog.d("RILJ", "Do not power off radio for slot2");
-                else
-                    setRadioPower(false, null);
-
-                setCellInfoListRate(Integer.MAX_VALUE, null);
-                notifyRegistrantsRilConnectionChanged(((int[])ret)[0]);
-                break;
             case RIL_UNSOL_AM:
                 String strAm = (String)ret;
                 // Add debug to check if this wants to execute any useful am command
