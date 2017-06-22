@@ -31,7 +31,7 @@ TARGET_BOOTLOADER_BOARD_NAME := SC9830I
 BOARD_VENDOR := samsung
 
 # Include path
-TARGET_SPECIFIC_HEADER_PATH := device/samsung/j3xnlte/include
+#TARGET_SPECIFIC_HEADER_PATH := device/samsung/j3xnlte/include
 
 #TARGET_PREBUILT_KERNEL := device/samsung/j3xnlte/kernel
 #TARGET_PREBUILT_DTB := device/samsung/j3xnlte/dt.img
