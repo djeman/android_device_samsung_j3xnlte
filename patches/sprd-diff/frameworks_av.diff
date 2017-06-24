@@ -11,6 +11,35 @@ index 0ac13b9..21ec907 100644
      status_t selectAudioPortFormat(
              OMX_U32 portIndex, OMX_AUDIO_CODINGTYPE desiredFormat);
  
+diff --git a/include/media/stagefright/DataSource.h b/include/media/stagefright/DataSource.h
+index c8ad05e..ad5bd76 100644
+--- a/include/media/stagefright/DataSource.h
++++ b/include/media/stagefright/DataSource.h
+@@ -46,6 +46,11 @@ public:
+         kIsHTTPBasedSource     = 8,
+     };
+ 
++    virtual void getFd(int *fd, int64_t *offset) {
++        *fd = -1;
++        *offset = 0;
++    }
++
+     static sp<DataSource> CreateFromURI(
+             const sp<IMediaHTTPService> &httpService,
+             const char *uri,
+diff --git a/include/media/stagefright/MPEG4Writer.h b/include/media/stagefright/MPEG4Writer.h
+index 09a48f9..9f474cd 100644
+--- a/include/media/stagefright/MPEG4Writer.h
++++ b/include/media/stagefright/MPEG4Writer.h
+@@ -119,6 +119,8 @@ private:
+     status_t startTracks(MetaData *params);
+     size_t numTracks();
+     int64_t estimateMoovBoxSize(int32_t bitRate);
++    size_t getNumTracksWithData();
++    void incNumTracksWithData();
+ 
+     struct Chunk {
+         Track               *mTrack;        // Owner
 diff --git a/include/media/stagefright/MediaCodec.h b/include/media/stagefright/MediaCodec.h
 index e2588a4..fa01c52 100644
 --- a/include/media/stagefright/MediaCodec.h
@@ -302,6 +331,1567 @@ index 581bfba..182b7b2 100644
                  }
  
                  if (err == OK) {
+diff --git a/media/libstagefright/AMRExtractor.cpp b/media/libstagefright/AMRExtractor.cpp
+index 9c07403..48c6e17 100644
+--- a/media/libstagefright/AMRExtractor.cpp
++++ b/media/libstagefright/AMRExtractor.cpp
+@@ -123,7 +123,8 @@ AMRExtractor::AMRExtractor(const sp<DataSource> &source)
+         return;
+     }
+ 
+-    mIsWide = (mimeType == MEDIA_MIMETYPE_AUDIO_AMR_WB);
++    mIsWide = (mimeType == MEDIA_MIMETYPE_AUDIO_AMR_WB) ||
++		      (mimeType == MEDIA_MIMETYPE_AUDIO_AMR);
+ 
+     mMeta = new MetaData;
+     mMeta->setCString(
+diff --git a/media/libstagefright/AVIExtractor.cpp b/media/libstagefright/AVIExtractor.cpp
+index 5a6211e..867799e 100644
+--- a/media/libstagefright/AVIExtractor.cpp
++++ b/media/libstagefright/AVIExtractor.cpp
+@@ -35,6 +35,13 @@
+ 
+ namespace android {
+ 
++enum {
++    WAVE_FORMAT_PCM = 1,
++    WAVE_FORMAT_ALAW = 6,
++    WAVE_FORMAT_MULAW = 7,
++    WAVE_FORMAT_IMAADPCM = 0x11
++};
++
+ struct AVIExtractor::AVISource : public MediaSource {
+     AVISource(const sp<AVIExtractor> &extractor, size_t trackIndex);
+ 
+@@ -69,6 +76,7 @@ struct AVIExtractor::MP3Splitter : public RefBase {
+     void clear();
+     void append(MediaBuffer *buffer);
+     status_t read(MediaBuffer **buffer);
++    status_t readparam(int type, int16_t &param_value);
+ 
+ protected:
+     virtual ~MP3Splitter();
+@@ -77,6 +85,7 @@ private:
+     bool mFindSync;
+     int64_t mBaseTimeUs;
+     int64_t mNumSamplesRead;
++    int16_t nChannelnum;
+     sp<ABuffer> mBuffer;
+ 
+     bool resync();
+@@ -101,12 +110,21 @@ AVIExtractor::AVISource::~AVISource() {
+ }
+ 
+ status_t AVIExtractor::AVISource::start(MetaData *params) {
++    if (params) {
++        ALOGI("%s, have MetaData: %p", __FUNCTION__, params);
++    }
++
+     CHECK(!mBufferGroup);
+ 
+     mBufferGroup = new MediaBufferGroup;
+ 
+-    mBufferGroup->add_buffer(new MediaBuffer(mTrack.mMaxSampleSize));
+-    mBufferGroup->add_buffer(new MediaBuffer(mTrack.mMaxSampleSize));
++    if (8 == mTrack.mBitsPerSample) {
++        mBufferGroup->add_buffer(new MediaBuffer(mTrack.mMaxSampleSize<<1));
++        mBufferGroup->add_buffer(new MediaBuffer(mTrack.mMaxSampleSize<<1));
++    } else {
++        mBufferGroup->add_buffer(new MediaBuffer(mTrack.mMaxSampleSize));
++        mBufferGroup->add_buffer(new MediaBuffer(mTrack.mMaxSampleSize));
++    }
+     mSampleIndex = 0;
+ 
+     const char *mime;
+@@ -144,7 +162,8 @@ status_t AVIExtractor::AVISource::read(
+ 
+     int64_t seekTimeUs;
+     ReadOptions::SeekMode seekMode;
+-    if (options && options->getSeekTo(&seekTimeUs, &seekMode)) {
++    if (options && options->getSeekTo(&seekTimeUs, &seekMode)
++        && mExtractor->mIndexType != NO_INDEX) {
+         status_t err =
+             mExtractor->getSampleIndexAtTime(
+                     mTrackIndex, seekTimeUs, seekMode, &mSampleIndex);
+@@ -158,14 +177,28 @@ status_t AVIExtractor::AVISource::read(
+         }
+     }
+ 
+-    for (;;) {
++    for (int i=0;; i++) {
+         if (mSplitter != NULL) {
+             status_t err = mSplitter->read(buffer);
+ 
+             if (err == OK) {
++                int16_t channel_data = 0;
++                int32_t channel_data_old = 0;
++                mSplitter->readparam(0 , channel_data);
++
++                mTrack.mMeta->findInt32(kKeyChannelCount, &channel_data_old);
++		if (channel_data_old != channel_data) {
++                    mTrack.mMeta->setInt32(kKeyChannelCount, channel_data);
++                }
+                 break;
+             } else if (err != -EAGAIN) {
+                 return err;
++            } else { /* (err == -EAGAIN) */
++                 if (i > 100) {
++                    // to avoid dead loop.
++                    ALOGE("AVIExtractor, mSplitter read() failed > 100 times, stop. \n");
++                    return ERROR_END_OF_STREAM;
++                }
+             }
+         }
+ 
+@@ -179,19 +212,60 @@ status_t AVIExtractor::AVISource::read(
+         ++mSampleIndex;
+ 
+         if (err != OK) {
+-            return ERROR_END_OF_STREAM;
++            if (mSampleIndex < mTrack.mSamples.size()) {
++                continue;
++            } else {
++                return ERROR_END_OF_STREAM;
++            }
+         }
+ 
+         MediaBuffer *out;
+         CHECK_EQ(mBufferGroup->acquire_buffer(&out), (status_t)OK);
+ 
++        if (size > mTrack.mMaxSampleSize) {
++            size = mTrack.mMaxSampleSize; //buffer is not enough
++        }
+         ssize_t n = mExtractor->mDataSource->readAt(offset, out->data(), size);
+ 
+         if (n < (ssize_t)size) {
++            int64_t length = 0;
++            mExtractor->mDataSource->getSize(&length);
++            if ((int64_t)(offset + size) > length) {
++                ALOGE("read error, n: %zd, size: %zd, offset: %lld, file size: %lld", n, size, (long long)offset, (long long)length);
++                out->release();
++                out = NULL;
++                return ERROR_END_OF_STREAM;
++            }
++
+             return n < 0 ? (status_t)n : (status_t)ERROR_MALFORMED;
+         }
+ 
+-        out->set_range(0, size);
++        const char *mime;
++        CHECK(mTrack.mMeta->findCString(kKeyMIMEType, &mime));
++
++        if ( !strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_RAW)  && (mTrack.mBitsPerSample == 8)) {
++            // Convert 8-bit unsigned samples to 16-bit signed.
++            MediaBuffer *tmp;
++            CHECK_EQ(mBufferGroup->acquire_buffer(&tmp), (status_t)OK);
++
++            // The new buffer holds the sample number of samples, but each
++            // one is 2 bytes wide.
++            tmp->set_range(0, 2 * n);
++
++            int16_t *dst = (int16_t *)tmp->data();
++            const uint8_t *src = (const uint8_t *)out->data();
++            ssize_t numBytes = n;
++
++            while (numBytes-- > 0) {
++                *dst++ = ((int16_t)(*src) - 128) * 256;
++                ++src;
++            }
++
++            out->release();
++            out = tmp;
++        }else {
++            out->set_range(0, size);
++        }
+ 
+         out->meta_data()->setInt64(kKeyTime, timeUs);
+ 
+@@ -338,10 +412,13 @@ status_t AVIExtractor::MP3Splitter::read(MediaBuffer **out) {
+     size_t frameSize;
+     int sampleRate;
+     int numSamples;
++    int channel_mode;
+     if (!GetMPEGAudioFrameSize(
+-                header, &frameSize, &sampleRate, NULL, NULL, &numSamples)) {
+-        return ERROR_MALFORMED;
++                header, &frameSize, &sampleRate, &channel_mode, NULL, &numSamples)) {
++        clear();
++        return -EAGAIN;
+     }
++    nChannelnum = channel_mode;
+ 
+     if (mBuffer->size() < frameSize) {
+         return -EAGAIN;
+@@ -363,6 +440,16 @@ status_t AVIExtractor::MP3Splitter::read(MediaBuffer **out) {
+     return OK;
+ }
+ 
++status_t AVIExtractor::MP3Splitter::readparam(int type, int16_t &param_value)
++{
++    if (type) {
++        ALOGI("%s, type: %d", __FUNCTION__, type);
++    }
++    param_value = nChannelnum;
++
++    return OK;
++}
++
+ ////////////////////////////////////////////////////////////////////////////////
+ 
+ AVIExtractor::AVIExtractor(const sp<DataSource> &dataSource)
+@@ -387,6 +474,9 @@ sp<MediaSource> AVIExtractor::getTrack(size_t index) {
+ 
+ sp<MetaData> AVIExtractor::getTrackMetaData(
+         size_t index, uint32_t flags) {
++    if (flags) {
++        ALOGI("%s, type: %d", __FUNCTION__, flags);
++    }
+     return index < mTracks.size() ? mTracks.editItemAt(index).mMeta : NULL;
+ }
+ 
+@@ -400,19 +490,85 @@ sp<MetaData> AVIExtractor::getMetaData() {
+     return meta;
+ }
+ 
++uint32_t AVIExtractor::flags() const {
++    if (mIndexType == NO_INDEX) { //don't support seek if no index in broken files
++        return CAN_PAUSE;
++    } else {
++        return MediaExtractor::flags();
++    }
++}
++
+ status_t AVIExtractor::parseHeaders() {
+     mTracks.clear();
+     mMovieOffset = 0;
+     mFoundIndex = false;
+     mOffsetsAreAbsolute = false;
++    mIndexType = NO_INDEX;
++
++    //ssize_t res = parseChunk(0ll, -1ll);
++    off64_t dataSize = 0;
++    status_t err = mDataSource->getSize(&dataSize);
++    if (err == ERROR_UNSUPPORTED) {
++        dataSize = -1;
++    } else if (err != OK) {
++        return err;
++    }
+ 
+-    ssize_t res = parseChunk(0ll, -1ll);
++    ssize_t res = parseChunk(0ll, dataSize);
+ 
+     if (res < 0) {
+         return (status_t)res;
+     }
+ 
+-    if (mMovieOffset == 0ll || !mFoundIndex) {
++    if(mIndexType == NO_INDEX)
++    {
++        ALOGV("NO index existed!");
++        mOffsetsAreAbsolute = true;
++        //init all track's first sample position to movi's first sample position.
++        for (size_t i = 0; i < mTracks.size(); ++i) {
++            Track *track = &mTracks.editItemAt(i);
++            track->mCurSamplePos = mMovieOffset + 12;
++        }
++    }
++    //cut from parseindex()
++    for (size_t i = 0; i < mTracks.size(); ++i) {
++        Track *track = &mTracks.editItemAt(i);
++        const char *tmp;
++        CHECK(track->mMeta->findCString(kKeyMIMEType, &tmp));
++
++        AString mime = tmp;
++
++        if (!strncasecmp("video/", mime.c_str(), 6)) {
++            if (track->mThumbnailSampleIndex >= 0) {
++                int64_t thumbnailTimeUs;
++
++                if ((status_t)OK !=
++                        (err = getSampleTime(i, track->mThumbnailSampleIndex,
++                                             &thumbnailTimeUs))) {
++                    ALOGE("getSampleTime failed(%d)", err);
++                    return err;
++                }
++
++                track->mMeta->setInt64(kKeyThumbnailTime, thumbnailTimeUs);
++            }
++
++            err = OK;
++
++            if (!strcasecmp(mime.c_str(), MEDIA_MIMETYPE_VIDEO_MPEG4)) {
++                if( OK != addMPEG4CodecSpecificData(i)) {
++                    ALOGE("parseHeaders, addMPEG4CodecSpecificData failed, trackidx=%zd",i);
++                }
++            } else if (!strcasecmp(mime.c_str(), MEDIA_MIMETYPE_VIDEO_AVC)) {
++                err = addH264CodecSpecificData(i);
++            }
++
++            if (err != OK) {
++                return err;
++            }
++        }
++    }
++
++    if (mMovieOffset == 0ll/* || !mFoundIndex*/) {
+         return ERROR_MALFORMED;
+     }
+ 
+@@ -435,7 +591,8 @@ ssize_t AVIExtractor::parseChunk(off64_t offset, off64_t size, int depth) {
+     uint32_t chunkSize = U32LE_AT(&tmp[4]);
+ 
+     if (size >= 0 && chunkSize + 8 > size) {
+-        return ERROR_MALFORMED;
++        //return ERROR_MALFORMED;
++        chunkSize = size - 8;
+     }
+ 
+     static const char kPrefix[] = "                              ";
+@@ -459,7 +616,7 @@ ssize_t AVIExtractor::parseChunk(off64_t offset, off64_t size, int depth) {
+ 
+         ALOGV("%s offset 0x%08llx LIST of '%c%c%c%c', size %d",
+              prefix,
+-             offset,
++             (unsigned long long)offset,
+              (char)(subFourcc >> 24),
+              (char)((subFourcc >> 16) & 0xff),
+              (char)((subFourcc >> 8) & 0xff),
+@@ -488,7 +645,7 @@ ssize_t AVIExtractor::parseChunk(off64_t offset, off64_t size, int depth) {
+     } else {
+         ALOGV("%s offset 0x%08llx CHUNK '%c%c%c%c'",
+              prefix,
+-             offset,
++             (unsigned long long)offset,
+              (char)(fourcc >> 24),
+              (char)((fourcc >> 16) & 0xff),
+              (char)((fourcc >> 8) & 0xff),
+@@ -511,7 +668,18 @@ ssize_t AVIExtractor::parseChunk(off64_t offset, off64_t size, int depth) {
+ 
+             case FOURCC('i', 'd', 'x', '1'):
+             {
+-                err = parseIndex(offset + 8, chunkSize);
++                if(mIndexType == NO_INDEX) //IF indx found, don't care idx1
++                {
++                    err = parseIdx1(offset + 8, chunkSize);
++                    mIndexType = IDX1;
++                }
++                break;
++            }
++            case FOURCC('i', 'n', 'd', 'x'):
++            {
++                //don't check return values, since broken file may miss some std index
++                parseIndx(offset, chunkSize + 8);
++                mIndexType = INDX;
+                 break;
+             }
+ 
+@@ -519,6 +687,13 @@ ssize_t AVIExtractor::parseChunk(off64_t offset, off64_t size, int depth) {
+                 break;
+         }
+ 
++        if(((tmp[0] == 'i') && tmp[1] == 'x') ||
++           ((tmp[2] == 'i') && tmp[3] == 'x'))
++        {
++            parseIndx(offset, chunkSize + 8);
++            mIndexType = INDX;
++        }
++
+         if (err != OK) {
+             return err;
+         }
+@@ -571,16 +746,33 @@ static const char *GetMIMETypeForHandler(uint32_t handler) {
+         case FOURCC('X', 'v', 'i', 'D'):
+         case FOURCC('x', 'v', 'i', 'd'):
+         case FOURCC('X', 'V', 'I', 'X'):
++        case FOURCC('f', 'f', 'd', 's'):
++        case FOURCC('y', 'v', '1', '2'):
+             return MEDIA_MIMETYPE_VIDEO_MPEG4;
+ 
+         // from http://wiki.multimedia.cx/index.php?title=H264
+         case FOURCC('a', 'v', 'c', '1'):
+         case FOURCC('d', 'a', 'v', 'c'):
+         case FOURCC('x', '2', '6', '4'):
++        case FOURCC('h', '2', '6', '4'):
+         case FOURCC('H', '2', '6', '4'):
+         case FOURCC('v', 's', 's', 'h'):
+             return MEDIA_MIMETYPE_VIDEO_AVC;
+ 
++        case FOURCC('h', '2', '6', '3'):
++        case FOURCC('H', '2', '6', '3'):
++        case FOURCC('F', 'L', 'V', '1'):
++            return MEDIA_MIMETYPE_VIDEO_H263;
++
++        case FOURCC('m', 'j', 'p', 'g'):
++        case FOURCC('M', 'J', 'P', 'G'):
++            return MEDIA_MIMETYPE_VIDEO_MJPG;
++        // Support mime type of VP80.
++        /** SPRD: add { */
++        case FOURCC('V', 'P', '8', '0'):
++            return MEDIA_MIMETYPE_VIDEO_VP8;
++        /** SPRD: add } */
++
+         default:
+             return NULL;
+     }
+@@ -606,17 +798,19 @@ status_t AVIExtractor::parseStreamHeader(off64_t offset, size_t size) {
+ 
+     uint32_t type = U32_AT(data);
+     uint32_t handler = U32_AT(&data[4]);
+-    uint32_t flags = U32LE_AT(&data[8]);
++    //uint32_t flags = U32LE_AT(&data[8]);
+ 
+     sp<MetaData> meta = new MetaData;
+ 
+     uint32_t rate = U32LE_AT(&data[20]);
+     uint32_t scale = U32LE_AT(&data[24]);
++    uint32_t length = U32LE_AT(&data[32]);
+ 
+     uint32_t sampleSize = U32LE_AT(&data[44]);
+ 
+     const char *mime = NULL;
+     Track::Kind kind = Track::OTHER;
++    int32_t maxSampleSize = 0;
+ 
+     if (type == FOURCC('v', 'i', 'd', 's')) {
+         mime = GetMIMETypeForHandler(handler);
+@@ -634,12 +828,14 @@ status_t AVIExtractor::parseStreamHeader(off64_t offset, size_t size) {
+         }
+ 
+         kind = Track::VIDEO;
++        maxSampleSize = AVI_VIDEO_SAMPLE_MAX_SIZE;
+     } else if (type == FOURCC('a', 'u', 'd', 's')) {
+         if (mime && strncasecmp(mime, "audio/", 6)) {
+             return ERROR_MALFORMED;
+         }
+ 
+         kind = Track::AUDIO;
++        maxSampleSize = AVI_AUDIO_SAMPLE_MAX_SIZE;
+     }
+ 
+     if (!mime) {
+@@ -648,6 +844,15 @@ status_t AVIExtractor::parseStreamHeader(off64_t offset, size_t size) {
+ 
+     meta->setCString(kKeyMIMEType, mime);
+ 
++    //set duration and maxsamplesize first anyway, may be changed in parseIndex()
++    if (scale == 0) {
++        scale = 1;
++    } if (rate == 0) {
++        rate = 1;
++    }
++    meta->setInt64(kKeyDuration, (int64_t)(length * 1000000ll * rate / scale));
++    meta->setInt32(kKeyMaxInputSize, maxSampleSize);
++
+     mTracks.push();
+     Track *track = &mTracks.editItemAt(mTracks.size() - 1);
+ 
+@@ -659,9 +864,11 @@ status_t AVIExtractor::parseStreamHeader(off64_t offset, size_t size) {
+     track->mNumSyncSamples = 0;
+     track->mThumbnailSampleSize = 0;
+     track->mThumbnailSampleIndex = -1;
+-    track->mMaxSampleSize = 0;
++    track->mMaxSampleSize = maxSampleSize;
+     track->mAvgChunkSize = 1.0;
+     track->mFirstChunkSize = 0;
++    track->mCurSamplePos = 0;
++    track->mBitsPerSample = 0;
+ 
+     return OK;
+ }
+@@ -695,22 +902,70 @@ status_t AVIExtractor::parseStreamFormat(off64_t offset, size_t size) {
+     const uint8_t *data = buffer->data();
+ 
+     if (isVideo) {
++        const char *mime = NULL;
+         uint32_t width = U32LE_AT(&data[4]);
+         uint32_t height = U32LE_AT(&data[8]);
++        uint32_t handler = U32_AT(&data[16]);
++
++        mime = GetMIMETypeForHandler(handler);
++        if ((!mime)||(mime && strncasecmp(mime, "video/", 6))) {
++            ALOGI("strh Unsupported video format '%c%c%c%c'",
++                 (char)(handler >> 24),
++                 (char)((handler >> 16) & 0xff),
++                 (char)((handler >> 8) & 0xff),
++                 (char)(handler & 0xff));
++        }else{
++            track->mMeta->setCString(kKeyMIMEType, mime);
++        }
+ 
+         track->mMeta->setInt32(kKeyWidth, width);
+         track->mMeta->setInt32(kKeyHeight, height);
+     } else {
+         uint32_t format = U16LE_AT(data);
+-
+-        if (format == 0x55) {
+-            track->mMeta->setCString(kKeyMIMEType, MEDIA_MIMETYPE_AUDIO_MPEG);
+-        } else {
+-            ALOGW("Unsupported audio format = 0x%04x", format);
+-        }
+-
+         uint32_t numChannels = U16LE_AT(&data[2]);
+         uint32_t sampleRate = U32LE_AT(&data[4]);
++        uint32_t blockAlign = U16LE_AT(&data[12]);
++        uint32_t bitsPerSample = U16LE_AT(&data[14]);
++
++        switch(format){
++            case 0x55:
++            case 0x50:
++                track->mMeta->setCString(kKeyMIMEType, MEDIA_MIMETYPE_AUDIO_MPEG);
++                break;
++            case WAVE_FORMAT_PCM:
++                if ((16 == bitsPerSample) || (8 == bitsPerSample)){
++                    track->mMeta->setCString(kKeyMIMEType, MEDIA_MIMETYPE_AUDIO_RAW);
++                    track->mBitsPerSample = bitsPerSample;
++                } else {
++                    ALOGW("Unsupported WAVE_FORMAT_PCM but wrong bits = %d", bitsPerSample);
++                }
++                break;
++            case WAVE_FORMAT_ALAW:
++                if (8 == bitsPerSample) {
++                    track->mMeta->setCString(kKeyMIMEType, MEDIA_MIMETYPE_AUDIO_G711_ALAW);
++                } else {
++                    ALOGW("Unsupported WAVE_FORMAT_ALAW but wrong bits = %d", bitsPerSample);
++                }
++                break;
++            case WAVE_FORMAT_MULAW:
++                if (8 == bitsPerSample) {
++                    track->mMeta->setCString(kKeyMIMEType, MEDIA_MIMETYPE_AUDIO_G711_MLAW);
++                } else {
++                    ALOGW("Unsupported WAVE_FORMAT_MULAW but wrong bits = %d", bitsPerSample);
++                }
++                break;
++            case WAVE_FORMAT_IMAADPCM:
++                if  (4 == bitsPerSample) {
++                    track->mMeta->setCString(kKeyMIMEType, MEDIA_MIMETYPE_AUDIO_IMAADPCM);
++                    track->mMeta->setInt32(kKeyBlockAlign, blockAlign);
++                } else {
++                    ALOGW("Unsupported WAVE_FORMAT_IMAADPCM but wrong bits = 0x%04x", bitsPerSample);
++                }
++                break;
++             default:
++                ALOGW("Unsupported audio format = 0x%04x", format);
++                break;
++        };
+ 
+         track->mMeta->setInt32(kKeyChannelCount, numChannels);
+         track->mMeta->setInt32(kKeySampleRate, sampleRate);
+@@ -728,6 +983,7 @@ bool AVIExtractor::IsCorrectChunkType(
+         case Track::VIDEO:
+         {
+             if (chunkBase != FOURCC(0, 0, 'd', 'c')
++                    && chunkBase != FOURCC(0, 0, 's', 'b')
+                     && chunkBase != FOURCC(0, 0, 'd', 'b')) {
+                 return false;
+             }
+@@ -764,28 +1020,31 @@ bool AVIExtractor::IsCorrectChunkType(
+     return true;
+ }
+ 
+-status_t AVIExtractor::parseIndex(off64_t offset, size_t size) {
+-    if ((size % 16) != 0) {
++status_t AVIExtractor::parseIdx1(off64_t offset, size_t size) {
++    /*if ((size % 16) != 0) {
+         return ERROR_MALFORMED;
+-    }
++    }*/
+ 
+     sp<ABuffer> buffer = new ABuffer(size);
+     ssize_t n = mDataSource->readAt(offset, buffer->data(), buffer->size());
+ 
+     if (n < (ssize_t)size) {
+-        return n < 0 ? (status_t)n : ERROR_MALFORMED;
++        //return n < 0 ? (status_t)n : ERROR_MALFORMED;
+     }
+ 
+     const uint8_t *data = buffer->data();
+ 
+-    while (size > 0) {
++    while (n >= 16) {
+         uint32_t chunkType = U32_AT(data);
+ 
+         uint8_t hi = chunkType >> 24;
+         uint8_t lo = (chunkType >> 16) & 0xff;
+ 
+         if (hi < '0' || hi > '9' || lo < '0' || lo > '9') {
+-            return ERROR_MALFORMED;
++            //return ERROR_MALFORMED;
++            data += 16;
++            n -= 16;
++            continue;
+         }
+ 
+         size_t trackIndex = 10 * (hi - '0') + (lo - '0');
+@@ -802,7 +1061,7 @@ status_t AVIExtractor::parseIndex(off64_t offset, size_t size) {
+ 
+         if (track->mKind == Track::OTHER) {
+             data += 16;
+-            size -= 16;
++            n -= 16;
+             continue;
+         }
+ 
+@@ -822,6 +1081,15 @@ status_t AVIExtractor::parseIndex(off64_t offset, size_t size) {
+         info->mOffset = offset;
+         info->mIsKey = (flags & 0x10) != 0;
+ 
++        if (track->mSamples.size() > 1) {
++            track->mLengthTotal += track->mPreChunkSize;
++        } else {
++            track->mLengthTotal = 0;
++        }
++
++        track->mPreChunkSize = chunkSize;
++        info->mLengthTotal = track->mLengthTotal;
++
+         if (info->mIsKey) {
+             static const size_t kMaxNumSyncSamplesToScan = 20;
+ 
+@@ -838,7 +1106,7 @@ status_t AVIExtractor::parseIndex(off64_t offset, size_t size) {
+         }
+ 
+         data += 16;
+-        size -= 16;
++        n -= 16;
+     }
+ 
+     if (!mTracks.isEmpty()) {
+@@ -864,7 +1132,8 @@ status_t AVIExtractor::parseIndex(off64_t offset, size_t size) {
+     for (size_t i = 0; i < mTracks.size(); ++i) {
+         Track *track = &mTracks.editItemAt(i);
+ 
+-        if (track->mBytesPerSample > 0) {
++        if (Track::AUDIO==track->mKind) {
++            if(track->mBytesPerSample > 0) {
+             // Assume all chunks are roughly the same size for now.
+ 
+             // Compute the avg. size of the first 128 chunks (if there are
+@@ -877,7 +1146,7 @@ status_t AVIExtractor::parseIndex(off64_t offset, size_t size) {
+ 
+             double avgChunkSize = 0;
+             size_t j;
+-            for (j = 0; j <= numSamplesToAverage; ++j) {
++            for (j = 0; j < numSamplesToAverage; ++j) {
+                 off64_t offset;
+                 size_t size;
+                 bool isKey;
+@@ -900,20 +1169,34 @@ status_t AVIExtractor::parseIndex(off64_t offset, size_t size) {
+                 avgChunkSize += size;
+             }
+ 
+-            avgChunkSize /= numSamplesToAverage;
++            if (numSamplesToAverage > 1) {
++                avgChunkSize /= (numSamplesToAverage - 1);
++            }
+ 
+             track->mAvgChunkSize = avgChunkSize;
++            } else {
++            continue;
++            }
+         }
+ 
+         int64_t durationUs;
++        /* SPRD: modify code for bug 522420. */
++        /*
+         CHECK_EQ((status_t)OK,
+                  getSampleTime(i, track->mSamples.size() - 1, &durationUs));
+ 
+-        ALOGV("track %d duration = %.2f secs", i, durationUs / 1E6);
++        */
++        status_t error = getSampleTime(i, track->mSamples.size() - 1, &durationUs);
++        if (error != (status_t)OK){
++            return error;
++        }
++        /* @} */
++        ALOGV("track %zu duration = %.2f secs", i, durationUs / 1E6);
+ 
+         track->mMeta->setInt64(kKeyDuration, durationUs);
+         track->mMeta->setInt32(kKeyMaxInputSize, track->mMaxSampleSize);
+ 
++        /*
+         const char *tmp;
+         CHECK(track->mMeta->findCString(kKeyMIMEType, &tmp));
+ 
+@@ -941,6 +1224,7 @@ status_t AVIExtractor::parseIndex(off64_t offset, size_t size) {
+                 return err;
+             }
+         }
++        */
+     }
+ 
+     mFoundIndex = true;
+@@ -948,6 +1232,109 @@ status_t AVIExtractor::parseIndex(off64_t offset, size_t size) {
+     return OK;
+ }
+ 
++status_t AVIExtractor::parseIndx(off64_t offset, size_t size) {
++    if (size < 32) return ERROR_MALFORMED;
++
++    sp<ABuffer> buffer = new ABuffer(size);
++    ssize_t n = mDataSource->readAt(offset, buffer->data(), buffer->size());
++
++    if (n < (ssize_t)size) {
++        return n < 0 ? (status_t)n : ERROR_MALFORMED;
++    }
++
++    const uint8_t *data = buffer->data();
++    Track *track = &mTracks.editItemAt(mTracks.size() - 1); //directly after strh&strf
++    uint32_t sizePerIndexEntry   = U16LE_AT(&data[8]) * 4;
++    uint8_t indextype      = data[11];
++    uint32_t entriesInUse  = U32LE_AT(&data[12]);
++    off64_t  baseoffset    = U64LE_AT(&data[20]);
++
++    if (!sizePerIndexEntry) return ERROR_MALFORMED;
++
++    uint32_t maxEntries = (size - 32)/sizePerIndexEntry;
++    if(entriesInUse > maxEntries) {
++        entriesInUse = maxEntries;
++    }
++
++#define AVI_INDEX_OF_INDEXES  0x00
++#define AVI_INDEX_OF_CHUNKS   0x01
++
++    mOffsetsAreAbsolute = true;
++    data += 32; //step into aIndex[]
++
++    if(indextype == AVI_INDEX_OF_CHUNKS) {
++        double avgChunkSize = 0;
++
++        for(size_t i=0; i<entriesInUse; i++) {
++            track->mSamples.push();
++            SampleInfo *info =
++                &track->mSamples.editItemAt(track->mSamples.size() - 1);
++            info->mOffset = (uint32_t)baseoffset + U32LE_AT(data) - 8;//need to point ##wb ##dc
++
++            size_t chunkSize = U32LE_AT(&data[4]);
++            info->mIsKey  = ((int32_t)chunkSize) > 0;//bit31 indicate keyframe
++
++            chunkSize = chunkSize & 0x7fffffff;
++            if (chunkSize > track->mMaxSampleSize) {
++		ALOGE("parse Indx track->maxSize:%zd, size:%zu", track->mMaxSampleSize, chunkSize );
++                track->mMaxSampleSize = chunkSize;
++		track->mMeta->setInt32(kKeyMaxInputSize, track->mMaxSampleSize);
++            }
++
++            if (track->mSamples.size() > 1) {
++                track->mLengthTotal += track->mPreChunkSize;
++            } else {
++                track->mLengthTotal = 0;
++            }
++
++            track->mPreChunkSize = chunkSize;
++            info->mLengthTotal = track->mLengthTotal;
++            if(track->mBytesPerSample > 0)
++            ALOGV("parseIndx, num=%zu, chunkSize=%zu, mLengthTotal=%d",i, chunkSize, info->mLengthTotal);
++
++            if (info->mIsKey) {
++                static const size_t kMaxNumSyncSamplesToScan = 20;
++
++                if (track->mNumSyncSamples < kMaxNumSyncSamplesToScan) {
++                    if (chunkSize > track->mThumbnailSampleSize) {
++                        track->mThumbnailSampleSize = chunkSize;
++
++                        track->mThumbnailSampleIndex =
++                        track->mSamples.size() - 1;
++                    }
++                }
++                ++track->mNumSyncSamples;
++            }
++
++            data += sizePerIndexEntry;
++            if (i == 0) {
++                track->mFirstChunkSize = size;
++                continue;
++            }
++            avgChunkSize += chunkSize;
++        }
++
++        if (entriesInUse > 1) {
++            avgChunkSize /= entriesInUse;
++        }
++        track->mAvgChunkSize = avgChunkSize;
++    }
++    else if(indextype == AVI_INDEX_OF_INDEXES)
++    {
++        for(size_t i=0; i<entriesInUse; i++) {
++            off64_t stdIndexOffset = U64LE_AT(data);
++            uint32_t stdIndexSize  = U32LE_AT(&data[8]);
++            status_t err = parseIndx(stdIndexOffset, stdIndexSize);
++            if (err) {
++                return err;
++            }
++            data += sizePerIndexEntry;
++        }
++    }
++
++    return OK;
++}
++
+ static size_t GetSizeWidth(size_t x) {
+     size_t n = 1;
+     while (x > 127) {
+@@ -958,18 +1345,46 @@ static size_t GetSizeWidth(size_t x) {
+ }
+ 
+ static uint8_t *EncodeSize(uint8_t *dst, size_t x) {
+-    while (x > 127) {
+-        *dst++ = (x & 0x7f) | 0x80;
++    size_t  size_len = GetSizeWidth(x);
++    uint8_t  cnt_7bit_rightshift = 0;
++
++    ALOGI("EncodeSize,  x=0x%x, size_len=%d",
++        (uint32_t)x,  (uint32_t)size_len
++    );
++
++    // if use several bytes to save the length,  the bytes shold be in big endia mode.
++    // save the hightest 7bits in the first byte with bit7=1, which means the lower 7bits  are saved in the followed byte.
++    // save the higher 7bits in the followed byte with bit7=1.
++    // save the lowest 7bits in the lastest byte with bit7=0.
++    dst += size_len;
++    while (cnt_7bit_rightshift < size_len) {
++        dst--;
++        // save the latest bytes firstly.
++        if (cnt_7bit_rightshift == 0) {
++            *dst = (x & 0x7f); 
++        } else {
++            *dst = (x & 0x7f) | 0x80;
++        }
++
+         x >>= 7;
++        cnt_7bit_rightshift++;
+     }
+-    *dst++ = x;
++    dst += size_len;
++
++    ALOGI("EncodeSize,  x=0x%x,  [0,1]=0x%x,%x",
++        (uint32_t)x,  *(dst-2), *(dst-1)
++    );
++
+     return dst;
+ }
+ 
+ sp<ABuffer> MakeMPEG4VideoCodecSpecificData(const sp<ABuffer> &config) {
+     size_t len1 = config->size() + GetSizeWidth(config->size()) + 1;
+-    size_t len2 = len1 + GetSizeWidth(len1) + 1 + 13;
+-    size_t len3 = len2 + GetSizeWidth(len2) + 1 + 3;
++    
++    /* SPRD: modify for Video of AVI displaying divisive picture in Gallery{ */
++    size_t len2 = len1 + GetSizeWidth(len1 + 13) + 1 + 13;
++    size_t len3 = len2 + GetSizeWidth(len2 + 3) + 1 + 3;
++    /* SPRD: modify } */
+ 
+     sp<ABuffer> csd = new ABuffer(len3);
+     uint8_t *dst = csd->data();
+@@ -1003,11 +1418,20 @@ status_t AVIExtractor::addMPEG4CodecSpecificData(size_t trackIndex) {
+     size_t size;
+     bool isKey;
+     int64_t timeUs;
+-    status_t err =
+-        getSampleInfo(trackIndex, 0, &offset, &size, &isKey, &timeUs);
++    size_t sampleIndex = 0;
+ 
+-    if (err != OK) {
+-        return err;
++    for (;;) {
++        status_t err = getSampleInfo(trackIndex, sampleIndex, &offset, &size, &isKey, &timeUs);
++
++        if (err != OK) {
++            return err;
++        }
++
++        if (size <= 0) {
++            sampleIndex ++;
++        } else {
++            break;
++        }
+     }
+ 
+     sp<ABuffer> buffer = new ABuffer(size);
+@@ -1109,13 +1533,76 @@ status_t AVIExtractor::getSampleInfo(
+         return -ERANGE;
+     }
+ 
+-    const Track &track = mTracks.itemAt(trackIndex);
++    Track *track = &mTracks.editItemAt(trackIndex);
++    uint32_t chunkType;
++    if (sampleIndex >= track->mSamples.size()) {
++        if(mIndexType == NO_INDEX) { //parse movi data to get index info
++            while(sampleIndex >= track->mSamples.size()) {
++                uint8_t tmp[12];
++                ssize_t n = mDataSource->readAt(track->mCurSamplePos, tmp, 8);
++                if (n < 8) {
++                    return (n < 0) ? n : (ssize_t)ERROR_MALFORMED;
++                }
++                chunkType = U32_AT(tmp);
+ 
+-    if (sampleIndex >= track.mSamples.size()) {
+-        return -ERANGE;
++                if(chunkType == FOURCC('L', 'I', 'S', 'T')) {
++                    track->mCurSamplePos += 12; //skip LIST rec
++                    continue;
++                }
++
++                uint8_t hi = chunkType >> 24;
++                uint8_t lo = (chunkType >> 16) & 0xff;
++
++                if (hi < '0' || hi > '9' || lo < '0' || lo > '9') {
++                    return ERROR_MALFORMED;
++                }
++
++                size_t tmpIndex = 10 * (hi - '0') + (lo - '0');
++
++                if (tmpIndex >= mTracks.size()) {
++                    return ERROR_MALFORMED;
++                }
++
++                uint32_t sampleSize = U32LE_AT(&tmp[4]);
++                if (trackIndex != tmpIndex) {
++                    track->mCurSamplePos += (sampleSize + 8);
++                    if (track->mCurSamplePos & 1) { //careful
++                        ++track->mCurSamplePos;
++                    }
++                    continue;
++                }
++                //new sample
++                track->mSamples.push();
++                if (track->mSamples.size() > 1) {
++                    track->mLengthTotal += track->mPreChunkSize;
++                } else {
++                    track->mLengthTotal = 0;
++                }
++                track->mPreChunkSize = sampleSize;
++
++                SampleInfo *info =
++                    &track->mSamples.editItemAt(track->mSamples.size() - 1);
++                info->mOffset = track->mCurSamplePos;
++                info->mIsKey = true;//don't know.
++                info->mLengthTotal = track->mLengthTotal;
++
++                track->mCurSamplePos += (sampleSize + 8);
++                if (track->mCurSamplePos & 1) {
++                    ++track->mCurSamplePos;
++                }
++
++                if (sampleIndex == 0) {
++                    track->mFirstChunkSize = sampleSize;
++                    track->mAvgChunkSize = sampleSize; //don't care it
++                }
++            }
++            //TODO: actually don't need to execute the following data, should return now?
++        } else {
++            return -ERANGE;
++        }
+     }
+ 
+-    const SampleInfo &info = track.mSamples.itemAt(sampleIndex);
++    const SampleInfo &info = track->mSamples.itemAt(sampleIndex);
+ 
+     if (!mOffsetsAreAbsolute) {
+         *offset = info.mOffset + mMovieOffset + 8;
+@@ -1132,9 +1619,9 @@ status_t AVIExtractor::getSampleInfo(
+         return n < 0 ? (status_t)n : (status_t)ERROR_MALFORMED;
+     }
+ 
+-    uint32_t chunkType = U32_AT(tmp);
++    chunkType = U32_AT(tmp);
+ 
+-    if (!IsCorrectChunkType(trackIndex, track.mKind, chunkType)) {
++    if (!IsCorrectChunkType(trackIndex, track->mKind, chunkType)) {
+         return ERROR_MALFORMED;
+     }
+ 
+@@ -1143,19 +1630,11 @@ status_t AVIExtractor::getSampleInfo(
+ 
+     *isKey = info.mIsKey;
+ 
+-    if (track.mBytesPerSample > 0) {
+-        size_t sampleStartInBytes;
+-        if (sampleIndex == 0) {
+-            sampleStartInBytes = 0;
+-        } else {
+-            sampleStartInBytes =
+-                track.mFirstChunkSize + track.mAvgChunkSize * (sampleIndex - 1);
+-        }
+-
+-        sampleIndex = sampleStartInBytes / track.mBytesPerSample;
++    if ((Track::AUDIO==track->mKind) && (track->mBytesPerSample > 0)) {
++        sampleIndex = info.mLengthTotal / track->mBytesPerSample;
+     }
+ 
+-    *sampleTimeUs = (sampleIndex * 1000000ll * track.mRate) / track.mScale;
++    *sampleTimeUs = (sampleIndex * 1000000ll * track->mRate) / track->mScale;
+ 
+     return OK;
+ }
+@@ -1181,7 +1660,7 @@ status_t AVIExtractor::getSampleIndexAtTime(
+ 
+     ssize_t closestSampleIndex;
+ 
+-    if (track.mBytesPerSample > 0) {
++    if ((Track::AUDIO==track.mKind) && (track.mBytesPerSample > 0)) {
+         size_t closestByteOffset =
+             (timeUs * track.mBytesPerSample)
+                 / track.mRate * track.mScale / 1000000ll;
+@@ -1189,9 +1668,27 @@ status_t AVIExtractor::getSampleIndexAtTime(
+         if (closestByteOffset <= track.mFirstChunkSize) {
+             closestSampleIndex = 0;
+         } else {
+-            closestSampleIndex =
+-                (closestByteOffset - track.mFirstChunkSize)
+-                    / track.mAvgChunkSize;
++            if (NO_INDEX != mIndexType && track.mSamples.size() > 0) {
++                uint32_t i = 0;
++                const SampleInfo *info = &track.mSamples.itemAt(0);
++                while (info->mLengthTotal < closestByteOffset) {
++                    ++i;
++                    if (i >= track.mSamples.size()) {
++                        break;
++                    }
++                    info = &track.mSamples.itemAt(i);
++                    ALOGV("audiotrack seek, num=%d, mLengthTotal=%d",i, info->mLengthTotal);
++                }
++                closestSampleIndex = (info->mLengthTotal == closestByteOffset)? i: (i - 1);
++                ALOGI("mIndexType=%d, closestSampleIndex=%zd, closestByteOffset=%zu, \
++                      info->mLengthTotal=%d, rate=%d, scale=%d, samplesize=%d",
++                      mIndexType, closestSampleIndex, closestByteOffset, info->mLengthTotal, 
++                      track.mRate, track.mScale, track.mBytesPerSample);
++            } else {
++                closestSampleIndex =
++                    (closestByteOffset - track.mFirstChunkSize)
++                        / track.mAvgChunkSize;
++            }
+         }
+     } else {
+         // Each chunk contains a single sample.
+@@ -1199,6 +1696,9 @@ status_t AVIExtractor::getSampleIndexAtTime(
+     }
+ 
+     ssize_t numSamples = track.mSamples.size();
++    if (!numSamples) {
++        return NOT_ENOUGH_DATA;
++    }
+ 
+     if (closestSampleIndex < 0) {
+         closestSampleIndex = 0;
+@@ -1236,6 +1736,9 @@ status_t AVIExtractor::getSampleIndexAtTime(
+         ++nextSyncSampleIndex;
+     }
+ 
++    ALOGI("Track=%d, seek_mode=%d, sampleIndex=%zu, closestSampleIndex=%zd",
++                    track.mKind, mode, *sampleIndex, closestSampleIndex);
++
+     switch (mode) {
+         case MediaSource::ReadOptions::SEEK_PREVIOUS_SYNC:
+         {
+@@ -1254,7 +1757,12 @@ status_t AVIExtractor::getSampleIndexAtTime(
+         case MediaSource::ReadOptions::SEEK_CLOSEST_SYNC:
+         {
+             if (prevSyncSampleIndex < 0 && nextSyncSampleIndex >= numSamples) {
+-                return UNKNOWN_ERROR;
++                if (closestSampleIndex >= 0 && closestSampleIndex < numSamples) {
++                    *sampleIndex = closestSampleIndex; // seek to closestSampleIndex
++                    return OK;
++                } else {
++                    return UNKNOWN_ERROR;
++                }
+             }
+ 
+             if (prevSyncSampleIndex < 0) {
+@@ -1266,12 +1774,34 @@ status_t AVIExtractor::getSampleIndexAtTime(
+                 *sampleIndex = prevSyncSampleIndex;
+                 return OK;
+             }
+-
++ 
+             size_t dist1 = closestSampleIndex - prevSyncSampleIndex;
+             size_t dist2 = nextSyncSampleIndex - closestSampleIndex;
+ 
+-            *sampleIndex =
+-                (dist1 < dist2) ? prevSyncSampleIndex : nextSyncSampleIndex;
++            if(Track::VIDEO==track.mKind) {
++                ALOGV("sampleIndex=%zu, closestSampleIndex=%zd",
++                    *sampleIndex, closestSampleIndex);
++
++                if(*sampleIndex < (size_t)closestSampleIndex) { //forward seek
++                    if(dist1 < dist2 && *sampleIndex  < (size_t)prevSyncSampleIndex + 1) {
++                        *sampleIndex = prevSyncSampleIndex;
++                    } else {
++                        *sampleIndex = nextSyncSampleIndex;
++                    }
++                } else { //backward seek
++                    if (dist1 > dist2 && *sampleIndex  > (size_t)nextSyncSampleIndex + 1) {
++                        *sampleIndex = nextSyncSampleIndex;
++                    } else {
++                        *sampleIndex = prevSyncSampleIndex;
++                    }
++                }
++            } else {
++                *sampleIndex =
++                    (dist1 < dist2) ? prevSyncSampleIndex : nextSyncSampleIndex;
++            }
++
++            ALOGI("sampleIndex=%zu, prevSyncSampleIndex=%zd, nextSyncSampleIndex=%zd",
++                *sampleIndex, prevSyncSampleIndex, nextSyncSampleIndex);
+ 
+             return OK;
+         }
+@@ -1296,7 +1826,7 @@ bool SniffAVI(
+         // Just a tad over the mp3 extractor's confidence, since
+         // these .avi files may contain .mp3 content that otherwise would
+         // mistakenly lead to us identifying the entire file as a .mp3 file.
+-        *confidence = 0.21;
++        *confidence = 0.31;
+ 
+         return true;
+     }
+diff --git a/media/libstagefright/Android.mk b/media/libstagefright/Android.mk
+index 792c139..f10f010 100644
+--- a/media/libstagefright/Android.mk
++++ b/media/libstagefright/Android.mk
+@@ -71,6 +71,10 @@ LOCAL_SRC_FILES:=                         \
+         avc_utils.cpp                     \
+         APE.cpp                           \
+         FFMPEGSoftCodec.cpp               \
++        AVIExtractor.cpp                  \
++        FLVExtractor.cpp                  \
++        FileCache.cpp                     \
++        MP3FileSource.cpp                 \
+ 
+ LOCAL_C_INCLUDES:= \
+         $(TOP)/frameworks/av/include/media/ \
+diff --git a/media/libstagefright/AwesomePlayer.cpp b/media/libstagefright/AwesomePlayer.cpp
+index 933f241..69981f8 100644
+--- a/media/libstagefright/AwesomePlayer.cpp
++++ b/media/libstagefright/AwesomePlayer.cpp
+@@ -526,13 +526,6 @@ void AwesomePlayer::reset_l() {
+ 
+     notifyListener_l(MEDIA_STOPPED);
+ 
+-    if (mDecryptHandle != NULL) {
+-            mDrmManagerClient->setPlaybackStatus(mDecryptHandle,
+-                    Playback::STOP, 0);
+-            mDecryptHandle = NULL;
+-            mDrmManagerClient = NULL;
+-    }
+-
+     if (mFlags & PLAYING) {
+         uint32_t params = IMediaPlayerService::kBatteryDataTrackDecoder;
+         if ((mAudioSource != NULL) && (mAudioSource != mAudioTrack)) {
+@@ -1661,7 +1654,7 @@ status_t AwesomePlayer::initVideoDecoder(uint32_t flags) {
+     }
+ #else
+     if (mDecryptHandle != NULL) {
+-        flags |= OMXCodec::kEnableGrallocUsageProtected;
++        // flags |= OMXCodec::kEnableGrallocUsageProtected;
+     }
+ #endif
+     ALOGV("initVideoDecoder flags=0x%x", flags);
+diff --git a/media/libstagefright/DataSource.cpp b/media/libstagefright/DataSource.cpp
+index 34f0649..9933c5f 100644
+--- a/media/libstagefright/DataSource.cpp
++++ b/media/libstagefright/DataSource.cpp
+@@ -33,8 +33,11 @@
+ #include "include/WAVExtractor.h"
+ #include "include/WVMExtractor.h"
+ 
++#include "include/AVIExtractor.h"
++#include "include/FLVExtractor.h"
+ #include "matroska/MatroskaExtractor.h"
+ 
++#include "include/PSXSTRExtractor.h"
+ #include <media/IMediaHTTPConnection.h>
+ #include <media/IMediaHTTPService.h>
+ #include <media/stagefright/foundation/ADebug.h>
+@@ -218,6 +221,9 @@ void DataSource::RegisterDefaultSniffers() {
+     RegisterSniffer_l(SniffMPEG2PS);
+     RegisterSniffer_l(SniffWVM);
+     RegisterSniffer_l(SniffMidi);
++    RegisterSniffer_l(SniffAVI);
++    RegisterSniffer_l(SniffPSXSTR);
++    RegisterSniffer_l(SniffFLV);
+     RegisterSniffer_l(AVUtils::get()->getExtendedSniffer());
+     RegisterSnifferPlugin();
+ 
+diff --git a/media/libstagefright/MP3Extractor.cpp b/media/libstagefright/MP3Extractor.cpp
+index 2e54e8c..59d1432 100644
+--- a/media/libstagefright/MP3Extractor.cpp
++++ b/media/libstagefright/MP3Extractor.cpp
+@@ -214,7 +214,7 @@ public:
+     MP3Source(
+             const sp<MetaData> &meta, const sp<DataSource> &source,
+             off64_t first_frame_pos, uint32_t fixed_header,
+-            const sp<MP3Seeker> &seeker);
++            const sp<MP3Seeker> &seeker, bool Is_Vbr_S);
+ 
+     virtual status_t start(MetaData *params = NULL);
+     virtual status_t stop();
+@@ -241,17 +241,86 @@ private:
+ 
+     int64_t mBasisTimeUs;
+     int64_t mSamplesRead;
++    bool mIsVbr_S;
+ 
+     MP3Source(const MP3Source &);
+     MP3Source &operator=(const MP3Source &);
+ };
+ 
++#define BYTE_TO_CHECK 1024*30
++#define BYTE_CAL_AVGB BYTE_TO_CHECK*10
++bool MP3Extractor::TestVBR(const sp<DataSource> &source, int *avg_bitrate, uint32_t match_header,
++        off64_t inout_pos){
++
++    off64_t pos = inout_pos;
++    bool vbr_valid = false;
++    size_t kMaxBytesChecked = BYTE_TO_CHECK;
++    int total_bitrate = 0;
++    int total_count =0;
++    int prev_bitrate = -1;
++    uint8_t tmp[4];
++
++    if(!mMeta->findInt32(kKeyBitRate, &prev_bitrate))
++    {
++        prev_bitrate = -1;
++    }
++
++    do {
++        if (pos >=(off64_t)( inout_pos + kMaxBytesChecked)) {
++            // Don't scan forever.
++            //ALOGE("wangzuo:giving up at offset %lld", pos);
++            break;
++        }
++        if (source->readAt(pos, tmp, 4) < 4) {
++            ALOGE("wangzuo:end of the file");
++            break;
++        }
++
++        uint32_t header = U32_AT(tmp);
++        size_t frame_size;
++        int sample_rate, num_channels, bitrate;
++        if ((match_header != 0 && (header & kMask) != (match_header & kMask))||!GetMPEGAudioFrameSize(
++            header, &frame_size,&sample_rate, &num_channels, &bitrate)) {
++            ALOGE("wangzuo:to do resync");
++            if (!Resync(mDataSource, mFixedHeader, &pos, NULL, NULL)) {
++                ALOGE("wangzuo:Unable to resync. break");
++                break ;
++            }
++            continue;
++        }
++        //ALOGE("wangzuo0:AVG_Bitrate %d,count %d pos %lld",(*avg_bitrate),total_count,pos);
++        if (prev_bitrate == -1) {
++            prev_bitrate = bitrate;
++            total_bitrate += bitrate;
++            total_count ++;
++            //ALOGE("wangzuo1:AVG_Bitrate %d,count %d pos %lld frame_size %d",(*avg_bitrate),total_count,pos,frame_size);
++        } else {
++            if ((prev_bitrate != bitrate)&&!vbr_valid)
++            {
++                vbr_valid = true;
++                kMaxBytesChecked = BYTE_CAL_AVGB;
++            };
++            prev_bitrate = bitrate;
++            total_bitrate += bitrate;
++            total_count ++;
++            //ALOGE("wangzuo2:AVG_Bitrate %d,count %d pos %lld frame_size %d",(*avg_bitrate),total_count,pos,frame_size);
++        }
++        //ALOGE("wangzuo3:AVG_Bitrate %d,count %d pos %lld frame_size %d",(*avg_bitrate),total_count,pos,frame_size);
++        pos = pos + frame_size;
++        //ALOGE("wangzuo4:AVG_Bitrate %d,count %d pos %lld frame_size %d",(*avg_bitrate),total_count,pos,frame_size);
++    } while (1);
++    *avg_bitrate = (total_bitrate + (total_count >>1))/total_count;
++    //ALOGE("wangzuo:AVG_Bitrate %d,count %d vbr_valid %d",(*avg_bitrate),total_count,vbr_valid);
++    return vbr_valid;
++}
++
+ MP3Extractor::MP3Extractor(
+         const sp<DataSource> &source, const sp<AMessage> &meta)
+     : mInitCheck(NO_INIT),
+       mDataSource(source),
+       mFirstFramePos(-1),
+-      mFixedHeader(0) {
++      mFixedHeader(0),
++      mIsVbr(false){
+     off64_t pos = 0;
+     off64_t post_id3_pos;
+     uint32_t header;
+@@ -347,7 +416,15 @@ MP3Extractor::MP3Extractor(
+ 
+     int64_t durationUs;
+ 
+-    if (mSeeker == NULL || !mSeeker->getDuration(&durationUs)) {
++    int64_t tempPos = 0;
++    int64_t tempTime = 0;
++    int32_t AVG_Bitrate = 0;
++    if (mSeeker == NULL || !mSeeker->getDuration(&durationUs) || !mSeeker->getOffsetForTime(&tempTime,&tempPos)) {
++        if (TestVBR(mDataSource,&AVG_Bitrate,mFixedHeader,mFirstFramePos)) {
++            bitrate = AVG_Bitrate;
++            mMeta->setInt32(kKeyBitRate, bitrate * 1000);
++            mIsVbr = true;
++        }
+         off64_t fileSize;
+         if (mDataSource->getSize(&fileSize) == OK) {
+             durationUs = 8000LL * (fileSize - mFirstFramePos) / bitrate;
+@@ -407,7 +484,7 @@ sp<MediaSource> MP3Extractor::getTrack(size_t index) {
+ 
+     return new MP3Source(
+             mMeta, mDataSource, mFirstFramePos, mFixedHeader,
+-            mSeeker);
++            mSeeker, mIsVbr);
+ }
+ 
+ sp<MetaData> MP3Extractor::getTrackMetaData(
+@@ -431,7 +508,7 @@ const size_t MP3Source::kMaxFrameSize = (1 << 12); /* 4096 bytes */
+ MP3Source::MP3Source(
+         const sp<MetaData> &meta, const sp<DataSource> &source,
+         off64_t first_frame_pos, uint32_t fixed_header,
+-        const sp<MP3Seeker> &seeker)
++        const sp<MP3Seeker> &seeker, bool Is_Vbr_S)
+     : mMeta(meta),
+       mDataSource(source),
+       mFirstFramePos(first_frame_pos),
+@@ -442,7 +519,8 @@ MP3Source::MP3Source(
+       mSeeker(seeker),
+       mGroup(NULL),
+       mBasisTimeUs(0),
+-      mSamplesRead(0) {
++      mSamplesRead(0),
++      mIsVbr_S(Is_Vbr_S) {
+ }
+ 
+ MP3Source::~MP3Source() {
+@@ -491,7 +569,7 @@ status_t MP3Source::read(
+     int64_t seekTimeUs;
+     ReadOptions::SeekMode mode;
+     bool seekCBR = false;
+-
++    int32_t bitrate_l;
+     if (options != NULL && options->getSeekTo(&seekTimeUs, &mode)) {
+         int64_t actualSeekTimeUs = seekTimeUs;
+         if (mSeeker == NULL
+@@ -502,10 +580,20 @@ status_t MP3Source::read(
+                 ALOGI("no bitrate");
+ 
+                 return ERROR_UNSUPPORTED;
++            } else {
++                bitrate_l = bitrate;
++                ALOGE(" bitrate_l %d",bitrate_l);
+             }
+ 
+             mCurrentTimeUs = seekTimeUs;
+             mCurrentPos = mFirstFramePos + seekTimeUs * bitrate / 8000000;
++            off64_t fileSize;
++            if ((mDataSource->getSize(&fileSize) == OK)&&(mCurrentPos > fileSize)) {
++                int64_t durationUs;
++                mMeta->findInt64(kKeyDuration, &durationUs);
++                if (durationUs != 0)
++                    mCurrentPos = mFirstFramePos + ((actualSeekTimeUs*(fileSize - mFirstFramePos)) + (durationUs >> 1))/durationUs;
++            }
+             seekCBR = true;
+         } else {
+             mCurrentTimeUs = actualSeekTimeUs;
+@@ -543,6 +631,10 @@ status_t MP3Source::read(
+ 
+             // re-calculate mCurrentTimeUs because we might have called Resync()
+             if (seekCBR) {
++                if (mIsVbr_S) {
++                    ALOGE("mIsVbr_S is true.");
++                    bitrate = bitrate_l/1000;
++                }
+                 mCurrentTimeUs = (mCurrentPos - mFirstFramePos) * 8000 / bitrate;
+                 mBasisTimeUs = mCurrentTimeUs;
+             }
+diff --git a/media/libstagefright/MPEG4Extractor.cpp b/media/libstagefright/MPEG4Extractor.cpp
+index 92a1fed..aa2810c 100755
+--- a/media/libstagefright/MPEG4Extractor.cpp
++++ b/media/libstagefright/MPEG4Extractor.cpp
+@@ -350,6 +350,11 @@ static const char *FourCC2MIME(uint32_t fourcc) {
+         case FOURCC('h', 'v', 'c', '1'):
+         case FOURCC('h', 'e', 'v', '1'):
+             return MEDIA_MIMETYPE_VIDEO_HEVC;
++
++        case FOURCC('j', 'p', 'e', 'g'):
++        case FOURCC('M', 'J', 'P', 'G'):
++            return MEDIA_MIMETYPE_VIDEO_MJPG;
++
+         default:
+             CHECK(!"should not be here.");
+             return NULL;
+@@ -480,7 +485,7 @@ sp<MetaData> MPEG4Extractor::getTrackMetaData(
+                 }
+             } else {
+                 uint32_t sampleIndex;
+-                uint32_t sampleTime;
++                uint64_t sampleTime;
+                 if (track->timescale != 0 &&
+                         track->sampleTable->findThumbnailSample(&sampleIndex) == OK
+                         && track->sampleTable->getMetaDataForSample(
+@@ -1359,6 +1364,7 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
+         case FOURCC('e', 'n', 'c', 'a'):
+         case FOURCC('s', 'a', 'm', 'r'):
+         case FOURCC('s', 'a', 'w', 'b'):
++        case FOURCC('.', 'm', 'p', '3'):
+         {
+             uint8_t buffer[8 + 20];
+             if (chunk_data_size < (ssize_t)sizeof(buffer)) {
+@@ -1420,6 +1426,8 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
+         case FOURCC('a', 'v', 'c', '1'):
+         case FOURCC('h', 'v', 'c', '1'):
+         case FOURCC('h', 'e', 'v', '1'):
++        case FOURCC('j', 'p', 'e', 'g'):
++        case FOURCC('M', 'J', 'P', 'G'):
+         {
+             mHasVideo = true;
+ 
+@@ -1722,6 +1730,69 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
+             mLastTrack->meta->setData(
+                     kKeyESDS, kTypeESDS, &buffer[4], chunk_data_size - 4);
+ 
++            {
++                //add esds parser to find true MIME type from fake mp4v stream
++                //by wenan.hu
++                const char *mime;
++                mLastTrack->meta->findCString(kKeyMIMEType, &mime);
++                if (!strcasecmp(mime, MEDIA_MIMETYPE_VIDEO_MPEG4)) {
++                    #define MP4ESDescrTag                   0x03
++                    #define MP4DecConfigDescrTag            0x04
++
++                    int tag, size, flags;
++                    int idx = 4;
++                    int count = 4;
++
++                    tag = buffer[idx];
++                    idx++;
++
++                    while (count--) {
++                        size = buffer[idx];
++                        idx++;
++                        if (!(size & 0x80))
++                            break;
++                    }
++
++                    if (tag == MP4ESDescrTag) {
++                        idx += 2;  //skip es id
++                        flags = buffer[idx];
++                        idx++;
++                        if (flags & 0x80)
++                            idx += 2;  //skip streamDependenceFlag
++                        if (flags & 0x40) {
++                            int len = buffer[idx];
++                            idx++;
++                            idx += len;  //skip URL_Flag
++                        }
++                        if (flags & 0x20)
++                            idx += 2;  //skip OCRstreamFlag
++                    } else {
++                        idx += 2;  //skip ID
++                    }
++
++                    tag = buffer[idx];
++                    idx++;
++                    count = 4;
++
++                    while (count--) {
++                        size = buffer[idx];
++                        idx++;
++                        if (!(size & 0x80))
++                            break;
++                    }
++
++                    if (tag == MP4DecConfigDescrTag) {
++                        int object_type_id = buffer[idx];
++
++                        ALOGD("object type id: 0x%x", object_type_id);
++                        if (object_type_id >= 0x61 && object_type_id <= 0x65) {
++                            ALOGD("find MPEG2 video stream!");
++                            mLastTrack->meta->setCString(kKeyMIMEType, MEDIA_MIMETYPE_VIDEO_MPEG2);
++                        }
++                    }
++                }
++            }
++
+             if (mPath.size() >= 2
+                     && mPath[mPath.size() - 2] == FOURCC('m', 'p', '4', 'a')) {
+                 // Information from the ESDS must be relied on for proper
+@@ -1839,7 +1910,7 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
+         case FOURCC('m', 'e', 't', 'a'):
+         {
+             off64_t stop_offset = *offset + chunk_size;
+-            *offset = data_offset;
++            //*offset = data_offset;
+             bool isParsingMetaKeys = underQTMetaPath(mPath, 2);
+             if (!isParsingMetaKeys) {
+                 uint8_t buffer[4];
+@@ -1864,7 +1935,9 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
+                     *offset = stop_offset;
+                     return OK;
+                 }
+-                *offset +=  sizeof(buffer);
++                *offset = data_offset + sizeof(buffer);
++            } else {
++                *offset = data_offset;
+             }
+ 
+             while (*offset < stop_offset) {
+@@ -4114,7 +4187,7 @@ status_t MPEG4Source::read(
+                     sampleIndex, &syncSampleIndex, findFlags);
+         }
+ 
+-        uint32_t sampleTime;
++        uint64_t sampleTime;
+         if (err == OK) {
+             err = mSampleTable->getMetaDataForSample(
+                     sampleIndex, NULL, NULL, &sampleTime);
+@@ -4138,7 +4211,7 @@ status_t MPEG4Source::read(
+         }
+ 
+ #if 0
+-        uint32_t syncSampleTime;
++        uint64_t syncSampleTime;
+         CHECK_EQ(OK, mSampleTable->getMetaDataForSample(
+                     syncSampleIndex, NULL, NULL, &syncSampleTime));
+ 
+@@ -4160,7 +4233,8 @@ status_t MPEG4Source::read(
+ 
+     off64_t offset;
+     size_t size;
+-    uint32_t cts, stts;
++    uint64_t cts;
++    uint32_t stts;
+     bool isSyncSample;
+     bool newBuffer = false;
+     if (mBuffer == NULL) {
+@@ -4171,6 +4245,9 @@ status_t MPEG4Source::read(
+                     mCurrentSampleIndex, &offset, &size, &cts, &isSyncSample, &stts);
+ 
+         if (err != OK) {
++            if (err == ERROR_OUT_OF_RANGE) {
++                err = ERROR_END_OF_STREAM;
++            }
+             return err;
+         }
+ 
+@@ -4299,6 +4376,14 @@ status_t MPEG4Source::read(
+                     nalLength = parseNALSize(&mSrcBuffer[srcOffset]);
+                     srcOffset += mNALLengthSize;
+                     isMalFormed = !isInRange((size_t)0u, size, srcOffset, nalLength);
++                    if (isMalFormed) {
++                        if (srcOffset + nalLength > size) {
++                            nalLength = size - srcOffset;
++                            isMalFormed = false;
++                            ALOGI("second, srcOffset: %zd, nalLength: %zd, size: %zd, isMalFormed: %d",
++                                srcOffset,nalLength,size,isMalFormed);
++                        }
++                    }
+                 }
+ 
+                 if (isMalFormed) {
+@@ -4733,6 +4818,7 @@ static bool isCompatibleBrand(uint32_t fourcc) {
+         FOURCC('3', 'g', 'p', '4'),
+         FOURCC('m', 'p', '4', '1'),
+         FOURCC('m', 'p', '4', '2'),
++        FOURCC('w', 'm', 'f', ' '),
+ 
+         // Won't promise that the following file types can be played.
+         // Just give these file types a chance.
 diff --git a/media/libstagefright/MediaCodec.cpp b/media/libstagefright/MediaCodec.cpp
 index 5e0ee55..3ae7111 100644
 --- a/media/libstagefright/MediaCodec.cpp
@@ -367,6 +1957,89 @@ index 089c150..48b35bf 100644
  const char *MEDIA_MIMETYPE_CONTAINER_MPEG2PS = "video/mp2p";
  
  const char *MEDIA_MIMETYPE_CONTAINER_WVM = "video/wvm";
+diff --git a/media/libstagefright/MediaExtractor.cpp b/media/libstagefright/MediaExtractor.cpp
+index 8c63de2..ad9a1fa 100644
+--- a/media/libstagefright/MediaExtractor.cpp
++++ b/media/libstagefright/MediaExtractor.cpp
+@@ -30,6 +30,8 @@
+ #include "include/FLACExtractor.h"
+ #include "include/AACExtractor.h"
+ #include "include/MidiExtractor.h"
++#include "include/AVIExtractor.h"
++#include "include/FLVExtractor.h"
+ 
+ #include "matroska/MatroskaExtractor.h"
+ 
+@@ -39,6 +41,7 @@
+ #include <media/stagefright/MediaExtractor.h>
+ #include <media/stagefright/MetaData.h>
+ #include <utils/String8.h>
++#include <media/stagefright/MP3FileSource.h>
+ 
+ #include <stagefright/AVExtensions.h>
+ 
+@@ -112,29 +115,53 @@ sp<MediaExtractor> MediaExtractor::Create(
+     } else if (!strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_MPEG4)
+             || !strcasecmp(mime, "audio/mp4")) {
+         ret = new MPEG4Extractor(source);
+-    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_MPEG)) {
+-        ret = new MP3Extractor(source, meta);
++    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_MPEG) ||
++            !strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_BP3) ||
++            !strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_MP3) ||
++            !strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_MPG3)) {
++        int fd = 0;
++        int64_t offset = 0;
++        int64_t length = 0;
++        source->getFd(&fd,&offset);
++        source->getSize(&length);
++        //ALOGD("fd:%d,length:%lld,offset:%lld",fd,(long long)length,(long long)offset);
++        if(fd > 0 && !isDrm)
++            ret = new MP3Extractor(new MP3FileSource(fd, offset, length), meta);
++        else
++            ret = new MP3Extractor(source, meta);
+     } else if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_AMR_NB)
+-            || !strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_AMR_WB)) {
++            || !strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_AMR_WB)
++            || !strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_AMR)) {
+         ret = new AMRExtractor(source);
+     } else if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_FLAC)) {
+         ret = new FLACExtractor(source);
+-    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_WAV)) {
++    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_WAV) ||
++    		   !strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_WAV2)) {
+         ret = new WAVExtractor(source);
+-    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_OGG)) {
++    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_OGG) ||
++    		   !strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_OGG2)) {
+         ret = new OggExtractor(source);
+-    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_MATROSKA)) {
++    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_MATROSKA) ||
++           !strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_WEBM)) {
+         ret = new MatroskaExtractor(source);
+     } else if (!strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_MPEG2TS)) {
+         ret = new MPEG2TSExtractor(source);
++    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_AVI) ||
++                    !strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_MSVIDEO)) {
++        ret = new AVIExtractor(source);
+     } else if (!strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_WVM)) {
+         // Return now.  WVExtractor should not have the DrmFlag set in the block below.
+         return new WVMExtractor(source);
+-    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_AAC_ADTS)) {
++    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_FLV)) {
++        ret = new FLVExtractor(source);
++    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_AAC_ADTS) ||
++                   !strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_AAC2) ||
++                   !strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_AAC3)) {
+         ret = new AACExtractor(source, meta);
+     } else if (!strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_MPEG2PS)) {
+         ret = new MPEG2PSExtractor(source);
+-    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_MIDI)) {
++    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_MIDI) ||
++                   !strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_MIDI1)) {
+         ret = new MidiExtractor(source);
+     } else if (!isDrm && sPlugin.create) {
+         ret = sPlugin.create(source, mime, meta);
 diff --git a/media/libstagefright/OMXCodec.cpp b/media/libstagefright/OMXCodec.cpp
 index de00ff2..abe3bd1 100644
 --- a/media/libstagefright/OMXCodec.cpp
@@ -380,6 +2053,98 @@ index de00ff2..abe3bd1 100644
      } else {
          ALOGE("Not a supported video mime type: %s", mime);
          CHECK(!"Should not be here. Not a supported video mime type.");
+diff --git a/media/libstagefright/SampleIterator.cpp b/media/libstagefright/SampleIterator.cpp
+index f5558ce..5316ce6 100644
+--- a/media/libstagefright/SampleIterator.cpp
++++ b/media/libstagefright/SampleIterator.cpp
+@@ -119,6 +119,10 @@ status_t SampleIterator::seekTo(uint32_t sampleIndex) {
+ 
+         for (uint32_t i = 0; i < mSamplesPerChunk; ++i) {
+             size_t sampleSize;
++            if (firstChunkSampleIndex + i >= mTable->mNumSampleSizes) {
++                ALOGI("wrong sample count");
++                break;
++            }
+             if ((err = getSampleSizeDirect(
+                             firstChunkSampleIndex + i, &sampleSize)) != OK) {
+                 ALOGE("getSampleSizeDirect return error");
+@@ -326,7 +330,7 @@ status_t SampleIterator::getSampleSizeDirect(
+ }
+ 
+ status_t SampleIterator::findSampleTimeAndDuration(
+-        uint32_t sampleIndex, uint32_t *time, uint32_t *duration) {
++        uint32_t sampleIndex, uint64_t *time, uint32_t *duration) {
+     if (sampleIndex >= mTable->mNumSampleSizes) {
+         return ERROR_OUT_OF_RANGE;
+     }
+@@ -345,9 +349,10 @@ status_t SampleIterator::findSampleTimeAndDuration(
+         ++mTimeToSampleIndex;
+     }
+ 
+-    *time = mTTSSampleTime + mTTSDuration * (sampleIndex - mTTSSampleIndex);
+-
+-    *time += mTable->getCompositionTimeOffset(sampleIndex);
++    *time = mTTSDuration;
++    *time = *time * (sampleIndex - mTTSSampleIndex);
++    *time += mTTSSampleTime;
++    *time += (int32_t)mTable->getCompositionTimeOffset(sampleIndex);
+ 
+     *duration = mTTSDuration;
+ 
+diff --git a/media/libstagefright/SampleTable.cpp b/media/libstagefright/SampleTable.cpp
+index 2d7e613..6d1812f 100644
+--- a/media/libstagefright/SampleTable.cpp
++++ b/media/libstagefright/SampleTable.cpp
+@@ -600,7 +600,7 @@ status_t SampleTable::getMaxSampleSize(size_t *max_size) {
+     return OK;
+ }
+ 
+-uint32_t abs_difference(uint32_t time1, uint32_t time2) {
++uint64_t abs_difference(uint64_t time1, uint64_t time2) {
+     return time1 > time2 ? time1 - time2 : time2 - time1;
+ }
+ 
+@@ -645,7 +645,7 @@ void SampleTable::buildSampleEntriesTable() {
+     }
+ 
+     uint32_t sampleIndex = 0;
+-    uint32_t sampleTime = 0;
++    uint64_t sampleTime = 0;
+ 
+     for (uint32_t i = 0; i < mTimeToSampleCount; ++i) {
+         uint32_t n = mTimeToSample[2 * i];
+@@ -823,19 +823,19 @@ status_t SampleTable::findSyncSampleNear(
+             if (err != OK) {
+                 return err;
+             }
+-            uint32_t sample_time = mSampleIterator->getSampleTime();
++            uint64_t sample_time = mSampleIterator->getSampleTime();
+ 
+             err = mSampleIterator->seekTo(mSyncSamples[left]);
+             if (err != OK) {
+                 return err;
+             }
+-            uint32_t upper_time = mSampleIterator->getSampleTime();
++            uint64_t upper_time = mSampleIterator->getSampleTime();
+ 
+             err = mSampleIterator->seekTo(mSyncSamples[left - 1]);
+             if (err != OK) {
+                 return err;
+             }
+-            uint32_t lower_time = mSampleIterator->getSampleTime();
++            uint64_t lower_time = mSampleIterator->getSampleTime();
+ 
+             // use abs_difference for safety
+             if (abs_difference(upper_time, sample_time) >
+@@ -903,7 +903,7 @@ status_t SampleTable::getMetaDataForSample(
+         uint32_t sampleIndex,
+         off64_t *offset,
+         size_t *size,
+-        uint32_t *compositionTime,
++        uint64_t *compositionTime,
+         bool *isSyncSample,
+         uint32_t *sampleDuration) {
+     Mutex::Autolock autoLock(mLock);
 diff --git a/media/libstagefright/StagefrightMetadataRetriever.cpp b/media/libstagefright/StagefrightMetadataRetriever.cpp
 index d39f34b..34a91c8 100644
 --- a/media/libstagefright/StagefrightMetadataRetriever.cpp
@@ -406,6 +2171,196 @@ index 147eb45..ed5c580 100644
      mConsumer->setConsumerUsageBits(GRALLOC_USAGE_HW_VIDEO_ENCODER
              | GRALLOC_USAGE_HW_TEXTURE
  #if QTI_BSP
+diff --git a/media/libstagefright/codecs/mp3dec/SoftMP3.cpp b/media/libstagefright/codecs/mp3dec/SoftMP3.cpp
+index 005956d..a8b01d3 100644
+--- a/media/libstagefright/codecs/mp3dec/SoftMP3.cpp
++++ b/media/libstagefright/codecs/mp3dec/SoftMP3.cpp
+@@ -354,7 +354,9 @@ void SoftMP3::onQueueFilled(OMX_U32 /* portIndex */) {
+             }
+         } else if (mConfig->samplingRate != mSamplingRate
+                 || mConfig->num_channels != mNumChannels) {
+-            mSamplingRate = mConfig->samplingRate;
++            if (0 != mConfig->samplingRate) {
++                mSamplingRate = mConfig->samplingRate;
++            }
+             mNumChannels = mConfig->num_channels;
+ 
+             notify(OMX_EventPortSettingsChanged, 1, 0, NULL);
+@@ -377,6 +379,10 @@ void SoftMP3::onQueueFilled(OMX_U32 /* portIndex */) {
+             outHeader->nFilledLen = mConfig->outputFrameSize * sizeof(int16_t);
+         }
+ 
++        if (0 == mConfig->samplingRate) {
++            mConfig->samplingRate = mSamplingRate;
++        }
++
+         outHeader->nTimeStamp =
+             mAnchorTimeUs + (mNumFramesOutput * 1000000ll) / mSamplingRate;
+         tmpTime = outHeader->nTimeStamp;
+diff --git a/media/libstagefright/codecs/vorbis/dec/SoftVorbis.cpp b/media/libstagefright/codecs/vorbis/dec/SoftVorbis.cpp
+index 7209796..f08bcfa 100644
+--- a/media/libstagefright/codecs/vorbis/dec/SoftVorbis.cpp
++++ b/media/libstagefright/codecs/vorbis/dec/SoftVorbis.cpp
+@@ -395,6 +395,7 @@ void SoftVorbis::onQueueFilled(OMX_U32 portIndex) {
+ #else
+             ALOGW("vorbis_dsp_synthesis returned %d", err);
+ #endif
++        mNumFramesLeftOnPage = -1; //parameter need to init when seeking action
+         } else {
+             size_t numSamplesPerBuffer = kMaxNumSamplesPerBuffer;
+             if (numSamplesPerBuffer > outHeader->nAllocLen / sizeof(int16_t)) {
+diff --git a/media/libstagefright/include/AVIExtractor.h b/media/libstagefright/include/AVIExtractor.h
+index ff5dcb5..a0132a6 100644
+--- a/media/libstagefright/include/AVIExtractor.h
++++ b/media/libstagefright/include/AVIExtractor.h
+@@ -25,6 +25,10 @@
+ 
+ namespace android {
+ 
++//for broken files, cannot get samplesize
++#define AVI_VIDEO_SAMPLE_MAX_SIZE (192<<10)
++#define AVI_AUDIO_SAMPLE_MAX_SIZE (12 <<10)
++
+ struct AVIExtractor : public MediaExtractor {
+     AVIExtractor(const sp<DataSource> &dataSource);
+ 
+@@ -37,6 +41,8 @@ struct AVIExtractor : public MediaExtractor {
+ 
+     virtual sp<MetaData> getMetaData();
+ 
++    virtual uint32_t flags() const;
++
+ protected:
+     virtual ~AVIExtractor();
+ 
+@@ -47,6 +53,7 @@ private:
+     struct SampleInfo {
+         uint32_t mOffset;
+         bool mIsKey;
++        uint32_t mLengthTotal;
+     };
+ 
+     struct Track {
+@@ -72,11 +79,28 @@ private:
+         ssize_t mThumbnailSampleIndex;
+         size_t mMaxSampleSize;
+ 
++        // if no index
++        uint32_t mCurSamplePos;
++
+         // If mBytesPerSample > 0:
+         double mAvgChunkSize;
+         size_t mFirstChunkSize;
++
++        //for avi seeking
++        size_t mPreChunkSize;
++        uint32_t mLengthTotal;
++
++        //bits per sample for pcm
++        size_t mBitsPerSample;
+     };
+ 
++    enum IndexType
++    {
++        IDX1,        //avi1.0 index
++        INDX,        //Open-DML-Index-chunk
++        NO_INDEX     //normally no idx1, since indx is stored  with a/v data together
++    } mIndexType;
++
+     sp<DataSource> mDataSource;
+     status_t mInitCheck;
+     Vector<Track> mTracks;
+@@ -88,7 +112,8 @@ private:
+     ssize_t parseChunk(off64_t offset, off64_t size, int depth = 0);
+     status_t parseStreamHeader(off64_t offset, size_t size);
+     status_t parseStreamFormat(off64_t offset, size_t size);
+-    status_t parseIndex(off64_t offset, size_t size);
++    status_t parseIdx1(off64_t offset, size_t size);
++    status_t parseIndx(off64_t offset, size_t size);
+ 
+     status_t parseHeaders();
+ 
+diff --git a/media/libstagefright/include/MP3Extractor.h b/media/libstagefright/include/MP3Extractor.h
+index c83d9e8..7371966 100644
+--- a/media/libstagefright/include/MP3Extractor.h
++++ b/media/libstagefright/include/MP3Extractor.h
+@@ -38,6 +38,7 @@ public:
+     virtual sp<MetaData> getTrackMetaData(size_t index, uint32_t flags);
+ 
+     virtual sp<MetaData> getMetaData();
++    bool TestVBR(const sp<DataSource> &source, int *avg_bitrate, uint32_t match_header,off64_t inout_pos);
+ 
+ private:
+     status_t mInitCheck;
+@@ -47,6 +48,7 @@ private:
+     sp<MetaData> mMeta;
+     uint32_t mFixedHeader;
+     sp<MP3Seeker> mSeeker;
++    bool mIsVbr;
+ 
+     MP3Extractor(const MP3Extractor &);
+     MP3Extractor &operator=(const MP3Extractor &);
+diff --git a/media/libstagefright/include/SampleIterator.h b/media/libstagefright/include/SampleIterator.h
+index 4ad7f2e..d55862d 100644
+--- a/media/libstagefright/include/SampleIterator.h
++++ b/media/libstagefright/include/SampleIterator.h
+@@ -34,7 +34,7 @@ struct SampleIterator {
+     uint32_t getDescIndex() const { return mChunkDesc; }
+     off64_t getSampleOffset() const { return mCurrentSampleOffset; }
+     size_t getSampleSize() const { return mCurrentSampleSize; }
+-    uint32_t getSampleTime() const { return mCurrentSampleTime; }
++    uint64_t getSampleTime() const { return mCurrentSampleTime; }
+     uint32_t getSampleDuration() const { return mCurrentSampleDuration; }
+ 
+     status_t getSampleSizeDirect(
+@@ -59,14 +59,14 @@ private:
+ 
+     uint32_t mTimeToSampleIndex;
+     uint32_t mTTSSampleIndex;
+-    uint32_t mTTSSampleTime;
++    uint64_t mTTSSampleTime;
+     uint32_t mTTSCount;
+     uint32_t mTTSDuration;
+ 
+     uint32_t mCurrentSampleIndex;
+     off64_t mCurrentSampleOffset;
+     size_t mCurrentSampleSize;
+-    uint32_t mCurrentSampleTime;
++    uint64_t mCurrentSampleTime;
+     uint32_t mCurrentSampleDuration;
+ 
+     uint8_t *mSampleCache;
+@@ -76,7 +76,7 @@ private:
+     void reset();
+     status_t findChunkRange(uint32_t sampleIndex);
+     status_t getChunkOffset(uint32_t chunk, off64_t *offset);
+-    status_t findSampleTimeAndDuration(uint32_t sampleIndex, uint32_t *time, uint32_t *duration);
++    status_t findSampleTimeAndDuration(uint32_t sampleIndex, uint64_t *time, uint32_t *duration);
+ 
+     SampleIterator(const SampleIterator &);
+     SampleIterator &operator=(const SampleIterator &);
+diff --git a/media/libstagefright/include/SampleTable.h b/media/libstagefright/include/SampleTable.h
+index 552eef7..70db558 100644
+--- a/media/libstagefright/include/SampleTable.h
++++ b/media/libstagefright/include/SampleTable.h
+@@ -65,7 +65,7 @@ public:
+             uint32_t sampleIndex,
+             off64_t *offset,
+             size_t *size,
+-            uint32_t *compositionTime,
++            uint64_t *compositionTime,
+             bool *isSyncSample = NULL,
+             uint32_t *sampleDuration = NULL);
+ 
+@@ -119,7 +119,7 @@ private:
+ 
+     struct SampleTimeEntry {
+         uint32_t mSampleIndex;
+-        uint32_t mCompositionTime;
++        uint64_t mCompositionTime;
+     };
+     SampleTimeEntry *mSampleTimeEntries;
+ 
 diff --git a/media/libstagefright/omx/OMXMaster.cpp b/media/libstagefright/omx/OMXMaster.cpp
 index f7bb733..c7b85a4 100644
 --- a/media/libstagefright/omx/OMXMaster.cpp
@@ -432,6 +2387,38 @@ index 4afd5d5..f093651 100755
  #ifdef QTI_FLAC_DECODER
      { "OMX.qti.audio.decoder.flac", "flacdec", "audio_decoder.flac" },
  #endif
+diff --git a/media/mtp/MtpDataPacket.cpp b/media/mtp/MtpDataPacket.cpp
+index 052b700..2c43da8 100644
+--- a/media/mtp/MtpDataPacket.cpp
++++ b/media/mtp/MtpDataPacket.cpp
+@@ -421,7 +421,9 @@ void MtpDataPacket::putString(const uint16_t* string) {
+ 
+ #ifdef MTP_DEVICE 
+ int MtpDataPacket::read(int fd) {
+-    int ret = ::read(fd, mBuffer, MTP_BUFFER_SIZE);
++    /* SPRD: modify code for bug 492017. @{ */
++    int ret = ::read(fd, mBuffer, 512);
++    /* @} */
+     if (ret < MTP_CONTAINER_HEADER_SIZE)
+         return -1;
+     mPacketSize = ret;
+diff --git a/media/mtp/MtpServer.cpp b/media/mtp/MtpServer.cpp
+index d5f8ff4..3f771c8 100644
+--- a/media/mtp/MtpServer.cpp
++++ b/media/mtp/MtpServer.cpp
+@@ -442,8 +442,10 @@ bool MtpServer::handleRequest() {
+             break;
+     }
+ 
+-    if (response == MTP_RESPONSE_TRANSACTION_CANCELLED)
+-        return false;
++    /* SPRD: modify code for bug 491977. @{ */
++    //if (response == MTP_RESPONSE_TRANSACTION_CANCELLED)
++        //return false;
++    /* @} */
+     mResponse.setResponseCode(response);
+     return true;
+ }
 diff --git a/services/audiopolicy/common/managerdefinitions/include/ConfigParsingUtils.h b/services/audiopolicy/common/managerdefinitions/include/ConfigParsingUtils.h
 index 6f80435..bf854f3 100644
 --- a/services/audiopolicy/common/managerdefinitions/include/ConfigParsingUtils.h
@@ -456,3 +2443,26 @@ index 6f80435..bf854f3 100644
      NAME_TO_ENUM("Aux Line Out", AUDIO_DEVICE_OUT_AUX_LINE),
      NAME_TO_ENUM("IP Out", AUDIO_DEVICE_OUT_IP),
      NAME_TO_ENUM("Ambient Mic", AUDIO_DEVICE_IN_AMBIENT),
+diff --git a/services/audiopolicy/managerdefault/AudioPolicyManager.cpp b/services/audiopolicy/managerdefault/AudioPolicyManager.cpp
+index 13499ae..6146d0a 100644
+--- a/services/audiopolicy/managerdefault/AudioPolicyManager.cpp
++++ b/services/audiopolicy/managerdefault/AudioPolicyManager.cpp
+@@ -1731,6 +1731,18 @@ status_t AudioPolicyManager::setStreamVolumeIndex(audio_stream_type_t stream,
+ 
+     // update volume on all outputs whose current device is also selected by the same
+     // strategy as the device specified by the caller
++    /**
++    *SPRD:Bug 532626: After play music,Play the default notification sound,will not be able to adjust the volume.
++    *@{
++    **/
++    if(stream ==AUDIO_STREAM_NOTIFICATION)
++    {
++        checkOutputForStrategy(STRATEGY_SONIFICATION_RESPECTFUL);
++        updateDevicesAndOutputs();
++    }
++    /**
++    *}@
++    **/
+     audio_devices_t strategyDevice = getDeviceForStrategy(getStrategy(stream), true /*fromCache*/);
+ 
+ 
