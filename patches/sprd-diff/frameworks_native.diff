@@ -116,32 +116,6 @@ index 3da720f..b1557c3 100644
      };
  
      GraphicBuffer();
-diff --git a/include/ui/PixelFormat.h b/include/ui/PixelFormat.h
-index f26fecb..09de5c1 100644
---- a/include/ui/PixelFormat.h
-+++ b/include/ui/PixelFormat.h
-@@ -60,6 +60,21 @@ enum {
-     PIXEL_FORMAT_BGRA_8888   = HAL_PIXEL_FORMAT_BGRA_8888,   // 4x8-bit BGRA
-     PIXEL_FORMAT_RGBA_5551   = 6,                            // 16-bit ARGB
-     PIXEL_FORMAT_RGBA_4444   = 7,                            // 16-bit ARGB
-+#ifdef SPRD_HARDWARE
-+    PIXEL_FORMAT_YCbCr_422_SP = HAL_PIXEL_FORMAT_YCbCr_422_SP,
-+    PIXEL_FORMAT_YCrCb_420_SP = HAL_PIXEL_FORMAT_YCrCb_420_SP,
-+    PIXEL_FORMAT_YCbCr_422_P = HAL_PIXEL_FORMAT_YCbCr_422_P,
-+    PIXEL_FORMAT_YCbCr_420_P = HAL_PIXEL_FORMAT_YCbCr_420_P,
-+    PIXEL_FORMAT_YCbCr_422_I = HAL_PIXEL_FORMAT_YCbCr_422_I,
-+    PIXEL_FORMAT_YCbCr_420_I = HAL_PIXEL_FORMAT_YCbCr_420_I,
-+    PIXEL_FORMAT_CbYCrY_422_I = HAL_PIXEL_FORMAT_CbYCrY_422_I,
-+    PIXEL_FORMAT_CbYCrY_420_I = HAL_PIXEL_FORMAT_CbYCrY_420_I,
-+    PIXEL_FORMAT_YCbCr_420_SP_TILED = HAL_PIXEL_FORMAT_YCbCr_420_SP_TILED,
-+    PIXEL_FORMAT_YCbCr_420_SP = HAL_PIXEL_FORMAT_YCbCr_420_SP,
-+    PIXEL_FORMAT_YCrCb_420_SP_TILED = HAL_PIXEL_FORMAT_YCrCb_420_SP_TILED,
-+    PIXEL_FORMAT_YCrCb_422_SP = HAL_PIXEL_FORMAT_YCrCb_422_SP,
-+    PIXEL_FORMAT_YCrCb_420_P  = HAL_PIXEL_FORMAT_YCrCb_420_P,
-+#endif
- };
- 
- typedef int32_t PixelFormat;
 diff --git a/libs/binder/IPCThreadState.cpp b/libs/binder/IPCThreadState.cpp
 index af18e11..8fcc8a6 100644
 --- a/libs/binder/IPCThreadState.cpp
