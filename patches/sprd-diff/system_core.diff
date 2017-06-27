@@ -10,7 +10,7 @@ index afd9f7b..16e85f0 100644
 +#ifdef SPRD_HARDWARE
 +    /* OEM specific HAL formats */
 +    HAL_PIXEL_FORMAT_YCbCr_420_P        = 0x13,
-+    HAL_PIXEL_FORMAT_YCbCr_420_SP       = 0x15, /*OMX_COLOR_FormatYUV420SemiPlanar*/
++    HAL_PIXEL_FORMAT_YCbCr_420_SP       = 0x19,
 +    HAL_PIXEL_FORMAT_YCrCb_422_SP       = 0x1B,
 +    HAL_PIXEL_FORMAT_YCrCb_420_P        = 0x1C,
 +#endif
