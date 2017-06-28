@@ -1,5 +1,5 @@
 diff --git a/include/system/graphics.h b/include/system/graphics.h
-index afd9f7b..16e85f0 100644
+index afd9f7b..1222380 100644
 --- a/include/system/graphics.h
 +++ b/include/system/graphics.h
 @@ -440,6 +440,14 @@ enum {
@@ -37,6 +37,45 @@ index 1681d17..f32dccc 100644
  /*
   * Callback to make a directory from the ext4 code
   */
+diff --git a/init/init.cpp b/init/init.cpp
+index 8ea42ca..a8f7f77 100644
+--- a/init/init.cpp
++++ b/init/init.cpp
+@@ -75,6 +75,7 @@ static int property_triggers_enabled = 0;
+ #define BOARD_CHARGING_CMDLINE_VALUE "true"
+ #endif
+ 
++static char bootmode[PROP_VALUE_MAX];
+ static char qemu[32];
+ static char battchg_pause[32];
+ 
+@@ -197,6 +198,12 @@ void service_start(struct service *svc, const char *dynamic_args)
+     // immediately takes it out of the restarting state if it was in there.
+     svc->flags &= (~(SVC_DISABLED|SVC_RESTARTING|SVC_RESET|SVC_RESTART|SVC_DISABLED_START));
+     svc->time_started = 0;
++    if (((!strncmp(svc->name,"healthd",7)) || (!strncmp(svc->name,"bootanim",8)) || (!strncmp(svc->name,"zygote",6)) || 
++              (!strncmp(svc->name,"surfaceflinger",14))) && ((!strcmp(bootmode, "charger")))) {
++        ERROR("stopping '%s'\n", svc->name);
++        svc->flags |= SVC_DISABLED;
++        return;
++    }
+ 
+     // Running processes require no additional work --- if they're in the
+     // process of exiting, we've ensured that they will immediately restart
+@@ -1132,10 +1139,12 @@ int main(int argc, char** argv) {
+     queue_builtin_action(mix_hwrng_into_linux_rng_action, "mix_hwrng_into_linux_rng");
+ 
+     // Don't mount filesystems or start core system services in charger mode.
+-    char bootmode[PROP_VALUE_MAX];
+     if (((property_get("ro.bootmode", bootmode) > 0 && strcmp(bootmode, "charger") == 0) ||
+          strcmp(battchg_pause, BOARD_CHARGING_CMDLINE_VALUE) == 0)
+                || charging_mode_booting()) {
++        action_for_each_trigger("early-fs", action_add_queue_tail);
++        action_for_each_trigger("fs", action_add_queue_tail);
++        action_for_each_trigger("post-fs", action_add_queue_tail);
+         action_for_each_trigger("charger", action_add_queue_tail);
+     } else if (strncmp(bootmode, "ffbm", 4) == 0) {
+         KLOG_ERROR("Booting into ffbm mode\n");
 diff --git a/init/init_parser.cpp b/init/init_parser.cpp
 index c36d36e..0a6f1e5 100644
 --- a/init/init_parser.cpp
