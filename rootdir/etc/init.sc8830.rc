@@ -369,10 +369,10 @@ service batterysrv /bin/batterysrv
     group system
     oneshot
 
-#service charge /bin/charge
-#    class charger
-#    user root
-#    oneshot
+service charge /bin/charge
+    class charger
+    user root
+    oneshot
 
 ##td rild service
 #service tril-daemon /system/bin/rild_sp -l /system/lib/libreference-ril_sp.so -m t -n 0
