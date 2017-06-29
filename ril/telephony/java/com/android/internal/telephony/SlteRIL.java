@@ -53,6 +53,8 @@ public class SlteRIL extends RIL {
     private static final int RIL_UNSOL_VE = 11024;
     private static final int RIL_UNSOL_PB_INIT_COMPLETE = 11035;
 
+    private static boolean bUiccLoaded = false;
+
     public SlteRIL(Context context, int preferredNetworkType, int cdmaSubscription) {
         super(context, preferredNetworkType, cdmaSubscription, null);
     }
@@ -255,60 +257,17 @@ public class SlteRIL extends RIL {
 
     @Override
     public void setUiccSubscription(int appIndex, boolean activate, Message result) {
-        riljLog("setUiccSubscription " + appIndex + " " + activate);
+        if (!bUiccLoaded) {
+            // Fake response (note: should be sent before mSubscriptionStatusRegistrants or
+            // SubscriptionManager might not set the readiness correctly)
+            AsyncResult.forMessage(result, activate, null);
+            result.sendToTarget();
 
-        // Fake response (note: should be sent before mSubscriptionStatusRegistrants or
-        // SubscriptionManager might not set the readiness correctly)
-        AsyncResult.forMessage(result, 0, null);
-        result.sendToTarget();
-
-        // TODO: Actually turn off/on the radio (and don't fight with the ServiceStateTracker)
-        if (mSubscriptionStatusRegistrants != null)
-            mSubscriptionStatusRegistrants.notifyRegistrants(
-                    new AsyncResult (null, new int[] { activate ? 1 : 0 }, null));
-    }
-
-    @Override
-    public void setDataAllowed(boolean allowed, Message result) {
-        int simId = mInstanceId == null ? 0 : mInstanceId;
-        if (allowed) {
-            riljLog("Setting data subscription to sim [" + simId + "]");
-            invokeOemRilRequestRaw(new byte[] {0x9, 0x4}, result);
-        } else {
-            riljLog("Do nothing when turn-off data on sim [" + simId + "]");
-            if (result != null) {
-                AsyncResult.forMessage(result, 0, null);
-                result.sendToTarget();
-            }
+            bUiccLoaded = true;
+            return;
         }
-    }
 
-    @Override
-    public void getRadioCapability(Message response) {
-        String rafString = mContext.getResources().getString(
-            com.android.internal.R.string.config_radio_access_family);
-        riljLog("getRadioCapability: returning static radio capability [" + rafString + "]");
-        if (response != null) {
-            Object ret = makeStaticRadioCapability();
-            AsyncResult.forMessage(response, ret, null);
-            response.sendToTarget();
-        }
-    }
-
-    @Override
-    protected RadioState getRadioStateFromInt(int stateInt) {
-        RadioState state;
-        switch (stateInt) {
-        case 13: state = RadioState.RADIO_ON; break;
-        default:
-            state = super.getRadioStateFromInt(stateInt);
-        }
-        return state;
-    }
-
-    @Override
-    public void getHardwareConfig(Message response) {
-        unsupportedRequest("getHardwareConfig", response);
+	super.setUiccSubscription(appIndex, activate, result);
     }
 
     @Override
@@ -500,7 +459,7 @@ public class SlteRIL extends RIL {
             case RIL_REQUEST_SET_UICC_SUBSCRIPTION: ret = responseVoid(p); break;
             case RIL_REQUEST_ALLOW_DATA: ret = responseVoid(p); break;
             case RIL_REQUEST_GET_HARDWARE_CONFIG: ret = responseHardwareConfig(p); break;
-            case RIL_REQUEST_SIM_AUTHENTICATION: ret =  responseICC_IO(p); break;
+            case RIL_REQUEST_SIM_AUTHENTICATION: ret =  responseICC_IOBase64(p); break;
             case RIL_REQUEST_SHUTDOWN: ret = responseVoid(p); break;
             case RIL_REQUEST_GET_RADIO_CAPABILITY: ret =  responseRadioCapability(p); break;
             case RIL_REQUEST_SET_RADIO_CAPABILITY: ret =  responseRadioCapability(p); break;
