@@ -122,8 +122,6 @@ USE_RGB_VIDEO_LAYER := true
 
 # Storage
 TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/devices/20200000.usb/gadget/lun%d/file"
-BOARD_VOLD_DISC_HAS_MULTIPLE_MAJORS := true
-BOARD_VOLD_MAX_PARTITIONS := 65
 
 # Enable HW based full disk encryption
 #TARGET_HW_DISK_ENCRYPTION := true
