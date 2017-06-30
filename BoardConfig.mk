@@ -190,9 +190,6 @@ WIFI_DRIVER_MODULE_NAME     := "sprdwl"
 # Include an expanded selection of fonts
 EXTENDED_FONT_FOOTPRINT := true
 
-# SPRD
-# TARGET_USE_SPRD_JEMALLOC := true
-
 # DRM
 BOARD_WIDEVINE_OEMCRYPTO_LEVEL := 3
 

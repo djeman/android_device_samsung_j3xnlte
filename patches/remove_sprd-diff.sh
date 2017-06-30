@@ -10,10 +10,6 @@ cd ../../../..
 BASE=`pwd`
 PATCHES=$BASE/device/$VENDOR/$DEVICE/patches/sprd-diff
 
-# bionic need a binary file
-rm -f $BASE/bionic/libc/libsprd_jemalloc.a
-echo -e "\e[32mFile bionic/libc/libsprd_jemalloc.a removed\e[39m\n"
-
 # remove all patches (only 2 subdirectories)
 for FILE in $PATCHES/*.diff
 do
