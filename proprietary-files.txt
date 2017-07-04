@@ -116,7 +116,7 @@ lib/libsamsungSoundbooster.so
 #lib/libomx_mp3dec_sprd.so
 #lib/libomx_vpxdec_hw_sprd.so
 #lib/libomxvpu.so
-lib/libaudio-ril.so
+#lib/libaudio-ril.so
 lib/soundfx/libaudioeffectoffload.so
 lib/soundfx/libaudiosa_sec.so
 lib/soundfx/libmyspace.so
