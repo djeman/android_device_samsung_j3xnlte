@@ -53,8 +53,6 @@ public class SlteRIL extends RIL {
     private static final int RIL_UNSOL_VE = 11024;
     private static final int RIL_UNSOL_PB_INIT_COMPLETE = 11035;
 
-    private static boolean bUiccLoaded = false;
-
     public SlteRIL(Context context, int preferredNetworkType, int cdmaSubscription) {
         super(context, preferredNetworkType, cdmaSubscription, null);
     }
@@ -253,21 +251,6 @@ public class SlteRIL extends RIL {
         }
 
         return response;
-    }
-
-    @Override
-    public void setUiccSubscription(int appIndex, boolean activate, Message result) {
-        if (!bUiccLoaded) {
-            // Fake response (note: should be sent before mSubscriptionStatusRegistrants or
-            // SubscriptionManager might not set the readiness correctly)
-            AsyncResult.forMessage(result, activate, null);
-            result.sendToTarget();
-
-            bUiccLoaded = true;
-            return;
-        }
-
-	super.setUiccSubscription(appIndex, activate, result);
     }
 
     @Override
