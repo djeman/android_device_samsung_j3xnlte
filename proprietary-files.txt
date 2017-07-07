@@ -63,7 +63,7 @@ lib/egl/libGLES_mali.so
 
 # hw
 lib/hw/camera.sc8830.so
-lib/hw/nfc_nci.sc8830.so
+#lib/hw/nfc_nci.sc8830.so
 #lib/hw/power.sc8830.so
 lib/hw/sensors.sc8830.so
 lib/hw/gps.default.so
