@@ -126,7 +126,7 @@ lib/modules/pskey_bt.txt
 lib/libsdp_crypto.so
 lib/libsec_devenc.so
 
-lib/libsAMRN.so
+lib/libsAMRNB.so
 lib/libsAMRWB.so
 lib/libsaiv_codec.so
 lib/libsomp.so
