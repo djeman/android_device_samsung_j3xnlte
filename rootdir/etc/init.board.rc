@@ -50,15 +50,18 @@ on boot
     chmod 660 /sys/class/rfkill/rfkill0/state
     chmod 660 /sys/class/rfkill/rfkill0/type
     chmod 660 /proc/bluetooth/sleep/btwrite
+    chmod 660 /sys/devices/70000000.uart/uart_conf
     chown bluetooth bluetooth /sys/class/rfkill/rfkill0/state
     chown bluetooth bluetooth /sys/class/rfkill/rfkill0/type
     chown bluetooth net_bt_stack /dev/ttyS0
 
 #for Bluesleep
-        chown bluetooth system /proc/bluetooth/sleep/proto
-        chown bluetooth system /proc/bluetooth/sleep/btwrite
+    chown bluetooth system /proc/bluetooth/sleep/proto
+    chown bluetooth system /proc/bluetooth/sleep/btwrite
+    chown bluetooth system /sys/devices/70000000.uart/uart_conf
     chown bluetooth shell /productinfo/connectivity_configure.ini
     chown bluetooth bluetooth /system/etc/connectivity_configure.ini
+
 #for wifi
     chmod 666 /productinfo/connectivity_configure.ini
     chmod 666 /system/etc/connectivity_configure.ini
