@@ -19,5 +19,7 @@
 
 #define BTM_DEF_LOCAL_NAME   "Samsung Galaxy J3 (2016)"
 
+#define BLE_VND_INCLUDED TRUE
+
 #endif
 
