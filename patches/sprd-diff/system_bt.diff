@@ -1,0 +1,31 @@
+diff --git a/Android.mk b/Android.mk
+index b398132..4428873 100644
+--- a/Android.mk
++++ b/Android.mk
+@@ -33,6 +33,10 @@ ifeq ($(strip $(AUDIO_FEATURE_ENABLED_SPLIT_A2DP)),true)
+   bdroid_CFLAGS += -DBTA_AV_SPLIT_A2DP_DEF_FREQ_48KHZ
+ endif
+ 
++ifeq ($(BOARD_SPRD_WCNBT_MARLIN),true)
++  bdroid_CFLAGS += -DSPRD_WCNBT_MARLIN
++endif
++
+ bdroid_CFLAGS += \
+   -Wall \
+   -Wno-unused-parameter \
+diff --git a/device/src/controller.c b/device/src/controller.c
+index df00d68..07028d8 100755
+--- a/device/src/controller.c
++++ b/device/src/controller.c
+@@ -184,9 +184,11 @@ static future_t *start_up(void) {
+     page_number++;
+   }
+ 
++#ifndef SPRD_WCNBT_MARLIN
+   // read BLE offload features support from controller
+   response = AWAIT_COMMAND(packet_factory->make_ble_read_offload_features_support());
+   packet_parser->parse_ble_read_offload_features_response(response, &ble_offload_features_supported);
++#endif
+ 
+ #if (SC_MODE_INCLUDED == TRUE)
+   if(ble_offload_features_supported) {
