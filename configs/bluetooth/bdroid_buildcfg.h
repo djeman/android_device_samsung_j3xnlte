@@ -19,7 +19,10 @@
 
 #define BTM_DEF_LOCAL_NAME   "Samsung Galaxy J3 (2016)"
 
+#define HCILP_INCLUDED TRUE
 #define BLE_VND_INCLUDED TRUE
+#define BTM_WBS_INCLUDED TRUE
+#define PORT_RX_BUF_HIGH_WM 34
 
 #endif
 
