@@ -14,7 +14,7 @@ index b398132..4428873 100644
    -Wall \
    -Wno-unused-parameter \
 diff --git a/device/src/controller.c b/device/src/controller.c
-index df00d68..07028d8 100755
+index df00d68..4572532 100755
 --- a/device/src/controller.c
 +++ b/device/src/controller.c
 @@ -184,9 +184,11 @@ static future_t *start_up(void) {
@@ -29,3 +29,19 @@ index df00d68..07028d8 100755
  
  #if (SC_MODE_INCLUDED == TRUE)
    if(ble_offload_features_supported) {
+@@ -257,6 +259,7 @@ static future_t *start_up(void) {
+     packet_parser->parse_generic_command_complete(response);
+   }
+ 
++#ifndef SPRD_WCNBT_MARLIN
+   // read local supported codecs
+   if( HCI_READ_LOCAL_CODECS_SUPPORTED(supported_commands)) {
+     response = AWAIT_COMMAND(packet_factory->make_read_local_supported_codecs());
+@@ -264,6 +267,7 @@ static future_t *start_up(void) {
+         response,
+         &no_of_local_supported_codecs, local_supported_codecs);
+   }
++#endif
+ 
+   readable = true;
+   return future_new_immediate(FUTURE_SUCCESS);
