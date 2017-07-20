@@ -323,7 +323,7 @@ index ffbd20c..d2bc11f 100644
  
  extern const char *MEDIA_MIMETYPE_CONTAINER_WVM;
 diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
-index 581bfba..98644cd 100644
+index 581bfba..182b7b2 100644
 --- a/media/libstagefright/ACodec.cpp
 +++ b/media/libstagefright/ACodec.cpp
 @@ -548,6 +548,10 @@ ACodec::ACodec()
@@ -337,50 +337,7 @@ index 581bfba..98644cd 100644
  }
  
  status_t ACodec::setupCustomCodec(status_t err, const char * /*mime*/, const sp<AMessage> &/*msg*/) {
-@@ -920,7 +924,7 @@ status_t ACodec::setupNativeWindowSizeFormatAndUsage(
-     usage |= kVideoGrallocUsage;
-     *finalUsage = usage;
- 
--#ifdef USE_SAMSUNG_COLORFORMAT
-+#if defined(USE_SAMSUNG_COLORFORMAT) || defined(SPRD_HARDWARE)
-     OMX_COLOR_FORMATTYPE eNativeColorFormat = def.format.video.eColorFormat;
-     setNativeWindowColorFormat(eNativeColorFormat);
- #endif
-@@ -944,7 +948,7 @@ status_t ACodec::setupNativeWindowSizeFormatAndUsage(
-             nativeWindow,
-             width,
-             height,
--#ifdef USE_SAMSUNG_COLORFORMAT
-+#if defined(USE_SAMSUNG_COLORFORMAT) || defined(SPRD_HARDWARE)
-             eNativeColorFormat,
- #else
-             def.format.video.eColorFormat,
-@@ -1329,6 +1333,24 @@ void ACodec::setNativeWindowColorFormat(OMX_COLOR_FORMATTYPE &eNativeColorFormat
- }
- #endif
- 
-+#ifdef SPRD_HARDWARE
-+void ACodec::setNativeWindowColorFormat(OMX_COLOR_FORMATTYPE &eNativeColorFormat)
-+{
-+    // In case of SPRD, we set proper native color format for the Native Window
-+    if (!strncasecmp(mComponentName.c_str(), "OMX.sprd", 8)) {
-+        switch (eNativeColorFormat) {
-+            case OMX_COLOR_FormatYUV420SemiPlanar:
-+                eNativeColorFormat = (OMX_COLOR_FORMATTYPE)HAL_PIXEL_FORMAT_YCbCr_420_SP;
-+                break;
-+            case OMX_COLOR_FormatYUV420Planar:
-+            default:
-+                eNativeColorFormat = (OMX_COLOR_FORMATTYPE)HAL_PIXEL_FORMAT_YCbCr_420_P;
-+                break;
-+        }
-+    }
-+}
-+#endif
-+
- status_t ACodec::cancelBufferToNativeWindow(BufferInfo *info) {
-     CHECK_EQ((int)info->mStatus, (int)BufferInfo::OWNED_BY_US);
- 
-@@ -1510,6 +1532,12 @@ ACodec::BufferInfo *ACodec::dequeueBufferFromNativeWindow() {
+@@ -1510,6 +1514,12 @@ ACodec::BufferInfo *ACodec::dequeueBufferFromNativeWindow() {
  
  status_t ACodec::freeBuffersOnPort(OMX_U32 portIndex) {
      status_t err = OK;
@@ -393,7 +350,7 @@ index 581bfba..98644cd 100644
      for (size_t i = mBuffers[portIndex].size(); i > 0;) {
          i--;
          status_t err2 = freeBuffer(portIndex, i);
-@@ -1659,8 +1687,12 @@ status_t ACodec::setComponentRole(
+@@ -1659,8 +1669,12 @@ status_t ACodec::setComponentRole(
              "video_decoder.mpeg2", "video_encoder.mpeg2" },
          { MEDIA_MIMETYPE_AUDIO_AC3,
              "audio_decoder.ac3", "audio_encoder.ac3" },
@@ -406,7 +363,7 @@ index 581bfba..98644cd 100644
          { MEDIA_MIMETYPE_VIDEO_MPEG4_DP,
              "video_decoder.mpeg4", NULL },
      };
-@@ -2237,6 +2269,17 @@ status_t ACodec::configureCodec(
+@@ -2237,6 +2251,17 @@ status_t ACodec::configureCodec(
              msg->findInt32("bits-per-sample", &bitsPerSample);
              err = setupEAC3Codec(encoder, numChannels, sampleRate, bitsPerSample);
          }
@@ -424,7 +381,7 @@ index 581bfba..98644cd 100644
      } else {
          if (!strncmp(mComponentName.c_str(), "OMX.ffmpeg.", 11) && !mIsEncoder) {
              err = FFMPEGSoftCodec::setAudioFormat(
-@@ -2267,6 +2310,10 @@ status_t ACodec::configureCodec(
+@@ -2267,6 +2292,10 @@ status_t ACodec::configureCodec(
      int32_t maxInputSize;
      if (msg->findInt32("max-input-size", &maxInputSize)) {
          err = setMinBufferSize(kPortIndexInput, (size_t)maxInputSize);
@@ -435,7 +392,7 @@ index 581bfba..98644cd 100644
      } else if (!strcmp("OMX.Nvidia.aac.decoder", mComponentName.c_str())) {
          err = setMinBufferSize(kPortIndexInput, 8192);  // XXX
      }
-@@ -2286,6 +2333,28 @@ status_t ACodec::configureCodec(
+@@ -2286,6 +2315,28 @@ status_t ACodec::configureCodec(
          err = setOperatingRate(rateFloat, video);
      }
  
@@ -464,7 +421,7 @@ index 581bfba..98644cd 100644
      mBaseOutputFormat = outputFormat;
  
      err = getPortFormat(kPortIndexInput, inputFormat);
-@@ -2634,6 +2703,47 @@ status_t ACodec::setupEAC3Codec(
+@@ -2634,6 +2685,47 @@ status_t ACodec::setupEAC3Codec(
              sizeof(def));
  }
  
@@ -512,7 +469,7 @@ index 581bfba..98644cd 100644
  static OMX_AUDIO_AMRBANDMODETYPE pickModeFromBitRate(
          bool isAMRWB, int32_t bps) {
      if (isAMRWB) {
-@@ -2966,6 +3076,7 @@ static const struct VideoCodingMapEntry {
+@@ -2966,6 +3058,7 @@ static const struct VideoCodingMapEntry {
      { MEDIA_MIMETYPE_VIDEO_MPEG2, OMX_VIDEO_CodingMPEG2 },
      { MEDIA_MIMETYPE_VIDEO_VP8, OMX_VIDEO_CodingVP8 },
      { MEDIA_MIMETYPE_VIDEO_VP9, OMX_VIDEO_CodingVP9 },
@@ -520,7 +477,7 @@ index 581bfba..98644cd 100644
  };
  
  status_t ACodec::GetVideoCodingTypeFromMime(
-@@ -4573,6 +4684,24 @@ status_t ACodec::getPortFormat(OMX_U32 portIndex, sp<AMessage> &notify) {
+@@ -4573,6 +4666,24 @@ status_t ACodec::getPortFormat(OMX_U32 portIndex, sp<AMessage> &notify) {
                      break;
                  }
  
@@ -545,7 +502,7 @@ index 581bfba..98644cd 100644
                  default:
                      if (!strncmp(mComponentName.c_str(), "OMX.ffmpeg.", 11)) {
                          err = FFMPEGSoftCodec::getAudioPortFormat(portIndex,
-@@ -6608,6 +6737,33 @@ status_t ACodec::setParameters(const sp<AMessage> &params) {
+@@ -6608,6 +6719,33 @@ status_t ACodec::setParameters(const sp<AMessage> &params) {
          }
      }
  
@@ -579,7 +536,7 @@ index 581bfba..98644cd 100644
      return OK;
  }
  
-@@ -6787,7 +6943,14 @@ bool ACodec::OutputPortSettingsChangedState::onOMXEvent(
+@@ -6787,7 +6925,14 @@ bool ACodec::OutputPortSettingsChangedState::onOMXEvent(
                              mCodec->mBuffers[kPortIndexOutput].size());
                      err = FAILED_TRANSACTION;
                  } else {

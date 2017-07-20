@@ -339,7 +339,8 @@ PRODUCT_PACKAGES += \
     hcidump \
     libbt-vendor \
     librilutils \
-    libbm
+    libbm \
+    libGLES_mali.so
 
 # RIL
 PRODUCT_PROPERTY_OVERRIDES += \

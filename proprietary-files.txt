@@ -59,7 +59,7 @@ etc/firmware/sc2331_fdl.bin
 etc/firmware/sc2331_fw.bin
 
 #egl
-lib/egl/libGLES_mali.so
+#lib/egl/libGLES_mali.so
 
 # hw
 lib/hw/camera.sc8830.so
