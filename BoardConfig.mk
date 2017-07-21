@@ -137,18 +137,70 @@ TARGET_USES_NQ_NFC := true
 # WEBGL
 ENABLE_WEBGL := true
 
+#######################################################
 # camera configs
 USE_CAMERA_STUB := true
-#zsl capture
-TARGET_BOARD_CAMERA_CAPTURE_MODE := false
 #back camera rotation capture
 TARGET_BOARD_BACK_CAMERA_ROTATION := false
 #front camera rotation capture
 TARGET_BOARD_FRONT_CAMERA_ROTATION := false
+# camera sensor type
+CAMERA_SENSOR_TYPE_BACK := "s5k4h5yc_mipi"
+CAMERA_SENSOR_TYPE_FRONT := "s5k5e3yx_mipi"
+# select camera 2M,3M,5M,8M
+CAMERA_SUPPORT_SIZE := 8M
+FRONT_CAMERA_SUPPORT_SIZE := 5M
+TARGET_BOARD_NO_FRONT_SENSOR := false
+TARGET_BOARD_CAMERA_FLASH_CTRL := false
+#read otp method 1:from kernel 0:from user
+TARGET_BOARD_CAMERA_READOTP_METHOD := 1
+#face detect
+TARGET_BOARD_CAMERA_FACE_DETECT := true
+TARGET_BOARD_CAMERA_FD_LIB := omron
+#sensor interface
+TARGET_BOARD_BACK_CAMERA_INTERFACE := mipi
+TARGET_BOARD_FRONT_CAMERA_INTERFACE := mipi
+#select camera zsl cap mode
+TARGET_BOARD_CAMERA_CAPTURE_MODE := false
+#select camera zsl force cap mode
+TARGET_BOARD_CAMERA_FORCE_ZSL_MODE := false
+#sprd zsl feature
+TARGET_BOARD_CAMERA_SPRD_PRIVATE_ZSL := false
 #rotation capture
 TARGET_BOARD_CAMERA_ROTATION_CAPTURE := false
-TARGET_BOARD_CAMERA_HAL_VERSION := HAL3.0
+#select camera not support autofocus
+TARGET_BOARD_CAMERA_NO_AUTOFOCUS_DEV := false
+#uv denoise enable
+TARGET_BOARD_CAMERA_CAPTURE_DENOISE := false
+#y denoise enable
+TARGET_BOARD_CAMERA_Y_DENOISE := true
+#select continuous auto focus
+TARGET_BOARD_CAMERA_CAF := true
+TARGET_BOARD_CAMERA_NO_FLASH_DEV := false
+#image angle in different project
+TARGET_BOARD_CAMERA_ADAPTER_IMAGE := 0
+#pre_allocate capture memory
+TARGET_BOARD_CAMERA_PRE_ALLOC_CAPTURE_MEM := true
+#sc8830g isp ver 0;sc9630 isp ver 1;sp9832a_2h11 isp version 2
 TARGET_BOARD_CAMERA_ISP_SOFTWARE_VERSION := 2
+#set hal version to 1.0
+TARGET_BOARD_CAMERA_HAL_VERSION := 1.0
+#support auto anti-flicker
+TARGET_BOARD_CAMERA_ANTI_FLICKER := true
+#multi cap memory mode
+TARGET_BOARD_MULTI_CAP_MEM := true
+#low capture memory
+TARGET_BOARD_LOW_CAPTURE_MEM := true
+#select the vcm chip driver BU64241GWZ
+TARGET_VCM_BU64241GWZ := true
+#select mipi d-phy mode(none, phya, phyb, phyab)
+TARGET_BOARD_FRONT_CAMERA_MIPI := phyb
+TARGET_BOARD_BACK_CAMERA_MIPI := phya
+#select ccir pclk src(source0, source1)
+TARGET_BOARD_FRONT_CAMERA_CCIR_PCLK := source0
+TARGET_BOARD_BACK_CAMERA_CCIR_PCLK := source0
+
+#######################################################
 
 # Audio
 BOARD_USES_GENERIC_AUDIO := true

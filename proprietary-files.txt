@@ -62,7 +62,7 @@ etc/firmware/sc2331_fw.bin
 #lib/egl/libGLES_mali.so
 
 # hw
-lib/hw/camera.sc8830.so
+#lib/hw/camera.sc8830.so
 #lib/hw/nfc_nci.sc8830.so
 #lib/hw/power.sc8830.so
 lib/hw/sensors.sc8830.so
@@ -154,7 +154,7 @@ lib/libsoundalive.so
 lib/libsoundspeed.so
 lib/libsprdftms.so
 lib/libspdkeygen.so
-lib/libspaf.so
+#lib/libspaf.so
 lib/libsetproperty.so
 lib/libsfextaac.so
 lib/libsfextavi.so
@@ -166,16 +166,16 @@ lib/libsfextmkv.so
 lib/libsfextmp4f.so
 lib/libsfextrmf.so
 lib/libsfextwmf.so
-lib/libsft_af_ctrl.so
+#lib/libsft_af_ctrl.so
 lib/libshdace.so
 lib/libsimageis_jni.so
 
 #lib/libstagefrighthw_cm.so
 lib/libwrappergps.so
 lib/libaccauthentication_jni.so
-lib/libAF.so
+#lib/libAF.so
 lib/libaf_running.so
-lib/libaf_tune.so
+#lib/libaf_tune.so
 lib/libAl_Awb.so
 lib/libAl_Awb_Sp.so
 lib/libboost.so
@@ -187,8 +187,8 @@ lib/libbt-iopdb.so
 lib/libbt-iopdb_mod.so
 
 #lib/libatchannel.so
-lib/libae.so
-lib/libawb.so
+#lib/libae.so
+#lib/libawb.so
 #lib/libbt-vendor.so
 #lib/libstagefrighthw.so
 lib/libvariablespeed.so
@@ -207,15 +207,15 @@ lib/libvariablespeed.so
 #lib/libvpu.so
 lib/libvtmanager.so
 lib/libvtstack.so
-lib/libynoise.so
+#lib/libynoise.so
 #lib/libeng-audio.so
 #lib/libengbt.so
 lib/libengmode.so
-lib/libcalibration.so
+#lib/libcalibration.so
 #lib/libdumpdata.so
-lib/libdeflicker.so
+#lib/libdeflicker.so
 #lib/libnvexchange.so
-lib/liblsc.so
+#lib/liblsc.so
 lib/libmorpho_easy_hdr.so
 lib/libril.so
 lib/libreference-ril.so

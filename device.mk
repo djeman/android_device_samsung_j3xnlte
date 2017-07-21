@@ -274,6 +274,7 @@ PRODUCT_PACKAGES += \
     libril_shim
 
 PRODUCT_PACKAGES += \
+    camera.sc8830 \
     power.sc8830 \
     lights.sc8830 \
     hwcomposer.sc8830 \
