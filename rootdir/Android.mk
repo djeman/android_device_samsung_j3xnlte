@@ -3,6 +3,14 @@ LOCAL_PATH:= $(call my-dir)
 # Init scripts
 
 include $(CLEAR_VARS)
+LOCAL_MODULE       := init.rc
+LOCAL_MODULE_TAGS  := optional eng
+LOCAL_MODULE_CLASS := ETC
+LOCAL_SRC_FILES    := etc/init.rc
+LOCAL_MODULE_PATH  := $(TARGET_ROOT_OUT)
+include $(BUILD_PREBUILT)
+
+include $(CLEAR_VARS)
 LOCAL_MODULE       := fstab.sc8830
 LOCAL_MODULE_TAGS  := optional eng
 LOCAL_MODULE_CLASS := ETC
@@ -111,5 +119,21 @@ LOCAL_MODULE       := sswap
 LOCAL_MODULE_TAGS  := optional eng
 LOCAL_MODULE_CLASS := EXECUTABLES
 LOCAL_SRC_FILES    := sbin/sswap
+LOCAL_MODULE_PATH  := $(TARGET_ROOT_OUT)/sbin
+include $(BUILD_PREBUILT)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE       := bgcompact
+LOCAL_MODULE_TAGS  := optional eng
+LOCAL_MODULE_CLASS := EXECUTABLES
+LOCAL_SRC_FILES    := sbin/bgcompact
+LOCAL_MODULE_PATH  := $(TARGET_ROOT_OUT)/sbin
+include $(BUILD_PREBUILT)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE       := ffu
+LOCAL_MODULE_TAGS  := optional eng
+LOCAL_MODULE_CLASS := EXECUTABLES
+LOCAL_SRC_FILES    := sbin/ffu
 LOCAL_MODULE_PATH  := $(TARGET_ROOT_OUT)/sbin
 include $(BUILD_PREBUILT)

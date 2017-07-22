@@ -1,25 +1,30 @@
-diff --git a/include/system/graphics.h b/include/system/graphics.h
-index afd9f7b..dfa83ae 100644
---- a/include/system/graphics.h
-+++ b/include/system/graphics.h
-@@ -439,7 +439,17 @@ enum {
-     /* Legacy formats (deprecated), used by ImageFormat.java */
-     HAL_PIXEL_FORMAT_YCbCr_422_SP       = 0x10, // NV16
-     HAL_PIXEL_FORMAT_YCrCb_420_SP       = 0x11, // NV21
-+    HAL_PIXEL_FORMAT_YCbCr_422_P        = 0x12,
-+    HAL_PIXEL_FORMAT_YCbCr_420_P        = 0x13,
-     HAL_PIXEL_FORMAT_YCbCr_422_I        = 0x14, // YUY2
-+    HAL_PIXEL_FORMAT_YCbCr_420_I        = 0x15,
-+    HAL_PIXEL_FORMAT_CbYCrY_422_I       = 0x16,
-+    HAL_PIXEL_FORMAT_CbYCrY_420_I       = 0x17,
-+    HAL_PIXEL_FORMAT_YCbCr_420_SP_TILED = 0x18,
-+    HAL_PIXEL_FORMAT_YCbCr_420_SP       = 0x19,
-+    HAL_PIXEL_FORMAT_YCrCb_420_SP_TILED = 0x1A,
-+    HAL_PIXEL_FORMAT_YCrCb_422_SP       = 0x1B,
-+    HAL_PIXEL_FORMAT_YCrCb_420_P        = 0x1C,
- };
+diff --git a/include/system/camera.h b/include/system/camera.h
+index 0570ca0..81660a9 100644
+--- a/include/system/camera.h
++++ b/include/system/camera.h
+@@ -202,6 +202,10 @@ enum {
+      */
+ #ifndef CAMERA_VENDOR_L_COMPAT
+     CAMERA_CMD_SET_VIDEO_FORMAT = 11,
++    CAMERA_CMD_SET_FLIP_ON = 12,
++    MULTI_FRAME_SHOT_START            = 1261,
++    AUTO_LOW_LIGHT_SET                = 1351,
++    HDR_PICTURE_MODE_CHANGE           = 1273,
  
- /*
+     CAMERA_CMD_VENDOR_START = 20,
+     /**
+@@ -358,6 +362,11 @@ typedef struct camera_frame_metadata {
+      * An array of the detected faces. The length is number_of_faces.
+      */
+     camera_face_t *faces;
++
++    /**
++     * Value for low light condition
++     */
++    int32_t light_condition;
+ } camera_frame_metadata_t;
+ 
+ __END_DECLS
 diff --git a/init/builtins.cpp b/init/builtins.cpp
 index 1681d17..f32dccc 100644
 --- a/init/builtins.cpp
@@ -40,6 +45,45 @@ index 1681d17..f32dccc 100644
  /*
   * Callback to make a directory from the ext4 code
   */
+diff --git a/init/init.cpp b/init/init.cpp
+index 8ea42ca..a8f7f77 100644
+--- a/init/init.cpp
++++ b/init/init.cpp
+@@ -75,6 +75,7 @@ static int property_triggers_enabled = 0;
+ #define BOARD_CHARGING_CMDLINE_VALUE "true"
+ #endif
+ 
++static char bootmode[PROP_VALUE_MAX];
+ static char qemu[32];
+ static char battchg_pause[32];
+ 
+@@ -197,6 +198,12 @@ void service_start(struct service *svc, const char *dynamic_args)
+     // immediately takes it out of the restarting state if it was in there.
+     svc->flags &= (~(SVC_DISABLED|SVC_RESTARTING|SVC_RESET|SVC_RESTART|SVC_DISABLED_START));
+     svc->time_started = 0;
++    if (((!strncmp(svc->name,"healthd",7)) || (!strncmp(svc->name,"bootanim",8)) || (!strncmp(svc->name,"zygote",6)) || 
++              (!strncmp(svc->name,"surfaceflinger",14))) && ((!strcmp(bootmode, "charger")))) {
++        ERROR("stopping '%s'\n", svc->name);
++        svc->flags |= SVC_DISABLED;
++        return;
++    }
+ 
+     // Running processes require no additional work --- if they're in the
+     // process of exiting, we've ensured that they will immediately restart
+@@ -1132,10 +1139,12 @@ int main(int argc, char** argv) {
+     queue_builtin_action(mix_hwrng_into_linux_rng_action, "mix_hwrng_into_linux_rng");
+ 
+     // Don't mount filesystems or start core system services in charger mode.
+-    char bootmode[PROP_VALUE_MAX];
+     if (((property_get("ro.bootmode", bootmode) > 0 && strcmp(bootmode, "charger") == 0) ||
+          strcmp(battchg_pause, BOARD_CHARGING_CMDLINE_VALUE) == 0)
+                || charging_mode_booting()) {
++        action_for_each_trigger("early-fs", action_add_queue_tail);
++        action_for_each_trigger("fs", action_add_queue_tail);
++        action_for_each_trigger("post-fs", action_add_queue_tail);
+         action_for_each_trigger("charger", action_add_queue_tail);
+     } else if (strncmp(bootmode, "ffbm", 4) == 0) {
+         KLOG_ERROR("Booting into ffbm mode\n");
 diff --git a/init/init_parser.cpp b/init/init_parser.cpp
 index c36d36e..0a6f1e5 100644
 --- a/init/init_parser.cpp

@@ -1,0 +1,269 @@
+diff --git a/wifi/wifi.c b/wifi/wifi.c
+index 6f7e105..789a4b1 100644
+--- a/wifi/wifi.c
++++ b/wifi/wifi.c
+@@ -23,6 +23,8 @@
+ #include <sys/stat.h>
+ #include <unistd.h>
+ #include <poll.h>
++#include <sys/time.h>
++#include <cutils/sockets.h>
+ 
+ #ifdef USES_TI_MAC80211
+ #include <dirent.h>
+@@ -51,6 +53,22 @@
+ #define _REALLY_INCLUDE_SYS__SYSTEM_PROPERTIES_H_
+ #include <sys/_system_properties.h>
+ 
++//NOTE: Add for WCND RESET Feature -->
++
++//To control if connect to WCND before loading wifi driver and after unloading wifi driver
++#define CONFIG_WCND 1
++
++#define WCND_SOCKET_NAME	"wcnd"
++#define WCND_CMD_STR_START_CP2  "wcn WIFI-OPEN"
++#define WCND_CMD_STR_STOP_CP2  "wcn WIFI-CLOSE"
++#define WCND_RESP_STR_WIFI_OK   "BTWIFI-CMD OK"
++
++#ifdef CONFIG_WCND
++static int wcnd_socket = -1;
++static int supplicant_is_killed_for_cp2_assert = 0;
++#endif
++//<-- Add for WCND RESET Feature
++
+ extern int do_dhcp();
+ extern int ifc_init();
+ extern void ifc_close();
+@@ -168,6 +186,94 @@ static char supplicant_name[PROPERTY_VALUE_MAX];
+ /* Is either SUPP_PROP_NAME or P2P_PROP_NAME */
+ static char supplicant_prop_name[PROPERTY_KEY_MAX];
+ 
++//NOTE: Add for WCND RESET Feature -->
++#ifdef CONFIG_WCND
++static int connect_wcnd(void)
++{
++    int client_fd = -1;
++    int retry_count = 20;
++    struct timeval rcv_timeout;
++
++    client_fd = socket_local_client( WCND_SOCKET_NAME,
++    ANDROID_SOCKET_NAMESPACE_ABSTRACT, SOCK_STREAM);
++
++    while(client_fd < 0 && retry_count > 0)
++    {
++        retry_count--;
++        ALOGD("%s: Unable bind server %s, waiting...\n",__func__, WCND_SOCKET_NAME);
++        usleep(100*1000);
++        client_fd = socket_local_client( WCND_SOCKET_NAME,
++            ANDROID_SOCKET_NAMESPACE_ABSTRACT, SOCK_STREAM);
++    }
++
++    if(client_fd > 0)
++    {
++        rcv_timeout.tv_sec = 20;
++        rcv_timeout.tv_usec = 0;
++        if(setsockopt(client_fd, SOL_SOCKET, SO_RCVTIMEO, (char*)&rcv_timeout, sizeof(rcv_timeout)) < 0)
++        {
++            ALOGE("%s: set receive timeout fail\n",__func__);
++        }
++    }
++
++    return client_fd;
++}
++
++static int start_cp2(void)
++{
++    char buffer[128];
++    int n = 0;
++    int ret = 0;
++
++    ALOGD("%s: send %s to %s\n",__func__, WCND_CMD_STR_START_CP2, WCND_SOCKET_NAME);
++
++    memset(buffer, 0, sizeof(buffer));
++
++    n = strlen(WCND_CMD_STR_START_CP2) +1;
++
++    TEMP_FAILURE_RETRY(write(wcnd_socket, WCND_CMD_STR_START_CP2, n));
++
++    memset(buffer, 0, sizeof(buffer));
++
++    ALOGD("%s: waiting for server %s\n",__func__, WCND_SOCKET_NAME);
++    n = read(wcnd_socket, buffer, sizeof(buffer)-1);
++
++    ALOGD("%s: get %d bytes %s\n", __func__, n, buffer);
++
++    if(!strstr(buffer, WCND_RESP_STR_WIFI_OK)) ret = -1;
++
++    return ret;
++}
++
++static int stop_cp2(void)
++{
++    char buffer[128];
++    int n = 0;
++    int ret = 0;
++
++    ALOGD("%s: send %s to %s\n",__func__, WCND_CMD_STR_STOP_CP2, WCND_SOCKET_NAME);
++
++    memset(buffer, 0, sizeof(buffer));
++
++    n = strlen(WCND_CMD_STR_STOP_CP2) +1;
++
++    TEMP_FAILURE_RETRY(write(wcnd_socket, WCND_CMD_STR_STOP_CP2, n));
++
++    memset(buffer, 0, sizeof(buffer));
++
++    ALOGD("%s: waiting for server %s\n",__func__, WCND_SOCKET_NAME);
++    n = read(wcnd_socket, buffer, sizeof(buffer)-1);
++
++    ALOGD("%s: get %d bytes %s\n", __func__, n, buffer);
++
++    if(!strstr(buffer, WCND_RESP_STR_WIFI_OK)) ret = -1;
++
++    return ret;
++
++}
++#endif
++//<-- Add for WCND RESET Feature
++
+ #ifdef SAMSUNG_WIFI
+ char* get_samsung_wifi_type()
+ {
+@@ -344,6 +450,20 @@ int wifi_load_driver()
+     usleep(200000);
+ #endif
+ 
++//NOTE: Add for WCND RESET Feature -->
++#ifdef CONFIG_WCND
++    //start cp2 first
++    if(wcnd_socket < 0) {
++        wcnd_socket = connect_wcnd();
++    }
++
++    if(wcnd_socket > 0 && (start_cp2() < 0)) {
++        ALOGE("start CP2 FAIL");
++        //return -1;
++    }
++#endif
++//<-- Add for WCND RESET Feature
++
+     if (insmod(DRIVER_MODULE_PATH, DRIVER_MODULE_ARG) < 0) {
+ #endif
+ 
+@@ -396,6 +516,13 @@ int wifi_unload_driver()
+     wifi_fst_unload_driver();
+ 
+ #ifdef WIFI_DRIVER_MODULE_PATH
++
++//NOTE: Add for WCND RESET Feature -->
++#ifdef CONFIG_WCND
++    int ret = 0;
++#endif
++
++#ifndef CONFIG_WCND
+     if (rmmod(DRIVER_MODULE_NAME) == 0) {
+         int count = 20; /* wait at most 10 seconds for completion */
+         while (count-- > 0) {
+@@ -414,6 +541,36 @@ int wifi_unload_driver()
+     } else
+         return -1;
+ #else
++    if (rmmod(DRIVER_MODULE_NAME) == 0) {
++        int count = 20; /* wait at most 10 seconds for completion */
++        while (count-- > 0) {
++            if (!is_wifi_driver_loaded())
++                break;
++            usleep(500000);
++        }
++        usleep(500000); /* allow card removal */
++        if (count) {
++            ret = 0;
++        }else
++            ret = -1;
++    } else
++        ret = -1;
++
++    //stop cp2 at last
++    if(wcnd_socket < 0) {
++        wcnd_socket = connect_wcnd();
++    }
++
++    if(wcnd_socket > 0 && (stop_cp2() < 0)) {
++        ALOGE("stop CP2 FAIL");
++        //ret = -1;
++    }
++
++    return ret;
++#endif
++//<-- Add for WCND RESET Feature
++
++#else
+ #ifdef WIFI_DRIVER_STATE_CTRL_PARAM
+     if (is_wifi_driver_loaded()) {
+         if (wifi_change_driver_state(WIFI_DRIVER_STATE_OFF) < 0)
+@@ -755,6 +912,12 @@ int wifi_start_supplicant(int p2p_supported)
+     const prop_info *pi;
+     unsigned serial = 0, i;
+ 
++//NOTE: Add for WCND RESET Feature -->
++#ifdef CONFIG_WCND
++    supplicant_is_killed_for_cp2_assert = 0;
++#endif
++//<-- Add for WCND RESET Feature
++
+     if (wifi_start_fstman(0)) {
+         return -1;
+     }
+@@ -846,6 +1009,13 @@ int wifi_stop_supplicant(int p2p_supported)
+     char supp_status[PROPERTY_VALUE_MAX] = {'\0'};
+     int count = 50; /* wait at most 5 seconds for completion */
+ 
++//NOTE: Add for WCND RESET Feature -->
++#ifdef CONFIG_WCND
++    //clear
++    supplicant_is_killed_for_cp2_assert = 0;
++#endif
++//<-- Add for WCND RESET Feature
++
+     if (p2p_supported) {
+         strcpy(supplicant_name, P2P_SUPPLICANT_NAME);
+         strcpy(supplicant_prop_name, P2P_PROP_NAME);
+@@ -945,6 +1115,16 @@ int wifi_send_command(const char *cmd, char *reply, size_t *reply_len)
+         ALOGV("Not connected to wpa_supplicant - \"%s\" command dropped.\n", cmd);
+         return -1;
+     }
++
++//NOTE: Add for WCND RESET Feature -->
++#ifdef CONFIG_WCND
++    if (supplicant_is_killed_for_cp2_assert) {
++        ALOGD("Not connected to wpa_supplicant  for supplicant_is_killed_for_cp2_assert - \"%s\" command dropped.\n", cmd);
++        return -1;
++    }
++#endif
++//<-- Add for WCND RESET Feature
++
+     ret = wpa_ctrl_request(ctrl_conn, cmd, strlen(cmd), reply, reply_len, NULL);
+     if (ret == -2) {
+         ALOGD("'%s' command timed out.\n", cmd);
+@@ -1077,6 +1257,21 @@ int wifi_wait_on_socket(char *buf, size_t buflen)
+         ALOGW("supplicant generated event without interface and without message level - %s\n", buf);
+     }
+ 
++//NOTE: Add for WCND RESET Feature -->
++#ifdef CONFIG_WCND
++    if (strstr(buf, WPA_EVENT_TERMINATING)) {
++        //check if CP2 is assert
++        char cp2_status[PROPERTY_VALUE_MAX] = {'\0'};
++        if (property_get("persist.sys.wcn.status", cp2_status, "ok")) {
++            if (strcmp(cp2_status, "ok") != 0) {//cp2 assert
++                ALOGW("CP2 Assert, supplicant is killed - %s\n", buf);
++                supplicant_is_killed_for_cp2_assert = 1;
++            }
++        }
++    }
++#endif
++//<-- Add for WCND RESET Feature
++
+     return nread;
+ }
+ 

@@ -109,7 +109,6 @@ ro.board_ram_size=high
 # SPRD: add low cost low memory @{
 ro.config.low_ram=false
 # @}
-ro.kernel.qemu=0
 
 qemu.hw.mainkeys=1
 persist.ini.connectivity.prodnv=0

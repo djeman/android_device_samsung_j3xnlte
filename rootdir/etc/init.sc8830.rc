@@ -1,7 +1,6 @@
 import /init.board.rc
 import /init.sc8830.usb.rc
 import /init.sc8830_ss.rc
-import /init.rilcommon.rc
 
 on early-init
     mount debugfs debugfs /sys/kernel/debug
@@ -40,13 +39,11 @@ on init
     # for tsp command
     chown system system /sys/class/sec/tsp/cmd
 
-    mkdir /efs 0771 radio system
-    mkdir /efs/imei 0775 radio system
-
 on fs
     ubiattach 0 ubipac
     mount_all /fstab.sc8830
     mount pstore pstore /sys/fs/pstore
+    setprop ro.crypto.fuse_sdcard true
     symlink /system/res /res
     symlink /system/bin /bin
 
@@ -71,7 +68,6 @@ on post-fs-data
     copy /system/etc/bluetooth/bt_stack.conf /data/misc/bluedroid/bt_stack.conf
     chown bluetooth system /data/misc/bluedroid/bt_stack.conf
     chmod 0640 /data/misc/bluedroid/bt_stack.conf
-    mkdir /efs/sec_efs 0775 radio system
     mkdir /data/local/media 0770 media system
     mkdir /data/local/tmp/slogmodem 0770 system system
     mkdir /data/anr 0771 system system
@@ -79,12 +75,6 @@ on post-fs-data
 
     # Set indication (checked by vold) that we have finished this action
     setprop vold.post_fs_data_done 1
-
-    restorecon -R /efs
-    restorecon -R /carrier
-    restorecon_recursive /data/misc/keystore
-    restorecon_recursive /data/property
-    restorecon_recursive /data/security
 
 on early-boot
     # set RLIMIT_MEMLOCK to 64MB
@@ -152,16 +142,6 @@ on early-boot
 
 
 on boot
-    # for BT MAC address
-    mkdir /efs/bluetooth 0775 radio system
-    # if already exist
-    chown radio system /efs/bluetooth
-    chmod 0775 /efs/bluetooth
-    setprop ro.bt.bdaddr_path "/efs/bluetooth/bt_addr"
-    chown bluetooth net_bt_stack ro.bt.bdaddr_path
-    chown radio net_bt_stack /efs/bluetooth/bt_addr
-    chmod 0640 /efs/bluetooth/bt_addr
-
     chown system system /sys/module/mali/parameters/gpu_freq_cur
     chown system system /sys/module/mali/parameters/gpu_freq_max_limit
     chown system system /sys/module/mali/parameters/gpu_freq_min_limit
@@ -229,17 +209,6 @@ on boot
     chmod 0660 /sys/class/graphics/fb0/dynamic_mipi_clk
 
 on charger
-    mount ext4 /dev/block/platform/sdio_emmc/by-name/SYSTEM /system wait ro
-    copy /system/etc/battery_charging_temp.data /sys/class/power_supply/battery/batt_temp_table
-
-    wait /dev/block/platform/sdio_emmc/by-name/efs
-    check_fs /dev/block/platform/sdio_emmc/by-name/efs ext4
-    mount ext4 /dev/block/platform/sdio_emmc/by-name/efs /efs nosuid nodev noatime noauto_da_alloc,discard,journal_async_commit,errors=panic
-
-    chown system radio /efs
-    chmod 0771 /efs
-    mkdir /efs/Battery 0775 radio system
-
     start console
     start slog
 
@@ -400,10 +369,10 @@ service batterysrv /bin/batterysrv
     group system
     oneshot
 
-#service charge /bin/charge
-#    class charger
-#    user root
-#    oneshot
+service charge /bin/charge
+    class charger
+    user root
+    oneshot
 
 ##td rild service
 #service tril-daemon /system/bin/rild_sp -l /system/lib/libreference-ril_sp.so -m t -n 0

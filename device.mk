@@ -16,20 +16,26 @@ DEVICE_PACKAGE_OVERLAYS += device/samsung/j3xnlte/overlay
 PRODUCT_COPY_FILES += \
     external/ant-wireless/antradio-library/com.dsi.ant.antradio_library.xml:system/etc/permissions/com.dsi.ant.antradio_library.xml \
     frameworks/native/data/etc/handheld_core_hardware.xml:system/etc/permissions/handheld_core_hardware.xml \
+    frameworks/native/data/etc/android.hardware.camera.autofocus.xml:system/etc/permissions/android.hardware.camera.autofocus.xml \
     frameworks/native/data/etc/android.hardware.camera.flash-autofocus.xml:system/etc/permissions/android.hardware.camera.flash-autofocus.xml \
     frameworks/native/data/etc/android.hardware.camera.front.xml:system/etc/permissions/android.hardware.camera.front.xml \
     frameworks/native/data/etc/android.hardware.wifi.xml:system/etc/permissions/android.hardware.wifi.xml \
     frameworks/native/data/etc/android.hardware.wifi.direct.xml:system/etc/permissions/android.hardware.wifi.direct.xml \
     frameworks/native/data/etc/android.hardware.sensor.proximity.xml:system/etc/permissions/android.hardware.sensor.proximity.xml \
-    frameworks/native/data/etc/android.hardware.sensor.light.xml:system/etc/permissions/android.hardware.sensor.light.xml \
+    frameworks/native/data/etc/android.hardware.sensor.accelerometer.xml:system/etc/permissions/android.hardware.sensor.accelerometer.xml \
+    frameworks/native/data/etc/android.hardware.faketouch.xml:system/etc/permissions/android.hardware.faketouch.xml \
     frameworks/native/data/etc/android.hardware.touchscreen.multitouch.jazzhand.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.jazzhand.xml \
+    frameworks/native/data/etc/android.hardware.touchscreen.multitouch.distinct.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.distinct.xml \
+    frameworks/native/data/etc/android.hardware.touchscreen.multitouch.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.xml \
+    frameworks/native/data/etc/android.hardware.touchscreen.xml:system/etc/permissions/android.hardware.touchscreen.xml \
     frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
     frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml \
     frameworks/native/data/etc/android.software.sip.voip.xml:system/etc/permissions/android.software.sip.voip.xml \
     frameworks/native/data/etc/android.hardware.telephony.gsm.xml:system/etc/permissions/android.hardware.telephony.gsm.xml \
-    frameworks/base/nfc-extras/com.android.nfc_extras.xml:system/etc/permissions/com.android.nfc_extras.xml \
+    frameworks/native/data/etc/com.android.nfc_extras.xml:system/etc/permissions/com.android.nfc_extras.xml \
     frameworks/native/data/etc/android.hardware.nfc.xml:system/etc/permissions/android.hardware.nfc.xml \
     frameworks/native/data/etc/android.hardware.nfc.hce.xml:system/etc/permissions/android.hardware.nfc.hce.xml \
+    frameworks/native/data/etc/com.nxp.mifare.xml:system/etc/permissions/com.nxp.mifare.xml \
     frameworks/native/data/etc/android.hardware.location.gps.xml:system/etc/permissions/android.hardware.location.gps.xml \
     frameworks/native/data/etc/android.hardware.bluetooth.xml:system/etc/permissions/android.hardware.bluetooth.xml \
     frameworks/native/data/etc/android.hardware.bluetooth_le.xml:system/etc/permissions/android.hardware.bluetooth_le.xml \
@@ -62,6 +68,7 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/keylayout/gpio-keys.kl:system/usr/keylayout/gpio-keys.kl \
     $(LOCAL_PATH)/keylayout/headset-keyboard.kl:system/usr/keylayout/headset-keyboard.kl \
     $(LOCAL_PATH)/keylayout/sci-keypad.kl:system/usr/keylayout/sci-keypad.kl \
+    $(LOCAL_PATH)/keylayout/sec_touchkey.kl:system/usr/keylayout/sec_touchkey.kl \
     $(LOCAL_PATH)/keylayout/sprd-eic-keys.kl:system/usr/keylayout/sprd-eic-keys.kl \
     $(LOCAL_PATH)/keylayout/sprd-gpio-keys.kl:system/usr/keylayout/sprd-gpio-keys.kl \
     $(LOCAL_PATH)/keylayout/Synaptics_RMI4_TouchPad_Sensor.idc:system/usr/idc/Synaptics_RMI4_TouchPad_Sensor.idc \
@@ -75,8 +82,8 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/proprietaries/system/vendor/lib/drm/libdrmwvmplugin.so:system/vendor/lib/drm/libdrmwvmplugin.so \
     $(LOCAL_PATH)/proprietaries/system/vendor/lib/mediadrm/libwvdrmengine.so:system/vendor/lib/mediadrm/libwvdrmengine.so \
     $(LOCAL_PATH)/proprietaries/system/vendor/lib/libwvdrm_L3.so:system/vendor/lib/libwvdrm_L3.so \
+    $(LOCAL_PATH)/proprietaries/system/vendor/lib/libwvm.so:system/vendor/lib/libwvm.so \
     $(LOCAL_PATH)/proprietaries/system/vendor/lib/libWVStreamControlAPI_L3.so:system/vendor/lib/libWVStreamControlAPI_L3.so
-#    $(LOCAL_PATH)/proprietaries/system/vendor/lib/libwvm.so:system/vendor/lib/libwvm.so \
 
 # Proprietaries libomx
 PRODUCT_COPY_FILES += \
@@ -166,12 +173,15 @@ PRODUCT_PACKAGES += \
     service_contexts \
     selinux_version
 
-# NFC packages
+# NFC
 PRODUCT_PACKAGES += \
-    libnfc_nci \
-    NfcNci \
-    Tag \
-    com.android.nfc_extras
+    com.android.nfc_extras \
+    com.nxp.nfc.nq \
+    nfc_nci.nqx.default \
+    NQNfcNci \
+    nqnfcee_access.xml \
+    nqnfcse_access.xml \
+    Tag
 
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/nfc/libnfc-brcm.conf:system/etc/libnfc-brcm.conf \
@@ -216,7 +226,10 @@ PRODUCT_PACKAGES += \
     init.sc8830_ss.rc \
     init.wifi.rc \
     ueventd.sc8830.rc \
-    sswap
+    init.rc \
+    sswap \
+    bgcompact \
+    ffu
 
 # e2fsprog
 PRODUCT_PACKAGES += \
@@ -261,6 +274,7 @@ PRODUCT_PACKAGES += \
     libril_shim
 
 PRODUCT_PACKAGES += \
+    camera.sc8830 \
     power.sc8830 \
     lights.sc8830 \
     hwcomposer.sc8830 \
@@ -297,7 +311,6 @@ PRODUCT_PACKAGES += \
     iwnpi \
     liboemcrypto \
     modem_control \
-    modemd \
     dhcp6s \
     dhcp6c \
     dhcp6ctl \
@@ -325,11 +338,14 @@ PRODUCT_PACKAGES += \
     liboprofiledaemon \
     engpc \
     hcidump \
-    libbt-vendor
+    libbt-vendor \
+    librilutils \
+    libbm \
+    libGLES_mali.so
 
 # RIL
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.telephony.ril_class=SamsungSPRDRIL
+    ro.telephony.ril_class=SlteRIL
 
 # Storage
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -342,6 +358,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # Default props
 ADDITIONAL_DEFAULT_PROPERTIES += \
     telephony.lteOnCdmaDevice=0 \
+    ro.telephony.default_cdma_sub=1 \
     persist.radio.apm_sim_not_pwdn=1 \
     persist.radio.add_power_save=1 \
     rild.libpath=/system/lib/libsec-ril.so \
@@ -356,11 +373,10 @@ $(call inherit-product, frameworks/native/build/phone-xhdpi-1024-dalvik-heap.mk)
 
 # Prebuilt kernel
 ifeq ($(TARGET_PREBUILT_KERNEL),)
-	LOCAL_KERNEL := device/samsung/j3xnlte/kernel
+    LOCAL_KERNEL := device/samsung/j3xnlte/kernel
 else
-	LOCAL_KERNEL := $(TARGET_PREBUILT_KERNEL)
+    LOCAL_KERNEL := $(TARGET_PREBUILT_KERNEL)
+    PRODUCT_COPY_FILES += \
+        $(LOCAL_KERNEL):kernel
 endif
-
-PRODUCT_COPY_FILES += \
-    $(LOCAL_KERNEL):kernel
 
