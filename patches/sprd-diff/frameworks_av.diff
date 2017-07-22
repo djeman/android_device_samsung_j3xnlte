@@ -1698,6 +1698,19 @@ index 933f241..69981f8 100644
      }
  #endif
      ALOGV("initVideoDecoder flags=0x%x", flags);
+diff --git a/media/libstagefright/CameraSource.cpp b/media/libstagefright/CameraSource.cpp
+index f6b4741..66c483d 100644
+--- a/media/libstagefright/CameraSource.cpp
++++ b/media/libstagefright/CameraSource.cpp
+@@ -119,6 +119,8 @@ static int32_t getColorFormat(const char* colorFormat) {
+ #ifdef USE_SAMSUNG_COLORFORMAT
+         static const int OMX_SEC_COLOR_FormatNV12LPhysicalAddress = 0x7F000002;
+         return OMX_SEC_COLOR_FormatNV12LPhysicalAddress;
++#elif SPRD_HARDWARE
++        return OMX_SPRD_COLOR_FormatYVU420SemiPlanar;
+ #else
+         return OMX_COLOR_FormatYUV420SemiPlanar;
+ #endif
 diff --git a/media/libstagefright/DataSource.cpp b/media/libstagefright/DataSource.cpp
 index 34f0649..9933c5f 100644
 --- a/media/libstagefright/DataSource.cpp
