@@ -1,50 +1,74 @@
 [
   {
-    "repository":  "android_external_busybox",
+    "remote": "github"
+    "repository":  "LineageOS/android_external_busybox",
     "target_path": "external/busybox"
+    "revision":     "cm-13.0"
   },
   {
-    "repository": "android_external_stlport",
+    "remote": "github"
+    "repository": "LineageOS/android_external_stlport",
     "target_path": "external/stlport"
+    "revision":     "cm-13.0"
   },
   {
-    "repository": "android_packages_apps_SamsungServiceMode",
+    "remote": "github"
+    "repository": "LineageOS/android_packages_apps_SamsungServiceMode",
     "target_path": "packages/apps/SamsungServiceMode"
+    "revision":     "cm-13.0"
   },
   {
-    "repository": "android_hardware_samsung",
+    "remote": "github"
+    "repository": "LineageOS/android_hardware_samsung",
     "target_path": "hardware/samsung"
+    "revision":     "cm-13.0"
   },
   {
-    "repository": "android_external_sony_boringssl-compat",
+    "remote": "github"
+    "repository": "LineageOS/android_external_sony_boringssl-compat",
     "target_path": "external/sony/boringssl-compat"
+    "revision":     "cm-13.0"
   },
   {
+    "remote": "github"
     "repository": "omnirom/android_bootable_recovery",
     "target_path": "bootable/recovery-twrp"
+    "revision":     "android-6.0"
   },
   {
-    "repository": "android_vendor_nxp-nfc_opensource_Nfc",
+    "remote": "github"
+    "repository": "LineageOSandroid_vendor_nxp-nfc_opensource_Nfc",
     "target_path": "vendor/nxp-nfc/opensource/Nfc"
+    "revision":     "cm-13.0"
   },
   {
-    "repository": "android_vendor_nxp-nfc_opensource_frameworks",
+    "remote": "github"
+    "repository": "LineageOS/android_vendor_nxp-nfc_opensource_frameworks",
     "target_path": "vendor/nxp-nfc/opensource/frameworks"
+    "revision":     "cm-13.0"
   },
   {
-    "repository": "android_vendor_nxp-nfc_opensource_libnfc-nci",
+    "remote": "github"
+    "repository": "LineageOS/android_vendor_nxp-nfc_opensource_libnfc-nci",
     "target_path": "vendor/nxp-nfc/opensource/libnfc-nci"
+    "revision":     "cm-13.0"
   },
   {
-    "repository": "android_kernel_samsung_j3xnlte",
+    "remote": "github"
+    "repository": "djeman/android_kernel_samsung_j3xnlte",
     "target_path": "kernel/samsung/j3xnlte"
+    "revision":     "cm-13.0"
   },
   {
-    "repository": "android_vendor_samsung_common",
+    "remote": "github"
+    "repository": "djeman/android_vendor_samsung_common",
     "target_path": "vendor/samsung/common"
+    "revision":     "cm-13.0"
   },
   {
-    "repository": "android_vendor_sprd",
+    "remote": "github"
+    "repository": "djeman/android_vendor_sprd",
     "target_path": "vendor/sprd"
+    "revision":     "cm-13.0"
   },
 ]
