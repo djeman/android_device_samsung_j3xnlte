@@ -85,12 +85,13 @@ void vendor_load_properties()
     }
 
     property_get("ro.bootloader", bootloader);
-    if (strstr(bootloader, "J320FN") == NULL) {
-        /* Not a SM-J320FN */
-        //property_set("ro.build.fingerprint", "samsung/j3xnltexx/j3xnlte:6.0.1/M0B31K/J320FNXXU0DJA0:user/release-keys");
-        //property_set("ro.build.description", "j3xnltexx-user 6.0.1 M0B31K J320FNXXU0DJA0 release-keys");
+    if (strstr(bootloader, "J320FN")) {
+        /* SM-J320FN */
+        property_set("ro.product.model", "SM-J320FN");
+        property_set("ro.product.device", "j3xnlte");
+    } else {
         property_set("ro.product.model", "SM-J320F");
-        //property_set("ro.product.device", "j3xlte");
+        property_set("ro.product.device", "j3xlte");
     }
 
     property_get("ro.product.device", device);
