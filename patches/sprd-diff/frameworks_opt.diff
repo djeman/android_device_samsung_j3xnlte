@@ -1,0 +1,81 @@
+diff --git a/net/wifi/service/java/com/android/server/wifi/WifiMonitor.java b/net/wifi/service/java/com/android/server/wifi/WifiMonitor.java
+index cd324b4..9f37fb7 100644
+--- a/net/wifi/service/java/com/android/server/wifi/WifiMonitor.java
++++ b/net/wifi/service/java/com/android/server/wifi/WifiMonitor.java
+@@ -681,6 +681,10 @@ public class WifiMonitor {
+ 
+         private synchronized boolean dispatchEvent(String eventStr) {
+             String iface;
++            //NOTE: Add for WCND RESET Feature -->
++            boolean supplicantExecption = false;
++            //<-- Add for WCND RESET Feature
++
+             // IFNAME=wlan0 ANQP-QUERY-DONE addr=18:cf:5e:26:a4:88 result=SUCCESS
+             if (eventStr.startsWith("IFNAME=")) {
+                 int space = eventStr.indexOf(' ');
+@@ -708,6 +712,28 @@ public class WifiMonitor {
+             } else {
+                 // events without prefix belong to p2p0 monitor
+                 iface = "p2p0";
++
++                //NOTE: Add for WCND RESET Feature -->
++                // check if it is a terminate event
++                // sometimes when cmd to supplicant timeout, an TERMINATING event will be recieved without IFNAME=
++                if (eventStr.contains("CTRL-EVENT-TERMINATING")) {
++                    Log.e(TAG, "Receive un-normal terminating event: " + eventStr);
++                    supplicantExecption = true;
++                }
++                //<-- Add for WCND RESET Feature
++
++            }
++            //For the case of command timeout or error happens
++            if (eventStr.contains("CTRL-EVENT-TERMINATING") && (eventStr.contains("- connection closed") ||
++                eventStr.contains("- recv error") )) {
++                Log.d(TAG, "somethine wrong with supplicant, recieve terminating event, tell WifiStateMachine!");
++                for (WifiMonitor mon : mIfaceMap.values()) {
++                    if (mon.mMonitoring) {
++                        mon.dispatchEvent(eventStr, iface);
++                    }
++                }
++                mConnected = false;
++                return true;
+             }
+ 
+             if (VDBG) Log.d(TAG, "Dispatching event to interface: " + iface);
+@@ -716,12 +742,36 @@ public class WifiMonitor {
+             if (m != null) {
+                 if (m.mMonitoring) {
+                     if (m.dispatchEvent(eventStr, iface)) {
++
++                        //NOTE: Add for WCND RESET Feature -->
++                        // Receive IFNAME=p2p0 CTRL-EVENT-TERMINATING from supplicant before p2p stopped
++                        // Because P2P and wifi use the same wifiMonitor thread, so it cannot exit directly here for only p2p terminating event.
++                        // The wifi terminating event should be also handled by wifi.
++                        if ("p2p0".equals(iface) && eventStr.contains("CTRL-EVENT-TERMINATING")
++                            && !supplicantExecption) {
++                            Log.e(TAG, "Receive p2p terminating event: " + eventStr + " before p2p stopped, don't exit WifiMonitor!!");
++                            return false;
++                        }
++                        //<-- Add for WCND RESET Feature
++
+                         mConnected = false;
+                         return true;
+                     }
+ 
+                     return false;
+                 } else {
++                    //NOTE: Add for WCND RESET Feature -->
++                    if (supplicantExecption) {
++                        Log.d(TAG, "somethine wrong with supplicant, recieve terminating event, tell WifiStateMachine!");
++                        for (WifiMonitor mon : mIfaceMap.values()) {
++                            if (mon.mMonitoring) {
++                                mon.dispatchEvent(eventStr, iface);
++                            }
++                        }
++                        mConnected = false;
++                        return true;
++                    }
++                    //<-- Add for WCND RESET Feature
+                     if (DBG) Log.d(TAG, "Dropping event because (" + iface + ") is stopped");
+                     return false;
+                 }
