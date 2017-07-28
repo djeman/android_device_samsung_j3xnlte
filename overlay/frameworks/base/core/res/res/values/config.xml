@@ -105,6 +105,9 @@
         <item>9</item>
     </integer-array>
 
+    <!-- Boolean indicating whether Hotspot 2.0/Passpoint and ANQP queries is enabled -->
+    <bool translatable="false" name="config_wifi_hotspot2_enabled">true</bool>
+
     <!-- Flag indicating whether the we should enable the automatic brightness in Settings.
          Software implementation will be used if config_hardware_auto_brightness_available is not set -->
     <bool name="config_automatic_brightness_available">true</bool>
