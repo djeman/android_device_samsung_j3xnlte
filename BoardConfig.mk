@@ -39,6 +39,8 @@ BOARD_VENDOR := samsung
 TARGET_KERNEL_SOURCE := kernel/samsung/j3xnlte
 #TARGET_KERNEL_CONFIG := j3xnlte_defconfig
 TARGET_KERNEL_CONFIG := j3xnlte_permissive_defconfig
+TARGET_KERNEL_HAVE_EXFAT := true
+TARGET_KERNEL_HAVE_NTFS := true
 NEED_KERNEL_MODULE_ROOT := true
 
 SPRD_MODULES:
