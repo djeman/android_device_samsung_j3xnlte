@@ -1,0 +1,12 @@
+diff --git a/Mms/src/com/android/mms/service/MmsNetworkManager.java b/Mms/src/com/android/mms/service/MmsNetworkManager.java
+index ed78258..e4062d4 100644
+--- a/Mms/src/com/android/mms/service/MmsNetworkManager.java
++++ b/Mms/src/com/android/mms/service/MmsNetworkManager.java
+@@ -104,7 +104,6 @@ public class MmsNetworkManager {
+         mSubId = subId;
+         mNetworkRequest = new NetworkRequest.Builder()
+                 .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+-                .addCapability(NetworkCapabilities.NET_CAPABILITY_MMS)
+                 .setNetworkSpecifier(Integer.toString(mSubId))
+                 .build();
+     }
