@@ -13,8 +13,3 @@ PRODUCT_MANUFACTURER := samsung
 PRODUCT_PACKAGES += \
     Snap
 
-# FM Radio
-PRODUCT_PACKAGES += \
-    FMRadio \
-    libfmjni \
-    libfmcust \
