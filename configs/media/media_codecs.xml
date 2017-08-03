@@ -77,42 +77,17 @@ Only the three quirks included above are recognized at this point:
 
 <MediaCodecs>
     <Decoders>
-        <MediaCodec name="OMX.SEC.amr.dec">
-            <Type name="audio/amr-wb" />
-            <Type name="audio/3gpp"  />
-            <Quirk name="needs-flush-before-disable"/>
-            <Quirk name="decoder-ignores-streamcorrupt-error" />
-        </MediaCodec>
-
-        <MediaCodec name="OMX.SEC.mp3.dec">
-            <Type name="audio/mpeg"/>
-            <Type name="audio/mpeg-L1"/>
-            <Type name="audio/mpeg-L2"/>
-            <Quirk name="needs-flush-before-disable"/>
-            <Quirk name="decoder-ignores-streamcorrupt-error" />
-        </MediaCodec>
-
-        <MediaCodec name="OMX.SEC.aac.dec" type="audio/mp4a-latm" >
-            <Quirk name="needs-flush-before-disable"/>
-            <Quirk name="decoder-ignores-streamcorrupt-error" />
-        </MediaCodec>
-        <MediaCodec name="OMX.SEC.flac.dec" type="audio/flac" >
-            <Quirk name="needs-flush-before-disable"/>
-            <Quirk name="decoder-ignores-streamcorrupt-error" />
-        </MediaCodec>
-        <MediaCodec name="OMX.SEC.wma.dec" type="audio/x-ms-wma" >
-            <Quirk name="needs-flush-before-disable"/>
-            <Quirk name="decoder-ignores-streamcorrupt-error" />
-        </MediaCodec>
-        <MediaCodec name="OMX.SEC.adpcm.dec" type="audio/x-ima" >
-            <Quirk name="needs-flush-before-disable"/>
-            <Quirk name="decoder-ignores-streamcorrupt-error" />
-        </MediaCodec>
-
+	<MediaCodec name="OMX.google.imaadpcm.decoder" type="audio/ima-adpcm" />
+    </Decoders>
+    <Include href="media_codecs_google_audio.xml" />
+    <Include href="media_codecs_google_telephony.xml" />
+    <Settings>
+        <Setting name="max-video-encoder-input-buffers" value="18" />
+    </Settings>
+    <Decoders>
         <MediaCodec name="OMX.sprd.mpeg4.decoder" type="video/mp4v-es">
             <Quirk name="requires-allocate-on-output-ports" />
-            <Quirk name="needs-flush-before-disable"/>
-            <Quirk name="video-controller-check-enable" />
+            <Quirk name="needs-flush-before-disable" />
             <!-- profiles and levels: Advance Simple Profile : Level5 -->
             <Limit name="size" min="64x64" max="1920x1088" />
             <Limit name="alignment" value="2x2" />
@@ -123,8 +98,7 @@ Only the three quirks included above are recognized at this point:
         </MediaCodec>
         <MediaCodec name="OMX.sprd.h263.decoder" type="video/3gpp">
             <Quirk name="requires-allocate-on-output-ports" />
-            <Quirk name="needs-flush-before-disable"/>
-            <Quirk name="video-controller-check-enable" />
+            <Quirk name="needs-flush-before-disable" />
             <!-- profiles and levels: ProfileBaseline : Level70 -->
             <Limit name="size" min="64x64" max="1920x1088" />
             <Limit name="alignment" value="2x2" />
@@ -135,19 +109,18 @@ Only the three quirks included above are recognized at this point:
         </MediaCodec>
         <MediaCodec name="OMX.sprd.h264.decoder" type="video/avc">
             <Quirk name="requires-allocate-on-output-ports" />
-            <Quirk name="needs-flush-before-disable"/>
-            <Quirk name="video-controller-check-enable" />
+            <Quirk name="needs-flush-before-disable" />
             <Limit name="size" min="64x64" max="1920x1088" />
             <Limit name="alignment" value="2x2" />
             <Limit name="block-size" value="16x16" />
             <Limit name="blocks-per-second" range="1-245760" />
             <Limit name="bitrate" range="1-50000000" />
+            <Limit name="concurrent-instances" max="16" />
             <Feature name="adaptive-playback" />
         </MediaCodec>
         <MediaCodec name="OMX.sprd.vpx.decoder" type="video/x-vnd.on2.vp8">
             <Quirk name="requires-allocate-on-output-ports" />
-            <Quirk name="needs-flush-before-disable"/>
-            <Quirk name="video-controller-check-enable" />
+            <Quirk name="needs-flush-before-disable" />
             <Limit name="size" min="64x64" max="1920x1088" />
             <Limit name="alignment" value="2x2" />
             <Limit name="block-size" value="16x16" />
@@ -156,17 +129,17 @@ Only the three quirks included above are recognized at this point:
             <Feature name="adaptive-playback" />
         </MediaCodec>
         <!-- C&M Supported decoder BEGIN-->
+<!--
         <MediaCodec name="OMX.vpu.video_decoder.avc" type="video/avc">
             <Quirk name="requires-allocate-on-output-ports" />
-            <Quirk name="video-controller-check-enable" />
             <Limit name="size" min="64x64" max="1920x1088" />
-            <Limit name="alignment" value="2x2" />
+            <Limit name="alignment" value="16x16" />
             <Limit name="block-size" value="16x16" />
             <Limit name="blocks-per-second" range="1-245760" />
             <Limit name="bitrate" range="1-50000000" />
             <Feature name="adaptive-playback" />
         </MediaCodec>
- <!--       <MediaCodec name="OMX.vpu.video_decoder.mpeg2" type="video/mpeg2">
+        <MediaCodec name="OMX.vpu.video_decoder.mpeg2" type="video/mpeg2">
             <Quirk name="requires-allocate-on-output-ports" />
             <Limit name="size" min="64x64" max="1920x1088" />
             <Limit name="alignment" value="16x16" />
@@ -174,8 +147,7 @@ Only the three quirks included above are recognized at this point:
             <Limit name="blocks-per-second" range="1-245760" />
             <Limit name="bitrate" range="1-40000000" />
             <Feature name="adaptive-playback" />
-                        </MediaCodec>
-
+        </MediaCodec>
         <MediaCodec name="OMX.vpu.video_decoder.h263" type="video/3gpp">
             <Quirk name="requires-allocate-on-input-ports" />
         </MediaCodec>
@@ -211,43 +183,6 @@ Only the three quirks included above are recognized at this point:
         </MediaCodec>
 -->
         <!-- C&M Supported decoder END-->
-
-        <!-- Video Software -->
-        <MediaCodec name="OMX.SEC.h263.sw.dec" type="video/3gpp" >
-            <Quirk name="decoder-ignores-streamcorrupt-error" />
-        </MediaCodec>
-        <MediaCodec name="OMX.SEC.avc.sw.dec" type="video/avc" >
-            <Quirk name="decoder-ignores-streamcorrupt-error" />
-            <Limit name="size" min="64x64" max="2048x2048" />
-            <Feature name="adaptive-playback" />
-        </MediaCodec>
-        <MediaCodec name="OMX.SEC.hevc.sw.dec" type="video/hevc" >
-            <Quirk name="decoder-ignores-streamcorrupt-error" />
-            <Limit name="size" min="64x64" max="1280x1280" />
-            <Feature name="adaptive-playback" />
-        </MediaCodec>
-        <MediaCodec name="OMX.SEC.mpeg4.sw.dec" type="video/mp4v-es" >
-            <Quirk name="decoder-ignores-streamcorrupt-error" />
-        </MediaCodec>
-        <MediaCodec name="OMX.SEC.vc1.sw.dec" >
-            <Type name="video/wvc1" />
-            <Type name="video/x-ms-wmv" />
-            <Quirk name="decoder-ignores-streamcorrupt-error" />
-        </MediaCodec>
-        <MediaCodec name="OMX.SEC.wmv7.dec" type="video/x-ms-wmv7" >
-            <Quirk name="decoder-ignores-streamcorrupt-error" />
-        </MediaCodec>
-        <MediaCodec name="OMX.SEC.wmv8.dec" type="video/x-ms-wmv8" >
-            <Quirk name="decoder-ignores-streamcorrupt-error" />
-        </MediaCodec>
-        <MediaCodec name="OMX.SEC.mp43.dec" type="video/mp43" >
-            <Quirk name="decoder-ignores-streamcorrupt-error" />
-        </MediaCodec>
-        <MediaCodec name="OMX.SEC.vp8.dec" type="video/x-vnd.on2.vp8" >
-            <Quirk name="decoder-ignores-streamcorrupt-error" />
-            <Limit name="size" min="64x64" max="2048x2048" />
-            <Feature name="adaptive-playback" />
-        </MediaCodec>
 <!--
         <MediaCodec name="OMX.sprd.soft.mpeg4.decoder" type="video/mp4v-es" />
         <MediaCodec name="OMX.sprd.soft.h263.decoder" type="video/3gpp" />
@@ -258,7 +193,6 @@ Only the three quirks included above are recognized at this point:
 
     <Encoders>
         <MediaCodec name="OMX.sprd.mpeg4.encoder" type="video/mp4v-es">
-            <Quirk name="video-controller-check-enable" />
             <!-- profiles and levels:  Simple Profile : Level5 -->
             <Limit name="size" min="176x144" max="1920x1088" />
             <Limit name="alignment" value="16x16" />
@@ -267,7 +201,6 @@ Only the three quirks included above are recognized at this point:
             <Limit name="bitrate" range="1-40000000" />
         </MediaCodec>
         <MediaCodec name="OMX.sprd.h263.encoder" type="video/3gpp">
-            <Quirk name="video-controller-check-enable" />
             <!-- profiles and levels:  ProfileBaseline : Level70 -->
             <Limit name="size" min="176x144" max="1920x1088" />
             <Limit name="alignment" value="16x16" />
@@ -275,8 +208,7 @@ Only the three quirks included above are recognized at this point:
             <Limit name="blocks-per-second" range="12-245760" />
             <Limit name="bitrate" range="1-40000000" />
         </MediaCodec>
-        <MediaCodec name="OMX.sprd.h264.encoder" type="video/avc">         
-            <Quirk name="video-controller-check-enable" />
+        <MediaCodec name="OMX.sprd.h264.encoder" type="video/avc">
             <!-- profiles and levels:  ProfileBaseline : Level2 -->
             <Limit name="size" min="176x144" max="1920x1088" />
             <Limit name="alignment" value="16x16" />
@@ -285,14 +217,5 @@ Only the three quirks included above are recognized at this point:
             <Limit name="bitrate" range="1-40000000" />
         </MediaCodec>
     </Encoders>
-    <Include href="media_codecs_google_video_le.xml" />
-    <Include href="media_codecs_google_audio.xml" />
-    <Include href="media_codecs_google_telephony.xml" />
-    <Encoders>
-        <MediaCodec name="OMX.SEC.naac.enc" type="audio/mp4a-latm">
-            <Limit name="channel-count" max="6" />
-            <Limit name="sample-rate" ranges="11025,12000,16000,22050,24000,32000,44100,48000" />
-            <Limit name="bitrate" range="8000-960000" />
-        </MediaCodec>
-    </Encoders>
+    <Include href="media_codecs_google_video.xml" />
 </MediaCodecs>
