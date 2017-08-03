@@ -214,6 +214,9 @@ BOARD_USES_ALSA_AUDIO := false
 BUILD_WITH_ALSA_UTILS := false
 BOARD_AUDIO_OLD_MODEM := false
 
+# power
+BOARD_POWERHINT_HAL := interhotplug
+
 # Charger
 BACKLIGHT_PATH := "/sys/class/backlight/panel/brightness"
 BOARD_CHARGER_ENABLE_SUSPEND := true
