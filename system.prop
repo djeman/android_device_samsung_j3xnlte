@@ -162,7 +162,6 @@ ro.config.dha_empty_init=24
 ro.config.mdha_ssr_enable=true
 ro.config.dha_lmk_scale=1.0
 ro.frp.pst=/dev/block/persistent
-ro.com.google.clientidbase=android-samsung
 drm.service.enabled=true
 ro.ril.hsxpa=1
 ro.ril.gprsclass=10
