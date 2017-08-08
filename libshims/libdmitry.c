@@ -133,14 +133,14 @@ void libEvtUnloading(void) __attribute__((destructor));
  *           in a package name as a "string16" to the consrtuctor. Since this
  *           lib only services GPS library, it is easy for us to just do that
  *           and this provide the constructor that the GPS library wants.
- *           The package name we use if "gps.sc8830".
+ *           The package name we use if "gps.default".
  */
 void _ZN7android13SensorManagerC1Ev(void *sensorMgr)
 {
     void *string;
 
-    ALOGI("Load gps.sc8830.so");
-    _ZN7android8String16C1EPKc(&string, "gps.sc8830");
+    ALOGI("Load gps.default.so");
+    _ZN7android8String16C1EPKc(&string, "gps.default");
     _ZN7android13SensorManagerC1ERKNS_8String16E(sensorMgr, &string);
     _ZN7android8String16D1Ev(&string);
 }
