@@ -249,28 +249,6 @@
          2 - The device DOES NOT have a permanent menu key; ignore autodetection. -->
     <integer name="config_overrideHasPermanentMenuKey">2</integer>
 
-    <!-- Defines the default set of global actions. Actions may still be disabled or hidden based
-         on the current state of the device.
-         Each item must be one of the following strings:
-         "power" = Power off
-         "settings" = An action to launch settings
-         "airplane" = Airplane mode toggle
-         "bugreport" = Take bug report, if available
-         "silent" = silent mode
-         "users" = list of users
-         -->
-    <string-array translatable="false" name="config_globalActionsList">
-        <item>power</item>
-        <item>datamode</item>
-        <item>airplane</item>
-        <item>restart</item>
-        <item>lockdown</item>
-        <item>bugreport</item>
-        <item>users</item>
-        <item>emergencymode</item>
-        <item>subscreen</item>
-    </string-array>
-
     <!-- Flag indicating which package name can access the persistent data partition -->
     <string name="config_persistentDataPackageName" translatable="false">com.google.android.gms</string>
 
