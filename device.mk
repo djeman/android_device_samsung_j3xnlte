@@ -12,6 +12,9 @@ $(call inherit-product-if-exists, vendor/samsung/j3xnlte/j3xnlte-vendor.mk)
 # Overlays
 PRODUCT_PACKAGE_OVERLAYS += device/samsung/j3xnlte/overlay
 
+# Sprd proprietaries drm libomx
+$(call inherit-product, vendor/sprd/proprietaries/proprietaries-scx35l.mk)
+
 # Permissions
 PRODUCT_COPY_FILES += \
     external/ant-wireless/antradio-library/com.dsi.ant.antradio_library.xml:system/etc/permissions/com.dsi.ant.antradio_library.xml \
@@ -73,28 +76,6 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/keylayout/sprd-gpio-keys.kl:system/usr/keylayout/sprd-gpio-keys.kl \
     $(LOCAL_PATH)/keylayout/Synaptics_RMI4_TouchPad_Sensor.idc:system/usr/idc/Synaptics_RMI4_TouchPad_Sensor.idc \
     $(LOCAL_PATH)/keylayout/Synaptics_HID_TouchPad.idc:system/usr/idc/Synaptics_HID_TouchPad.idc
-
-# Proprietaries drm
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/proprietaries/system/etc/permissions/com.google.widevine.software.drm.xml:system/etc/permissions/com.google.widevine.software.drm.xml \
-    $(LOCAL_PATH)/proprietaries/system/framework/com.google.widevine.software.drm.jar:system/framework/com.google.widevine.software.drm.jar \
-    $(LOCAL_PATH)/proprietaries/system/lib/libdrmdecrypt.so:system/lib/libdrmdecrypt.so \
-    $(LOCAL_PATH)/proprietaries/system/vendor/lib/drm/libdrmwvmplugin.so:system/vendor/lib/drm/libdrmwvmplugin.so \
-    $(LOCAL_PATH)/proprietaries/system/vendor/lib/mediadrm/libwvdrmengine.so:system/vendor/lib/mediadrm/libwvdrmengine.so \
-    $(LOCAL_PATH)/proprietaries/system/vendor/lib/libwvdrm_L3.so:system/vendor/lib/libwvdrm_L3.so \
-    $(LOCAL_PATH)/proprietaries/system/vendor/lib/libwvm.so:system/vendor/lib/libwvm.so \
-    $(LOCAL_PATH)/proprietaries/system/vendor/lib/libWVStreamControlAPI_L3.so:system/vendor/lib/libWVStreamControlAPI_L3.so
-
-# Proprietaries libomx
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/proprietaries/system/lib/libomx_avcdec_hw_sprd.so:system/lib/libomx_avcdec_hw_sprd.so \
-    $(LOCAL_PATH)/proprietaries/system/lib/libomx_avcdec_sw_sprd.so:system/lib/libomx_avcdec_sw_sprd.so \
-    $(LOCAL_PATH)/proprietaries/system/lib/libomx_avcenc_hw_sprd.so:system/lib/libomx_avcenc_hw_sprd.so \
-    $(LOCAL_PATH)/proprietaries/system/lib/libomx_m4vh263dec_hw_sprd.so:system/lib/libomx_m4vh263dec_hw_sprd.so \
-    $(LOCAL_PATH)/proprietaries/system/lib/libomx_m4vh263dec_sw_sprd.so:system/lib/libomx_m4vh263dec_sw_sprd.so \
-    $(LOCAL_PATH)/proprietaries/system/lib/libomx_m4vh263enc_hw_sprd.so:system/lib/libomx_m4vh263enc_hw_sprd.so \
-    $(LOCAL_PATH)/proprietaries/system/lib/libomx_mp3dec_sprd.so:system/lib/libomx_mp3dec_sprd.so \
-    $(LOCAL_PATH)/proprietaries/system/lib/libomx_vpxdec_hw_sprd.so:system/lib/libomx_vpxdec_hw_sprd.so
 
 # Device uses high-density artwork where available
 PRODUCT_AAPT_CONFIG := normal hdpi xhdpi
