@@ -34,36 +34,24 @@
 
 #define ISMATCH(a,b) (!strncmp(a,b,PROP_VALUE_MAX))
 
-char revision[PROP_VALUE_MAX];
-
-static void import_kernel_hwrev(char *name, int in_qemu)
+static void import_kernel_hwrev(const std::string& key, const std::string& value, bool for_emulator)
 {
-    if (*name != '\0') {
-        char *value = strchr(name, '=');
-        if (value != NULL) {
-            *value++ = 0;
-            if (!strcmp(name, "hw_revision")) {
-                strlcpy(revision, value, sizeof(revision));
-                property_set("ro.revision", revision);
-            }
-        }
+    if (key.empty()) return;
+
+    if (key == "hw_revision") {
+        property_set("ro.revision", value.c_str());
     }
 }
 
 void vendor_load_properties()
 {
-    char platform[PROP_VALUE_MAX];
-    char bootloader[PROP_VALUE_MAX];
-    char device[PROP_VALUE_MAX];
-    char devicename[PROP_VALUE_MAX];
-
-    int rc = property_get("ro.board.platform", platform);
-    if (!rc || !ISMATCH(platform, ANDROID_TARGET))
+    std::string platform = property_get("ro.board.platform");
+    if (platform.empty() || platform != ANDROID_TARGET)
         return;
 
-    import_kernel_cmdline(0, import_kernel_hwrev);
-    rc = property_get("ro.revision", revision);
-    if (!rc)
+    import_kernel_cmdline(false, import_kernel_hwrev);
+    std::string revision = property_get("ro.revision");
+    if (revision.empty())
         property_set("ro.revision", "0");
     
     char* simslot_count_path = (char *)"/proc/simslot_count";
@@ -84,8 +72,8 @@ void vendor_load_properties()
         fclose(file);
     }
 
-    property_get("ro.bootloader", bootloader);
-    if (strstr(bootloader, "J320FN")) {
+    std::string bootloader = property_get("ro.bootloader");
+    if (strstr(bootloader.c_str(), "J320FN")) {
         /* SM-J320FN */
         property_set("ro.product.model", "SM-J320FN");
         property_set("ro.product.device", "j3xnlte");
@@ -94,7 +82,6 @@ void vendor_load_properties()
         property_set("ro.product.device", "j3xlte");
     }
 
-    property_get("ro.product.device", device);
-    strlcpy(devicename, device, sizeof(devicename));
-    INFO("Found bootloader id %s setting build properties for %s device\n", bootloader, devicename);
+    std::string device = property_get("ro.product.device");
+    INFO("Found bootloader id %s setting build properties for %s device\n", bootloader.c_str(), device.c_str());
 }

@@ -8,7 +8,6 @@ allow slogmodem property_socket:sock_file { read write };
 allow slogmodem spipe_device:chr_file { read write open };
 allow slogmodem slog_device:chr_file { ioctl open read write };
 allow slogmodem ts_fifo:fifo_file { read write open };
-allow slogmodem debugfs:file { read };
 
 allow slogmodem init:unix_stream_socket connectto;
 # MODEM state channel
@@ -33,8 +32,8 @@ allow slogmodem slogmodem_data:dir { add_name getattr create search open read re
 allow slogmodem slogmodem_data:file { create getattr open read rename write unlink };
 allow slogmodem slog_file:dir { add_name getattr create search open read remove_name rmdir write unlink };
 allow slogmodem slog_file:file { create getattr open read rename write unlink };
-allow slogmodem shell_data_file:dir { add_name search write unlink };
-allow slogmodem shell_data_file:file { create getattr open read write unlink };
+allow slogmodem shell_data_file:dir { unlink };
+allow slogmodem shell_data_file:file { create getattr read write unlink };
 allow slogmodem fuse:dir { add_name create getattr open read remove_name rmdir search unlink write };
 allow slogmodem fuse:file { create getattr open read rename unlink write };
 allow slogmodem shell_exec:file { execute read open execute_no_trans };

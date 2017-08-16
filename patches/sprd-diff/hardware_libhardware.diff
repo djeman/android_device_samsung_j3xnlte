@@ -1,5 +1,5 @@
 diff --git a/include/hardware/gralloc.h b/include/hardware/gralloc.h
-index 07ac029..e10ca6a 100644
+index 0c87fb0..c45bbb6 100644
 --- a/include/hardware/gralloc.h
 +++ b/include/hardware/gralloc.h
 @@ -143,6 +143,7 @@ enum {
@@ -11,10 +11,10 @@ index 07ac029..e10ca6a 100644
  #ifdef EXYNOS4_ENHANCEMENTS
      /* SAMSUNG */
 diff --git a/include/hardware/hwcomposer.h b/include/hardware/hwcomposer.h
-index aa466b3..9ce743e 100644
+index 28877e1..87466b1 100644
 --- a/include/hardware/hwcomposer.h
 +++ b/include/hardware/hwcomposer.h
-@@ -808,6 +808,12 @@ typedef struct hwc_composer_device_1 {
+@@ -777,6 +777,12 @@ typedef struct hwc_composer_device_1 {
      int (*setCursorPositionAsync)(struct hwc_composer_device_1 *dev, int disp, int x_pos, int y_pos);
  
      /*

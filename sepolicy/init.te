@@ -1,6 +1,5 @@
 allow init init:capability sys_module;
-allow init shell_data_file:dir { write add_name remove_name };
-allow init shell_data_file:file { read open create unlink write };
+allow init shell_data_file:file { read create unlink write };
 allow init shell_data_file:sock_file { create getattr unlink };
 allow init init:process execmem;
 allow init fuse:dir { search open read write add_name create unlink remove_name };
@@ -49,7 +48,6 @@ allow init init:netlink_route_socket {create setopt bind getattr write read nlms
 
 allow init kmsg_device:chr_file write;
 
-allow init system_file:file {execmod};
 allow init system_data_file:sock_file { create write read };
 allow init system_server:unix_stream_socket connectto;
 

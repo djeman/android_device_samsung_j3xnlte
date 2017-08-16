@@ -26,18 +26,18 @@ index 0570ca0..81660a9 100644
  
  __END_DECLS
 diff --git a/init/builtins.cpp b/init/builtins.cpp
-index 1681d17..f32dccc 100644
+index 7320b91..f8c0847 100755
 --- a/init/builtins.cpp
 +++ b/init/builtins.cpp
-@@ -920,6 +920,15 @@ int do_wait(int nargs, char **args)
+@@ -1139,6 +1139,15 @@ static int do_wait(const std::vector<std::string>& args) {
          return -1;
  }
  
-+int do_pipe(int nargs, char **args) {
-+    mode_t mode = get_mode(args[1]);
-+    if (mkfifo(args[2], mode) < 0) {
++static int do_pipe(const std::vector<std::string>& args) {
++    mode_t mode = get_mode(args[1].c_str());
++    if (mkfifo(args[2].c_str(), mode) < 0) {
 +        ERROR("peter do pipe error haha\n");
-+    return -errno;
++        return -errno;
 +    }
 +    return 0;
 +}
@@ -45,77 +45,14 @@ index 1681d17..f32dccc 100644
  /*
   * Callback to make a directory from the ext4 code
   */
-diff --git a/init/init.cpp b/init/init.cpp
-index 8ea42ca..a8f7f77 100644
---- a/init/init.cpp
-+++ b/init/init.cpp
-@@ -75,6 +75,7 @@ static int property_triggers_enabled = 0;
- #define BOARD_CHARGING_CMDLINE_VALUE "true"
- #endif
- 
-+static char bootmode[PROP_VALUE_MAX];
- static char qemu[32];
- static char battchg_pause[32];
- 
-@@ -197,6 +198,12 @@ void service_start(struct service *svc, const char *dynamic_args)
-     // immediately takes it out of the restarting state if it was in there.
-     svc->flags &= (~(SVC_DISABLED|SVC_RESTARTING|SVC_RESET|SVC_RESTART|SVC_DISABLED_START));
-     svc->time_started = 0;
-+    if (((!strncmp(svc->name,"healthd",7)) || (!strncmp(svc->name,"bootanim",8)) || (!strncmp(svc->name,"zygote",6)) || 
-+              (!strncmp(svc->name,"surfaceflinger",14))) && ((!strcmp(bootmode, "charger")))) {
-+        ERROR("stopping '%s'\n", svc->name);
-+        svc->flags |= SVC_DISABLED;
-+        return;
-+    }
- 
-     // Running processes require no additional work --- if they're in the
-     // process of exiting, we've ensured that they will immediately restart
-@@ -1132,10 +1139,12 @@ int main(int argc, char** argv) {
-     queue_builtin_action(mix_hwrng_into_linux_rng_action, "mix_hwrng_into_linux_rng");
- 
-     // Don't mount filesystems or start core system services in charger mode.
--    char bootmode[PROP_VALUE_MAX];
-     if (((property_get("ro.bootmode", bootmode) > 0 && strcmp(bootmode, "charger") == 0) ||
-          strcmp(battchg_pause, BOARD_CHARGING_CMDLINE_VALUE) == 0)
-                || charging_mode_booting()) {
-+        action_for_each_trigger("early-fs", action_add_queue_tail);
-+        action_for_each_trigger("fs", action_add_queue_tail);
-+        action_for_each_trigger("post-fs", action_add_queue_tail);
-         action_for_each_trigger("charger", action_add_queue_tail);
-     } else if (strncmp(bootmode, "ffbm", 4) == 0) {
-         KLOG_ERROR("Booting into ffbm mode\n");
-diff --git a/init/init_parser.cpp b/init/init_parser.cpp
-index c36d36e..0a6f1e5 100644
---- a/init/init_parser.cpp
-+++ b/init/init_parser.cpp
-@@ -173,6 +173,7 @@ static int lookup_keyword(const char *s)
-         break;
-     case 'p':
-         if (!strcmp(s, "owerctl")) return K_powerctl;
-+        if (!strcmp(s, "ipe")) return K_pipe; //sprd add for loopback test
-         break;
-     case 'r':
-         if (!strcmp(s, "estart")) return K_restart;
-diff --git a/init/keywords.h b/init/keywords.h
-index 303685d..21521e5 100644
---- a/init/keywords.h
-+++ b/init/keywords.h
-@@ -39,6 +39,7 @@ int do_load_system_props(int nargs, char **args);
- int do_verity_load_state(int nargs, char **args);
- int do_verity_update_state(int nargs, char **args);
- int do_wait(int nargs, char **args);
-+int do_pipe(int nargs, char **args);
- #define __MAKE_KEYWORD_ENUM__
- #define KEYWORD(symbol, flags, nargs, func) K_##symbol,
- enum {
-@@ -100,6 +101,7 @@ enum {
-     KEYWORD(verity_load_state,      COMMAND, 0, do_verity_load_state)
-     KEYWORD(verity_update_state,    COMMAND, 0, do_verity_update_state)
-     KEYWORD(wait,        COMMAND, 1, do_wait)
-+    KEYWORD(pipe,        COMMAND, 2, do_pipe)
-     KEYWORD(write,       COMMAND, 2, do_write)
-     KEYWORD(writepid,    OPTION,  0, 0)
- #ifdef __MAKE_KEYWORD_ENUM__
+@@ -1210,6 +1219,7 @@ BuiltinFunctionMap::Map& BuiltinFunctionMap::map() const {
+         {"verity_load_state",       {0,     0,    do_verity_load_state}},
+         {"verity_update_state",     {0,     0,    do_verity_update_state}},
+         {"wait",                    {1,     2,    do_wait}},
++        {"pipe",                    {1,     2,    do_pipe}},
+         {"write",                   {2,     4,    do_write}},
+     };
+     return builtin_functions;
 diff --git a/libion/Android.mk b/libion/Android.mk
 index 6562cd3..8263c7b 100644
 --- a/libion/Android.mk

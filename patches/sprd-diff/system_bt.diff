@@ -1,45 +1,47 @@
 diff --git a/Android.mk b/Android.mk
-index b398132..4428873 100644
+index b370cc0..e158d07 100644
 --- a/Android.mk
 +++ b/Android.mk
-@@ -33,6 +33,10 @@ ifeq ($(strip $(AUDIO_FEATURE_ENABLED_SPLIT_A2DP)),true)
-   bdroid_CFLAGS += -DBTA_AV_SPLIT_A2DP_DEF_FREQ_48KHZ
+@@ -21,6 +21,10 @@ ifeq ($(TARGET_BUILD_VARIANT),eng)
+ bluetooth_CFLAGS += -DBLUEDROID_DEBUG
  endif
  
 +ifeq ($(BOARD_SPRD_WCNBT_MARLIN),true)
-+  bdroid_CFLAGS += -DSPRD_WCNBT_MARLIN
++  bluetooth_CFLAGS += -DSPRD_WCNBT_MARLIN
 +endif
 +
- bdroid_CFLAGS += \
-   -Wall \
-   -Wno-unused-parameter \
+ bluetooth_CFLAGS += -DUSE_AUDIO_TRACK
+ 
+ bluetooth_CFLAGS += -DEXPORT_SYMBOL="__attribute__((visibility(\"default\")))"
 diff --git a/device/src/controller.c b/device/src/controller.c
-index df00d68..4572532 100755
+index 9433ff9..f3df170 100644
 --- a/device/src/controller.c
 +++ b/device/src/controller.c
-@@ -184,9 +184,11 @@ static future_t *start_up(void) {
+@@ -212,11 +212,13 @@ static future_t *start_up(void) {
+ 
      page_number++;
    }
- 
 +#ifndef SPRD_WCNBT_MARLIN
+ #if (BLE_INCLUDED == TRUE)
    // read BLE offload features support from controller
    response = AWAIT_COMMAND(packet_factory->make_ble_read_offload_features_support());
    packet_parser->parse_ble_read_offload_features_response(response, &ble_offload_features_supported);
+ #endif
 +#endif
- 
  #if (SC_MODE_INCLUDED == TRUE)
    if(ble_offload_features_supported) {
-@@ -257,6 +259,7 @@ static future_t *start_up(void) {
+     secure_connections_supported = HCI_SC_CTRLR_SUPPORTED(features_classic[2].as_array);
+@@ -286,6 +288,7 @@ static future_t *start_up(void) {
      packet_parser->parse_generic_command_complete(response);
    }
  
 +#ifndef SPRD_WCNBT_MARLIN
    // read local supported codecs
-   if( HCI_READ_LOCAL_CODECS_SUPPORTED(supported_commands)) {
+   if(HCI_READ_LOCAL_CODECS_SUPPORTED(supported_commands)) {
      response = AWAIT_COMMAND(packet_factory->make_read_local_supported_codecs());
-@@ -264,6 +267,7 @@ static future_t *start_up(void) {
+@@ -293,6 +296,7 @@ static future_t *start_up(void) {
          response,
-         &no_of_local_supported_codecs, local_supported_codecs);
+         &number_of_local_supported_codecs, local_supported_codecs);
    }
 +#endif
  

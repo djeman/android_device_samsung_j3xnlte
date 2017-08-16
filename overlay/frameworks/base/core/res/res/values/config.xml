@@ -54,18 +54,6 @@
         <item>"mobile_ent2,29,0,2,-1,true"</item>
     </string-array>
 
-    <!-- Set of NetworkInfo.getType() that reflect data usage. -->
-    <integer-array translatable="false" name="config_data_usage_network_types">
-        <item>0</item> <!-- TYPE_MOBILE -->
-        <item>2</item> <!-- TYPE_MOBILE_MMS -->
-        <item>3</item> <!-- TYPE_MOBILE_SUPL -->
-        <item>4</item> <!-- TYPE_MOBILE_DUN -->
-        <item>5</item> <!-- TYPE_MOBILE_HIPRI -->
-        <item>10</item> <!-- TYPE_MOBILE_FOTA -->
-        <item>12</item> <!-- TYPE_MOBILE_CBS -->
-        <item>14</item> <!-- TYPE_MOBILE_IA -->
-    </integer-array>
-
     <!-- List of regexpressions describing the interface (if any) that represent tetherable
          USB interfaces.  If the device doesn't want to support tethering over USB this should
          be empty.  An example would be "usb.*" -->

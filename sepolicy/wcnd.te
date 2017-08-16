@@ -44,7 +44,6 @@ allow wcnd wcnd:tcp_socket { create };
 allow wcnd fuse:dir { search };
 allow wcnd proc_bluetooth_writable:file { open write };
 allow wcnd serial_device:chr_file { read write open ioctl };
-allow wcnd debugfs:file { read };
 allow wcnd wcnd:capability { setuid dac_override net_admin kill };
 allow wcnd mmcblk_device:blk_file { read open };
 allow wcnd system_data_file:file { open };

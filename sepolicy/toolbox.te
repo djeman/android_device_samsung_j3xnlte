@@ -41,7 +41,7 @@ allow toolbox console_device:chr_file { ioctl getattr read write };
 allow toolbox ctl_default_prop:property_service { set };
 allow toolbox kernel:system { syslog_read };
 allow toolbox system_data_file:dir { add_name create getattr open read remove_name rmdir search unlink write };
-allow toolbox shell_data_file:dir { add_name create getattr open read remove_name rmdir search unlink write };
+allow toolbox shell_data_file:dir { getattr read unlink };
 
 allow toolbox toolbox:capability { sys_module };
 allow toolbox wifi_data_file:file { open read };

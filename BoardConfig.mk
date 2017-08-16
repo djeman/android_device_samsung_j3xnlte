@@ -4,8 +4,6 @@ TARGET_OTA_ASSERT_DEVICE := j3xnlte,j3xnltexx,j2xlte,j2xltedd,j3xlte
 # inherit from the proprietary version
 -include vendor/samsung/j3xnlte/BoardConfigVendor.mk
 
-COMMON_GLOBAL_CFLAGS += -DSPRD_HARDWARE
-
 TARGET_ARCH := arm
 TARGET_NO_BOOTLOADER := true
 TARGET_NO_RADIOIMAGE := true
@@ -88,7 +86,7 @@ TARGET_USERIMAGES_USE_F2FS := true
 BOARD_HARDWARE_CLASS := hardware/samsung/cmhw/
 
 # Init
-TARGET_PROVIDES_INIT_RC := true
+#TARGET_PROVIDES_INIT_RC := true
 TARGET_INIT_VENDOR_LIB := libinit_j3lte
 TARGET_RECOVERY_DEVICE_MODULES := libinit_j3lte
 TARGET_UNIFIED_DEVICE := true
@@ -143,6 +141,7 @@ ENABLE_WEBGL := true
 #######################################################
 # camera configs
 USE_CAMERA_STUB := true
+BOARD_USE_SPRD_COLORFORMAT := true
 #back camera rotation capture
 TARGET_BOARD_BACK_CAMERA_ROTATION := false
 #front camera rotation capture

@@ -3,8 +3,7 @@ type slogd_exec, exec_type, file_type;
 
 init_daemon_domain(slogd)
 
-allow slogd shell_data_file:file {getattr write read open create execute_no_trans};
-allow slogd shell_data_file:dir {search remove_name add_name open write};
+allow slogd shell_data_file:file {getattr write read create};
 allow slogd shell_data_file:sock_file {unlink create};
 allow slogd mmcblk_device:dir {read write};
 allow slogd mmcblk_device:file {open execute_no_trans execute};
@@ -143,7 +142,7 @@ allow slogd bootanim:file {read open};
 
 #allow slogd slogd:capability sys_ptrace;
 allow slogd slogd:capability {setgid setuid chown sys_admin dac_override net_raw sys_nice};
-allow slogd debugfs:file {read getattr};
+allow slogd debugfs:file {getattr};
 
 allow slogd sysfs_lowmemorykiller:file {read open getattr};
 
