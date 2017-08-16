@@ -1,5 +1,5 @@
 diff --git a/net/wifi/service/java/com/android/server/wifi/WifiMonitor.java b/net/wifi/service/java/com/android/server/wifi/WifiMonitor.java
-index d9366e7..aa00521 100644
+index d9366e7..47d3e56 100644
 --- a/net/wifi/service/java/com/android/server/wifi/WifiMonitor.java
 +++ b/net/wifi/service/java/com/android/server/wifi/WifiMonitor.java
 @@ -776,6 +776,10 @@ public class WifiMonitor {
@@ -13,7 +13,7 @@ index d9366e7..aa00521 100644
          // IFNAME=wlan0 ANQP-QUERY-DONE addr=18:cf:5e:26:a4:88 result=SUCCESS
          if (eventStr.startsWith("IFNAME=")) {
              int space = eventStr.indexOf(' ');
-@@ -804,14 +808,51 @@ public class WifiMonitor {
+@@ -804,14 +808,52 @@ public class WifiMonitor {
          } else {
              // events without prefix belong to p2p0 monitor
              iface = "p2p0";
@@ -27,6 +27,7 @@ index d9366e7..aa00521 100644
 +            }
 +            //<-- Add for WCND RESET Feature
 +        }
++
 +        //For the case of command timeout or error happens
 +        if (eventStr.contains("CTRL-EVENT-TERMINATING") && (eventStr.contains("- connection closed") ||
 +            eventStr.contains("- recv error") )) {
@@ -49,17 +50,17 @@ index d9366e7..aa00521 100644
 +                return false;
 +            }
 +            //<-- Add for WCND RESET Feature
-+            mConnected = false;
-+            return true;
-+        }
-+        
+             mConnected = false;
+             return true;
+         }
++
 +        //NOTE: Add for WCND RESET Feature -->
 +        if (supplicantExecption) {
 +            Log.d(TAG, "somethine wrong with supplicant, recieve terminating event, tell WifiStateMachine!");
 +            dispatchEvent(eventStr, iface);
-             mConnected = false;
-             return true;
-         }
++            mConnected = false;
++            return true;
++        }
 +        //<-- Add for WCND RESET Feature
 +
          return false;
