@@ -125,6 +125,10 @@ void *CRYPTO_malloc(uint32_t sz, const char *file, uint32_t line);
 void libEvtLoading(void) __attribute__((constructor));
 void libEvtUnloading(void) __attribute__((destructor));
 
+// Android N exports
+ssize_t _ZNK7android13SensorManager13getSensorListEPPKPKNS_6SensorE(void* thiz, void* list);
+
+long (*SSL_CTX_ctrl)(void *ctx, int cmd, long larg, void *parg);
 
 /*
  * FUNCTION: android::SensorManager::SensorManager(void)
@@ -160,6 +164,16 @@ void _ZN7android13SensorManager16createEventQueueEv(void **retVal, void *sensorM
     _ZN7android7String8C1EPKc(&string, "");
     _ZN7android13SensorManager16createEventQueueENS_7String8Ei(retVal, sensorMgr, &string, 0);
     _ZN7android7String8D1Ev(&string);
+}
+
+/*
+ * FUNCTION: android::SensorManager::getSensorList(Sensor const* const** list)
+ * USE:      Get a list of sensors?
+ * NOTES:    It looks like this function was renamed in N. Stub out to the correct call.
+ */
+ssize_t _ZNK7android13SensorManager13getSensorListEPPKPKNS_6SensorE(void* thiz, void* list)
+{
+    return _ZN7android13SensorManager13getSensorListEPPKPKNS_6SensorE(thiz, list);
 }
 
 /*
