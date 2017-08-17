@@ -1,4 +1,17 @@
-import init.wifi.rc
+import /init.wifi.rc
+import /init.rilcommon.rc
+
+on init
+    # SEC_SELINUX
+    # for audit message
+    chown system system /proc/avc_msg
+    chmod 0660 /proc/avc_msg
+    restorecon /dev/pipes
+
+    mkdir /efs 0771 radio system
+    mkdir /efs/imei 0775 radio system
+
+    
 
 on early-boot
     chmod 660 /proc/cpgge/cp_crash
@@ -38,6 +51,57 @@ on early-boot
     chown system root /proc/cptl/runnv
 
 on boot
+    chown root system /sys/module/pomemr/parameters/freepage_order
+    chmod 0664 /sys/module/pomemr/parameters/freepage_order
+
+    chown system radio /sys/class/camera/flash/rear_flash
+
+    # permissions for Input booster
+    chmod 0660 /sys/class/input_booster/level
+    chown system radio /sys/class/input_booster/level
+    chmod 0660 /sys/class/input_booster/head
+    chown system radio /sys/class/input_booster/head
+    chmod 0660 /sys/class/input_booster/tail
+    chown system radio /sys/class/input_booster/tail
+
+ # permission for CHARGING
+   chown system radio /sys/class/power_supply/battery/batt_reset_soc
+   chown system radio /sys/class/power_supply/battery/batt_slate_mode
+   chown system radio /sys/class/power_supply/battery/factory_mode
+   chown system radio /sys/class/power_supply/battery/siop_level
+   chown system radio /sys/class/power_supply/battery/wc_enable
+   chown system radio /sys/class/power_supply/battery/update
+   chown sdcard_rw sdcard_rw /sys/class/power_supply/battery/call
+   chown sdcard_rw sdcard_rw /sys/class/power_supply/battery/video
+   chown sdcard_rw sdcard_rw /sys/class/power_supply/battery/music
+   chown sdcard_rw sdcard_rw /sys/class/power_supply/battery/browser
+   chown sdcard_rw sdcard_rw /sys/class/power_supply/battery/hotspot
+   chown sdcard_rw sdcard_rw /sys/class/power_supply/battery/camera
+   chown system radio /sys/class/power_supply/battery/talk_wcdma
+   chown system radio /sys/class/power_supply/battery/talk_gsm
+   chown system radio /sys/class/power_supply/battery/call
+   chown system radio /sys/class/power_supply/battery/data_call
+   chown system radio /sys/class/power_supply/battery/gps
+   chown system radio /sys/class/power_supply/battery/wifi
+   chown system radio /sys/class/power_supply/battery/lte
+   chown system radio /sys/class/power_supply/battery/lcd
+   chmod 0664 /sys/class/power_supply/battery/charge_otg_control
+   chown media sdcard_rw /sys/class/power_supply/battery/store_mode
+
+    setprop persist.sys.cmdservice.enable disable
+
+    write /sys/block/mmcblk0/queue/scheduler noop
+
+    # for BT MAC address
+    mkdir /efs/bluetooth 0775 radio system
+    # if already exist
+    chown radio system /efs/bluetooth
+    chmod 0775 /efs/bluetooth
+    setprop ro.bt.bdaddr_path "/efs/bluetooth/bt_addr"
+    chown bluetooth net_bt_stack ro.bt.bdaddr_path
+    chown radio net_bt_stack /efs/bluetooth/bt_addr
+    chmod 0640 /efs/bluetooth/bt_addr
+
 #lun
     write /sys/class/android_usb/android0/f_mass_storage/board_support_luns 1
 
@@ -138,7 +202,91 @@ service phoneserver_l /system/bin/phoneserver -m l
 #    disabled
 #    user root
 #    group radio cache inet misc audio sdcard_rw log shell
+
+on post-fs-data
+    # sec_efs_file
+    mkdir /efs/sec_efs 0775 radio system
+
+    # Create dump dir and collect dumps.
+    # Do this before we mount cache so eventually we can use cache for
+    # storing dumps on platforms which do not have a dedicated dump partition.
+    mkdir /data/dontpanic 0750 root log
+
+    # Collect apanic data, free resources and re-arm trigger
+    copy /proc/apanic_console /data/dontpanic/apanic_console
+    chown root log /data/dontpanic/apanic_console
+    chmod 0640 /data/dontpanic/apanic_console
+
+    copy /proc/apanic_threads /data/dontpanic/apanic_threads
+    chown root log /data/dontpanic/apanic_threads
+    chmod 0640 /data/dontpanic/apanic_threads
+
+    write /proc/apanic_console 1
+
+    # SEC_SELINUX
+    mkdir /data/misc/audit 0775 audit system 
+
+    /* SPRD: For saving the hprof */
+    mkdir /data/misc/hprofs 0770 system system
+
+    # SA, System SW, SAMSUNG create log directory
+    mkdir /data/log 0775 system log
+    chown system log /data/log
+    mkdir /data/anr 0775 system system
+    chown system system /data/anr
+    chmod 0775 /data/log
+    chmod 0775 /data/anr
+    restorecon /data/log
+    restorecon /data/anr
+
+    # NFC: create data/nfc for nv storage
+    mkdir /data/nfc 770 nfc nfc
+    mkdir /data/nfc/param 770 nfc nfc
+
+    # MTP device permission
+    chmod 0660 /dev/mtp_usb
+    chown system mtp /dev/mtp_usb
+    mkdir /dev/socket/mtp 0770 system mtp
+
+    # MUIC
+    chown system radio /sys/class/sec/switch/uart_en
+
+# [ SEC_MM_DRM
+    # OMA DB directory creation
+    mkdir /data/system/databases 0775
+    chown system system /data/system/databases
+    chmod 0775 /data/system/databases
+
+    # DRM directory creation
+    mkdir /system/etc/security/.drm 0775
+    chown root root /system/etc/security/.drm
+    chmod 0775 /system/etc/security/.drm
+
+    # Added for Playready DRM Support
+    mkdir /data/data/.drm 0775
+    chown drm system /data/data/.drm
+    chmod 0775 /data/data/.drm
+    mkdir /data/data/.drm/.playready 0775
+    chown drm system /data/data/.drm/.playready
+    chmod 0775 /data/data/.drm/.playready
+
+    # Added drm folder to copy drm plugins
+    mkdir /system/lib/drm 0775
+    chown root root /system/lib/drm
+    chmod 0775 /system/lib/drm
+
+    restorecon -R /efs
+    restorecon -R /carrier
+    restorecon_recursive /data/misc/keystore
+    restorecon_recursive /data/property
+    restorecon_recursive /data/security
+# ]
+
 on post-fs
+## Samsung ODE >>>
+    mount tmpfs tmpfs /mnt/secure private rec
+    mount tmpfs tmpfs /mnt/secure/asec shared rec
+## Samsung ODE <<<
 #   insmod /system/lib/modules/bcmdhd.ko
 
 # set LMK watermark as {12M,16M,18M,26M,34M,42M}
@@ -158,3 +306,72 @@ service swapon /sbin/sswap -s
     user root
     group root
     oneshot
+
+# Activate Background Compaction
+on property:sys.sysctl.compact_memory=1
+    setprop sys.sysctl.compact_memory 0
+    start compact_memory
+
+service compact_memory /sbin/bgcompact
+    user root
+    seclabel u:r:sswap:s0
+    oneshot
+    disabled
+
+service prepare_param /system/bin/prepare_param.sh /dev/block/platform/sdio_emmc/by-name/PARAM
+    class core
+    user root
+    group root
+    seclabel u:r:prepare_param:s0
+    oneshot
+
+service DR-daemon /system/bin/ddexe
+    class main
+    user root
+    group system radio inet net_raw
+
+service SMD-daemon /system/bin/smdexe
+    class main
+    user root
+    group system radio inet net_raw
+
+service BCS-daemon /system/bin/connfwexe
+    class main
+    user root
+    group system radio inet net_raw
+
+# Strongswan VPN
+service charon /system/bin/charon
+    class main
+    socket charon stream 600 system system
+    # charon will setuid to vpn after getting necessary resources.
+    group vpn net_admin inet
+    disabled
+    oneshot
+
+service cmd_services /system/bin/cmd_services
+    class main
+    user root
+    disabled
+    oneshot
+
+on property:persist.sys.cmdservice.enable=enable
+    start cmd_services
+on property:persist.sys.cmdservice.enable=disable
+    stop  cmd_services
+
+on property:sys.boot_completed=1
+    write /sys/block/mmcblk0/queue/scheduler cfq
+
+# Activate page order tracing
+on property:sys.sysctl.porder_trace=*
+    write /proc/sys/vm/porder_trace ${sys.sysctl.porder_trace}
+
+# Contains the requested page orders if tracing is enabled
+on property:sys.sysctl.app_order=*
+    write /proc/sys/vm/app_order ${sys.sysctl.app_order}
+
+# write the page order to enable background reclaim for page orders
+on property:sys.sysctl.freepage_orders=*
+    write  /sys/module/pomemr/parameters/freepage_order ${sys.sysctl.freepage_orders}
+

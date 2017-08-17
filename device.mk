@@ -207,7 +207,6 @@ PRODUCT_PACKAGES += \
     init.sc8830_ss.rc \
     init.wifi.rc \
     ueventd.sc8830.rc \
-    init.rc \
     sswap \
     bgcompact \
     ffu
