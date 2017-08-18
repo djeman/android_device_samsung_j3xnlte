@@ -2,6 +2,8 @@ import /init.wifi.rc
 import /init.rilcommon.rc
 
 on init
+    export LD_SHIM_LIBS /system/bin/gpsd|libdmitry.so:/system/lib/libril.so|libril_shim.so
+
     # SEC_SELINUX
     # for audit message
     chown system system /proc/avc_msg

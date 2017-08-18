@@ -1,8 +1,6 @@
 import /init.j3xnlte_base.rc
 
 on boot
-    export LD_SHIM_LIBS /system/bin/gpsd|libdmitry.so:/system/lib/libril.so|libril_shim.so
-
     #IPSec for VOLTE
     chown root system /dev/socket
     chmod 0775 /dev/socket
