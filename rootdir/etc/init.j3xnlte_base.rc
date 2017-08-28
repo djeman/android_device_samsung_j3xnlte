@@ -131,12 +131,6 @@ on fs
     chown system system /persdata/absolute
     chmod 0750 /persdata/absolute
 
-# bluetooth dhcp config
-	service dhcpcd_bt-pan /system/bin/dhcpcd -ABKL
-	class main
-	disabled
-	oneshot
-
 # Indicate boot complete to PM to complete PM initialization
 on property:dev.bootcomplete=1
     write /dev/console [AUTOTEST]BOOT_COMPLETE

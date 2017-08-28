@@ -177,10 +177,6 @@ service temp_test /data/simpletest
 on property:persist.sys.temp.test=1
 	start temp_test
 
-
-service iprenew_bt-pan /system/bin/dhcpcd -n
-    disabled
-    oneshot
 service phoneserver_l /system/bin/phoneserver -m l
     class core
     user root
