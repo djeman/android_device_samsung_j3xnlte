@@ -26,8 +26,6 @@ DEVICE_RESOLUTION := 720x1280
 
 TARGET_BOOTLOADER_BOARD_NAME := SC9830I
 
-BOARD_VENDOR := samsung
-
 # Include path
 #TARGET_SPECIFIC_HEADER_PATH := device/samsung/j3xnlte/include
 
