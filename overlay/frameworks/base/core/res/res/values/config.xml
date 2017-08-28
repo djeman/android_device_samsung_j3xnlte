@@ -298,9 +298,4 @@
          format is UMTS|LTE|... -->
     <string translatable="false" name="config_radio_access_family">GPRS|EDGE|UMTS|HSDPA|HSUPA|LTE|HSPAP|GSM|CDMA|EVDO|WCDMA</string>
 
-    <!-- MMS user agent string -->
-    <string name="config_mms_user_agent" translatable="false">SAMSUNG-ANDROID-MMS/uaprof</string>
-
-    <!-- MMS user agent profile url -->
-    <string name="config_mms_user_agent_profile_url" translatable="false">http://wap.samsungmobile.com/uaprof/uaprof.rdf</string>
 </resources>
