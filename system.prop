@@ -169,4 +169,5 @@ ro.adb.qemud=1
 ro.setupwizard.mode=OPTIONAL
 ro.com.google.gmsversion=5.1_r5
 ro.build.aapt.config.prefer=xhdpi
+ro.com.android.mobiledata=false
 
