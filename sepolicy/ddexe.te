@@ -1,0 +1,5 @@
+type ddexe, domain;
+type ddexe_exec, exec_type, file_type;
+
+init_daemon_domain(ddexe)
+

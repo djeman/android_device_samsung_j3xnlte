@@ -103,6 +103,15 @@
 /system/bin/resize2fs     u:object_r:fsck_exec:s0
 /system/bin/GPSenseEngine       u:object_r:GPSenseEngine_exec:s0
 
+/system/bin/IPSecService       u:object_r:IPSecService_exec:s0
+/system/bin/at_distributor     u:object_r:at_distributor_exec:s0
+/system/bin/connfwexe          u:object_r:connfwexe_exec:s0
+/system/bin/ddexe              u:object_r:ddexe_exec:s0
+/system/bin/ext_symlink.sh     u:object_r:ext_symlink_exec:s0
+/system/bin/macloader          u:object_r:macloader_exec:s0
+/system/bin/smdexe             u:object_r:smdexe_exec:s0
+/sbin/sswap                    u:object_r:sswap_exec:s0
+
 /system/bin/batterysrv u:object_r:batterysrv_exec:s0
 /system/bin/gpsd        u:object_r:gpsd_exec:s0
 /system/bin/cmd_services       u:object_r:cmd_services_exec:s0

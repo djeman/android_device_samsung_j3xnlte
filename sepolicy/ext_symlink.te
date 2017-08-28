@@ -1,0 +1,5 @@
+type ext_symlink, domain;
+type ext_symlink_exec, exec_type, file_type;
+
+init_daemon_domain(ext_symlink)
+
