@@ -52,6 +52,11 @@ on early-boot
     chown system root /proc/cptl/fixnv
     chown system root /proc/cptl/runnv
 
+    # Remove symlinks to avoid issues with migrate after nandroid restores
+    # Will be recreated at end of boot
+    rm /data/data/com.android.providers.telephony/databases/telephony.db
+    rm /data/data/com.android.providers.telephony/shared_prefs/preferred-apn.xml
+
 on boot
     chown root system /sys/module/pomemr/parameters/freepage_order
     chmod 0664 /sys/module/pomemr/parameters/freepage_order
@@ -161,6 +166,14 @@ on boot
     chown system system /sys/class/sec/sec_touchkey/touchkey_raw_recent
     chown system system /sys/class/sec/sec_touchkey/touchkey_raw_back
     chown system system /sys/class/sec/sec_touchkey/touchkey_firm_update
+
+# Symlink telephony.db and preferred-apn.xml
+    mkdir /data/data/com.android.providers.telephony 0700 radio radio
+    mkdir /data/data/com.android.providers.telephony/databases 0700 radio radio
+    mkdir /data/data/com.android.providers.telephony/shared_prefs 0700 radio radio
+
+    symlink /data/user_de/0/com.android.providers.telephony/databases/telephony.db /data/data/com.android.providers.telephony/databases/telephony.db
+    symlink /data/user_de/0/com.android.providers.telephony/shared_prefs/preferred-apn.xml /data/data/com.android.providers.telephony/shared_prefs/preferred-apn.xml
 
 # GPS
 service gpsd /system/bin/gpsd -c /system/etc/gps.xml
