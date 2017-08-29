@@ -216,7 +216,7 @@ lib/libengmode.so
 #lib/libdeflicker.so
 #lib/libnvexchange.so
 #lib/liblsc.so
-lib/libmorpho_easy_hdr.so
+#lib/libmorpho_easy_hdr.so
 lib/libril.so
 lib/libreference-ril.so
 #lib/librilutils.so
