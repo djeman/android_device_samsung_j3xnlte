@@ -80,8 +80,8 @@ lib/libfactoryutil.so
 lib/libatparser.so
 lib/libcordon.so
 lib/libomission_avoidance.so
-lib/libsec-ril.so
-lib/libsec-ril-dsds.so
+#lib/libsec-ril.so
+#lib/libsec-ril-dsds.so
 lib/libsecnativefeature.so
 lib/libsecril-client.so
 
