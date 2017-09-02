@@ -103,7 +103,7 @@ BOARD_PROVIDES_LIBRIL := true
 BOARD_PROVIDES_RILD := true
 
 USE_BOOT_AT_DIAG := true
-BOARD_RIL_CLASS := ../../../device/samsung/j3xnlte/ril/
+BOARD_RIL_CLASS := ../../../device/samsung/j3xnlte/ril/java/
 
 # healthd
 BOARD_HAL_STATIC_LIBRARIES := libhealthd.j3xnlte
