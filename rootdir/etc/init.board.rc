@@ -1,7 +1,7 @@
 import /init.wifi.rc
 
 on init
-    export LD_SHIM_LIBS /system/bin/gpsd|libdmitry.so:/system/lib/libril.so|libril_shim.so
+    export LD_SHIM_LIBS /system/bin/gpsd|libdmitry.so
 
     # SEC_SELINUX
     # for audit message

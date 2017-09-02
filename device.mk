@@ -250,8 +250,7 @@ PRODUCT_PACKAGES += \
     charge_res_images
 
 PRODUCT_PACKAGES += \
-    libdmitry \
-    libril_shim
+    libdmitry
 
 PRODUCT_PACKAGES += \
     camera.sc8830 \
