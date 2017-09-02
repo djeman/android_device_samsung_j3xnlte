@@ -1,0 +1,5 @@
+service slogmodem /system/bin/slogmodem -s sec
+    class main
+    user system
+    group media_rw system shell radio log sdcard_r sdcard_rw
+    disabled

@@ -5,11 +5,3 @@ on boot
     chown root system /dev/socket
     chmod 0775 /dev/socket
 
-
-on fs
-	#IPSec for VOLTE
-service ipsec-daemon /system/bin/IPSecService
-    class main
-    socket ipsec_socket stream 660 system system
-    user system
-    group system net_raw inet net_admin

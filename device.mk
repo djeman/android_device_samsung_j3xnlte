@@ -15,6 +15,9 @@ PRODUCT_PACKAGE_OVERLAYS += device/samsung/j3xnlte/overlay
 # Sprd proprietaries drm libomx
 $(call inherit-product, vendor/sprd/proprietaries/proprietaries-scx35l.mk)
 
+# init services
+$(call inherit-product, $(LOCAL_PATH)/init/init_rc.mk)
+
 # Permissions
 PRODUCT_COPY_FILES += \
     external/ant-wireless/antradio-library/com.dsi.ant.antradio_library.xml:system/etc/permissions/com.dsi.ant.antradio_library.xml \
@@ -199,8 +202,6 @@ PRODUCT_PACKAGES += \
     init.cali.rc \
     init.j3xnlte.rc \
     init.j3xnlte_base.rc \
-    init.rilchip.rc \
-    init.rilcommon.rc \
     init.sc8830.rc \
     init.sc8830.usb.rc \
     init.sc8830_ss.rc \

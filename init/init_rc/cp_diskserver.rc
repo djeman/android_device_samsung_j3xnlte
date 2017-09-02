@@ -1,0 +1,35 @@
+#cp_diskserver
+service cp_diskserver_td /system/bin/cp_diskserver t 0
+    class core
+    user system
+    disabled
+    group system radio shell
+    oneshot
+
+service cp_diskserver_w /system/bin/cp_diskserver w 0
+    class core
+    user system
+    group system radio shell
+    disabled
+    oneshot
+
+service cp_diskserver_l /system/bin/cp_diskserver l 0
+    class core
+    user system
+    group system radio shell
+    disabled
+    oneshot
+
+service cp_diskserver_tl /system/bin/cp_diskserver tl 0
+    class core
+    user system
+    group system radio shell
+    disabled
+    oneshot
+
+service cp_diskserver_lf /system/bin/cp_diskserver lf 0
+    class core
+    user system
+    group system radio shell
+    disabled
+    oneshot

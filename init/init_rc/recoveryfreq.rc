@@ -1,0 +1,13 @@
+service  recoveryfreq  /system/bin/recoveryfreq.sh
+    user root
+    disabled
+    oneshot
+
+    chmod 0666 /proc/pin_switch/iis0_sys_sel/cp0_iis0
+    chmod 0666 /proc/pin_switch/iis0_sys_sel/cp1_iis0
+    chmod 0666 /proc/pin_switch/iis0_sys_sel/cp2_iis0
+    chmod 0666 /proc/pin_switch/iis0_sys_sel/ap_iis0
+    chmod 0666 /proc/pin_switch/bt_iis_sys_sel/cp0_iis0
+    chmod 0666 /proc/pin_switch/bt_iis_sys_sel/cp1_iis0
+    chmod 0666 /proc/pin_switch/bt_iis_sys_sel/cp2_iis0
+    chmod 0666 /proc/pin_switch/bt_iis_sys_sel/ap_iis0

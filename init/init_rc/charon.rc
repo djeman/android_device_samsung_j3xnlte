@@ -1,0 +1,8 @@
+# Strongswan VPN
+service charon /system/bin/charon
+    class main
+    socket charon stream 600 system system
+    # charon will setuid to vpn after getting necessary resources.
+    group vpn net_admin inet
+    disabled
+    oneshot

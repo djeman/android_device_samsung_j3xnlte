@@ -1,5 +1,4 @@
 import /init.wifi.rc
-import /init.rilcommon.rc
 
 on init
     export LD_SHIM_LIBS /system/bin/gpsd|libdmitry.so:/system/lib/libril.so|libril_shim.so
@@ -175,44 +174,6 @@ on boot
     symlink /data/user_de/0/com.android.providers.telephony/databases/telephony.db /data/data/com.android.providers.telephony/databases/telephony.db
     symlink /data/user_de/0/com.android.providers.telephony/shared_prefs/preferred-apn.xml /data/data/com.android.providers.telephony/shared_prefs/preferred-apn.xml
 
-# GPS
-service gpsd /system/bin/gpsd -c /system/etc/gps.xml
-    class main
-    user gps
-    group system inet net_raw
-    ioprio be 0
-
-service temp_test /data/simpletest
-	class core
-	disabled
-	oneshot
-
-on property:persist.sys.temp.test=1
-	start temp_test
-
-service phoneserver_l /system/bin/phoneserver -m l
-    class core
-    user root
-    group radio system shell
-    disabled
-    oneshot
-
-#lte rild service
-#service lril-daemon /system/bin/rild_sp -l /system/lib/libreference-ril_sp.so -m l -n 0
-#    class core
-#    socket lrild stream 660 root radio
-#    socket lrild-debug stream 660 radio system
-#    disabled
-#    user root
-#    group radio cache inet misc audio sdcard_rw log shell
-#
-#service lril-daemon1 /system/bin/rild_sp -l /system/lib/libreference-ril_sp.so -m l -n 1
-#    class core
-#    socket lrild1 stream 660 root radio
-#    socket lrild-debug1 stream 660 radio system
-#    disabled
-#    user root
-#    group radio cache inet misc audio sdcard_rw log shell
 
 on post-fs-data
     # sec_efs_file
@@ -290,7 +251,6 @@ on post-fs
     mount tmpfs tmpfs /mnt/secure private rec
     mount tmpfs tmpfs /mnt/secure/asec shared rec
 ## Samsung ODE <<<
-#   insmod /system/lib/modules/bcmdhd.ko
 
 # set LMK watermark as {12M,16M,18M,26M,34M,42M}
 on property:lmk.autocalc=false
@@ -303,60 +263,10 @@ on property:lmk.autocalc=false
 chown system system /sys/module/smsg/parameters/assert_trigger
 chown system system /sys/power/avs_log
 
-# SSWAP
-service swapon /sbin/sswap -s
-    class core
-    user root
-    group root
-    oneshot
-
 # Activate Background Compaction
 on property:sys.sysctl.compact_memory=1
     setprop sys.sysctl.compact_memory 0
     start compact_memory
-
-service compact_memory /sbin/bgcompact
-    user root
-    seclabel u:r:sswap:s0
-    oneshot
-    disabled
-
-service prepare_param /system/bin/prepare_param.sh /dev/block/platform/sdio_emmc/by-name/PARAM
-    class core
-    user root
-    group root
-    seclabel u:r:prepare_param:s0
-    oneshot
-
-service DR-daemon /system/bin/ddexe
-    class main
-    user root
-    group system radio inet net_raw
-
-service SMD-daemon /system/bin/smdexe
-    class main
-    user root
-    group system radio inet net_raw
-
-service BCS-daemon /system/bin/connfwexe
-    class main
-    user root
-    group system radio inet net_raw
-
-# Strongswan VPN
-service charon /system/bin/charon
-    class main
-    socket charon stream 600 system system
-    # charon will setuid to vpn after getting necessary resources.
-    group vpn net_admin inet
-    disabled
-    oneshot
-
-service cmd_services /system/bin/cmd_services
-    class main
-    user root
-    disabled
-    oneshot
 
 on property:persist.sys.cmdservice.enable=enable
     start cmd_services
@@ -377,4 +287,51 @@ on property:sys.sysctl.app_order=*
 # write the page order to enable background reclaim for page orders
 on property:sys.sysctl.freepage_orders=*
     write  /sys/module/pomemr/parameters/freepage_order ${sys.sysctl.freepage_orders}
+
+# for Wi-Fi only models
+on property:ro.radio.noril=yes
+    stop ril-daemon
+
+# SSWAP
+service swapon /sbin/sswap -s
+    class core
+    user root
+    group root
+    oneshot
+
+service compact_memory /sbin/bgcompact
+    user root
+    seclabel u:r:sswap:s0
+    oneshot
+    disabled
+
+#override
+service ril-daemon /system/bin/rild
+    class main
+    socket rild stream 660 root radio
+    socket rild-debug stream 660 radio system
+    socket rild-cas stream 660  casdrm mmb
+    user root
+    group radio cache inet misc audio sdcard_r sdcard_rw log vpn system
+
+service ril-daemon1 /system/bin/rild -c 2
+    class main
+    socket rild2 stream 660 root radio
+    socket rild-debug2 stream 660 radio system
+    user root
+    group radio cache inet misc audio sdcard_r sdcard_rw log system
+    disabled
+
+service media /system/bin/mediaserver
+    class main
+    user media
+    group system audio camera inet net_bt net_bt_admin net_bw_acct drmrpc sdcard_r shell mediadrm media_rw radio
+    ioprio rt 4
+
+service audioserver /system/bin/audioserver
+    class main
+    user audioserver
+    # media gid needed for /dev/fm (radio) and for /data/misc/media (tee)
+    group audio camera drmrpc inet media mediadrm net_bt net_bt_admin net_bw_acct system shell radio
+    ioprio rt 4
 

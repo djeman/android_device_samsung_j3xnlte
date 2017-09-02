@@ -1,0 +1,4 @@
+service charge /bin/charge
+    class charger
+    user root
+    oneshot
