@@ -317,7 +317,8 @@ PRODUCT_PACKAGES += \
     librilutils \
     libbm \
     libGLES_mali.so \
-    libsecnativefeature
+    libsecnativefeature \
+    libsecril-client
 
 # RIL
 PRODUCT_COPY_FILES += \
