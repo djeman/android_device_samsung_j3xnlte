@@ -316,7 +316,8 @@ PRODUCT_PACKAGES += \
     libbt-vendor \
     librilutils \
     libbm \
-    libGLES_mali.so
+    libGLES_mali.so \
+    libsecnativefeature
 
 # RIL
 PRODUCT_COPY_FILES += \
