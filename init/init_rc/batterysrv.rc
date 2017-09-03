@@ -1,5 +1,0 @@
-service batterysrv /bin/batterysrv
-    class core
-    user system
-    group system
-    oneshot

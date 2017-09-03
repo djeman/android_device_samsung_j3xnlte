@@ -305,6 +305,11 @@ service compact_memory /sbin/bgcompact
     oneshot
     disabled
 
+service healthd-charger /sbin/healthd -c
+    class charger
+    critical
+    seclabel u:r:healthd:s0
+
 #override
 service ril-daemon /system/bin/rild
     class main

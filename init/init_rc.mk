@@ -2,9 +2,7 @@
 PRODUCT_PACKAGES += \
     at_distributor.rc \
     autotest.rc \
-    batterysrv.rc \
     bcsdaemon.rc \
-    charge.rc \
     charon.rc \
     chown_service.rc \
     cmd_services.rc \
