@@ -1,0 +1,17 @@
+service refnotify_td /system/bin/refnotify -t 0
+    class core
+    disabled
+    user system
+    group system radio shell
+
+service refnotify_w /system/bin/refnotify -t 1
+    class core
+    disabled
+    user system
+    group system radio shell
+
+service refnotify_l /system/bin/refnotify -t 2
+    class core
+    disabled
+    user system
+    group system radio shell

@@ -51,7 +51,6 @@ allow factorytest cg_file:file { read write open create getattr setattr append }
 allow factorytest cg_file:sock_file { setattr unlink create write };
 allow factorytest cg_file:unix_stream_socket { connectto };
 allow factorytest sysfs_wake_lock:file { open read write };
-allow factorytest shell_data_file:dir { search open write };
 allow factorytest rootfs:dir { mounton write add_name};
 allow factorytest sysfs:file { open write };
 allow factorytest audio_device:dir { search };
@@ -76,7 +75,6 @@ allow factorytest bluetooth_prop:property_service{ set };
 allow factorytest unlabeled:dir { search };
 allow factorytest unlabeled:file { open read getattr };
 allow factorytest wcn_device:chr_file{ read write open ioctl };
-allow factorytest system_file:file { execmod };
 allow factorytest mmitest_file:dir { search create open write add_name remove_name setattr };
 allow factorytest mmitest_file:file { create read write open rename setattr getattr unlink append };
 allow factorytest logcat_exec:file { getattr execute read open execute_no_trans };

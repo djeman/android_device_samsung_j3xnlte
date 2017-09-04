@@ -34,7 +34,7 @@ bin/calibration_init
 #bin/dhcp6s
 #bin/dhcp6c
 #bin/iwnpi
-bin/rild
+#bin/rild
 bin/smdexe
 bin/macloader
 
@@ -80,10 +80,10 @@ lib/libfactoryutil.so
 lib/libatparser.so
 lib/libcordon.so
 lib/libomission_avoidance.so
-lib/libsec-ril.so
-lib/libsec-ril-dsds.so
-lib/libsecnativefeature.so
-lib/libsecril-client.so
+#lib/libsec-ril.so
+#lib/libsec-ril-dsds.so
+#lib/libsecnativefeature.so
+#lib/libsecril-client.so
 
 # Audio
 lib/libaudiosa.so
@@ -216,9 +216,9 @@ lib/libengmode.so
 #lib/libdeflicker.so
 #lib/libnvexchange.so
 #lib/liblsc.so
-lib/libmorpho_easy_hdr.so
-lib/libril.so
-lib/libreference-ril.so
+#lib/libmorpho_easy_hdr.so
+#lib/libril.so
+#lib/libreference-ril.so
 #lib/librilutils.so
 
 # drm

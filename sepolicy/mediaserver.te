@@ -13,7 +13,6 @@ allow mediaserver sysfs_wake_lock:file { open read write };
 
 allow mediaserver engpc:binder call;
 
-allow mediaserver system_file:file execmod;
 allow mediaserver media_prop:property_service set;
 allow mediaserver radio_service:service_manager find;
 allow mediaserver spipe_device:chr_file { read write open };

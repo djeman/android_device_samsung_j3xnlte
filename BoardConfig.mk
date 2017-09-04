@@ -4,8 +4,6 @@ TARGET_OTA_ASSERT_DEVICE := j3xnlte,j3xnltexx,j2xlte,j2xltedd,j3xlte
 # inherit from the proprietary version
 -include vendor/samsung/j3xnlte/BoardConfigVendor.mk
 
-COMMON_GLOBAL_CFLAGS += -DSPRD_HARDWARE
-
 TARGET_ARCH := arm
 TARGET_NO_BOOTLOADER := true
 TARGET_NO_RADIOIMAGE := true
@@ -28,10 +26,8 @@ DEVICE_RESOLUTION := 720x1280
 
 TARGET_BOOTLOADER_BOARD_NAME := SC9830I
 
-BOARD_VENDOR := samsung
-
 # Include path
-#TARGET_SPECIFIC_HEADER_PATH := device/samsung/j3xnlte/include
+TARGET_SPECIFIC_HEADER_PATH := device/samsung/j3xnlte/include
 
 #TARGET_PREBUILT_KERNEL := device/samsung/j3xnlte/kernel
 #TARGET_PREBUILT_DTB := device/samsung/j3xnlte/dt.img
@@ -87,8 +83,10 @@ TARGET_USERIMAGES_USE_F2FS := true
 # CMHW
 BOARD_HARDWARE_CLASS := hardware/samsung/cmhw/
 
+# Bionic
+TARGET_NEEDS_PLATFORM_TEXT_RELOCATIONS := true
+
 # Init
-TARGET_PROVIDES_INIT_RC := true
 TARGET_INIT_VENDOR_LIB := libinit_j3lte
 TARGET_RECOVERY_DEVICE_MODULES := libinit_j3lte
 TARGET_UNIFIED_DEVICE := true
@@ -100,15 +98,10 @@ TARGET_BOOTANIMATION_PRELOAD := true
 TARGET_BOOTANIMATION_TEXTURE_CACHE := true
 
 # telephony
-BOARD_PROVIDES_LIBREFERENCE_RIL := true
 BOARD_PROVIDES_LIBRIL := true
-BOARD_PROVIDES_RILD := true
-
+SIM_COUNT := 2
 USE_BOOT_AT_DIAG := true
-BOARD_RIL_CLASS := ../../../device/samsung/j3xnlte/ril/
-
-# healthd
-BOARD_HAL_STATIC_LIBRARIES := libhealthd.j3xnlte
+BOARD_RIL_CLASS := ../../../device/samsung/j3xnlte/ril/java/
 
 # lights
 TARGET_PROVIDES_LIBLIGHT := true
@@ -143,6 +136,7 @@ ENABLE_WEBGL := true
 #######################################################
 # camera configs
 USE_CAMERA_STUB := true
+BOARD_USE_SPRD_COLORFORMAT := true
 #back camera rotation capture
 TARGET_BOARD_BACK_CAMERA_ROTATION := false
 #front camera rotation capture
@@ -221,6 +215,7 @@ BOARD_POWERHINT_HAL := interhotplug
 # Charger
 BACKLIGHT_PATH := "/sys/class/backlight/panel/brightness"
 BOARD_CHARGER_ENABLE_SUSPEND := true
+BOARD_CHARGER_DISABLE_INIT_BLANK := true
 BOARD_NO_CHARGER_LED := true
 HAVE_KEYBOARD_BACKLIGHT := false
 BOARD_CHARGING_MODE_BOOTING_LPM := "/sys/class/power_supply/battery/batt_lp_charging"

@@ -13,8 +13,6 @@ allow untrusted_app tmpfs:lnk_file r_file_perms;
 
 allow untrusted_app srt_socket:sock_file {read write getattr };
 allow untrusted_app srtd:unix_stream_socket {read write getattr connectto};
-allow untrusted_app hprofs_file:dir { open create read write getattr search add_name remove_name };
-allow untrusted_app hprofs_file:file { open create read write getattr unlink };
 
 allow untrusted_app asec_apk_file:file execute;
 

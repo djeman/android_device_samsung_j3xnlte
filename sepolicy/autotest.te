@@ -3,7 +3,7 @@ type autotest_exec, exec_type, file_type;
 
 init_daemon_domain(autotest)
 
-allow autotest system_file:file { execute_no_trans execmod };
+allow autotest system_file:file { execute_no_trans };
 allow autotest shell_exec:file { read open execute execute_no_trans };
 allow autotest self:capability { dac_override sys_nice fowner setgid setuid fsetid sys_module sys_admin chown net_admin net_raw sys_boot };
 allow autotest self:capability2 { block_suspend syslog };
@@ -22,7 +22,6 @@ allow autotest logcat_exec:file { getattr execute read open execute_no_trans };
 allow autotest ctl_bootanim_prop:property_service set;
 allow autotest ctl_default_prop:property_service set;
 allow autotest sysfs:file { open write };
-allow autotest shell_data_file:dir { search open write };
 allow autotest rootfs:dir { mounton write add_name};
 allow autotest system_data_file:dir { open write read create setattr add_name remove_name rmdir };
 allow autotest system_data_file:file { open };

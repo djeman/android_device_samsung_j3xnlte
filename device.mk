@@ -15,6 +15,9 @@ PRODUCT_PACKAGE_OVERLAYS += device/samsung/j3xnlte/overlay
 # Sprd proprietaries drm libomx
 $(call inherit-product, vendor/sprd/proprietaries/proprietaries-scx35l.mk)
 
+# init services
+$(call inherit-product, $(LOCAL_PATH)/init/init_rc.mk)
+
 # Permissions
 PRODUCT_COPY_FILES += \
     external/ant-wireless/antradio-library/com.dsi.ant.antradio_library.xml:system/etc/permissions/com.dsi.ant.antradio_library.xml \
@@ -171,7 +174,6 @@ PRODUCT_COPY_FILES += \
 
 # WPA supplicant
 PRODUCT_PACKAGES += \
-    dhcpcd.conf \
     hostapd \
     libwpa_client \
     wpa_supplicant
@@ -200,14 +202,11 @@ PRODUCT_PACKAGES += \
     init.cali.rc \
     init.j3xnlte.rc \
     init.j3xnlte_base.rc \
-    init.rilchip.rc \
-    init.rilcommon.rc \
     init.sc8830.rc \
     init.sc8830.usb.rc \
     init.sc8830_ss.rc \
     init.wifi.rc \
     ueventd.sc8830.rc \
-    init.rc \
     sswap \
     bgcompact \
     ffu
@@ -247,12 +246,10 @@ PRODUCT_PACKAGES += \
     dm_verity_hash
 
 PRODUCT_PACKAGES += \
-    charge \
-    charge_res_images
+    charger_res_images
 
 PRODUCT_PACKAGES += \
-    libdmitry \
-    libril_shim
+    libdmitry
 
 PRODUCT_PACKAGES += \
     camera.sc8830 \
@@ -265,7 +262,6 @@ PRODUCT_PACKAGES += \
     libion \
     libmemoryheapion \
     libefuse \
-    dhcpcd \
     libomxil-bellagio \
     libstagefright_sprd_h264dec \
     libstagefright_sprd_h264enc \
@@ -288,14 +284,9 @@ PRODUCT_PACKAGES += \
     libstagefrighthw_cm \
     libstagefrighthw \
     libomxvpu \
-    batterysrv \
     iwnpi \
     liboemcrypto \
     modem_control \
-    dhcp6s \
-    dhcp6c \
-    dhcp6ctl \
-    dhcp6relay \
     cp_diskserver \
     phasecheckserver \
     radvd \
@@ -322,9 +313,18 @@ PRODUCT_PACKAGES += \
     libbt-vendor \
     librilutils \
     libbm \
-    libGLES_mali.so
+    libGLES_mali.so \
+    libsecnativefeature \
+    libsecril-client \
+    libreference-ril \
+    rild \
+    libril
 
 # RIL
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/ril/vendor/libsec-ril.so:system/lib/libsec-ril.so \
+    $(LOCAL_PATH)/ril/vendor/libsec-ril-dsds.so:system/lib/libsec-ril-dsds.so
+
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.telephony.ril_class=SlteRIL
 

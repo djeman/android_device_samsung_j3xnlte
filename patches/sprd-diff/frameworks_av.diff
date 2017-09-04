@@ -1,10 +1,10 @@
 diff --git a/include/media/stagefright/ACodec.h b/include/media/stagefright/ACodec.h
-index 0ac13b9..21ec907 100644
+index d682632..94de612 100644
 --- a/include/media/stagefright/ACodec.h
 +++ b/include/media/stagefright/ACodec.h
-@@ -359,6 +359,8 @@ protected:
+@@ -495,6 +495,8 @@ protected:
      status_t setupEAC3Codec(bool encoder, int32_t numChannels, int32_t sampleRate,
-             int32_t bitsPerSample = 16);
+             AudioEncoding encoding = kAudioEncodingPcm16bit);
  
 +    status_t setIMAADPCMFormat(int32_t numChannels, int32_t sampleRate, int32_t blockAlign);
 +
@@ -12,7 +12,7 @@ index 0ac13b9..21ec907 100644
              OMX_U32 portIndex, OMX_AUDIO_CODINGTYPE desiredFormat);
  
 diff --git a/include/media/stagefright/DataSource.h b/include/media/stagefright/DataSource.h
-index c8ad05e..ad5bd76 100644
+index a9c899d..0c31119 100644
 --- a/include/media/stagefright/DataSource.h
 +++ b/include/media/stagefright/DataSource.h
 @@ -46,6 +46,11 @@ public:
@@ -240,10 +240,10 @@ index 0000000..97177fc
 +#endif  // FILE_SOURCE_H_
 +
 diff --git a/include/media/stagefright/MPEG4Writer.h b/include/media/stagefright/MPEG4Writer.h
-index 09a48f9..9f474cd 100644
+index 5932610..f567797 100644
 --- a/include/media/stagefright/MPEG4Writer.h
 +++ b/include/media/stagefright/MPEG4Writer.h
-@@ -119,6 +119,8 @@ private:
+@@ -118,6 +118,8 @@ private:
      status_t startTracks(MetaData *params);
      size_t numTracks();
      int64_t estimateMoovBoxSize(int32_t bitRate);
@@ -253,10 +253,10 @@ index 09a48f9..9f474cd 100644
      struct Chunk {
          Track               *mTrack;        // Owner
 diff --git a/include/media/stagefright/MediaCodec.h b/include/media/stagefright/MediaCodec.h
-index e2588a4..fa01c52 100644
+index 05f6581..5dc5cda 100644
 --- a/include/media/stagefright/MediaCodec.h
 +++ b/include/media/stagefright/MediaCodec.h
-@@ -45,6 +45,7 @@ struct Surface;
+@@ -46,6 +46,7 @@ class Surface;
  struct MediaCodec : public AHandler {
      enum ConfigureFlags {
          CONFIGURE_FLAG_ENCODE   = 1,
@@ -265,13 +265,13 @@ index e2588a4..fa01c52 100644
  
      enum BufferFlags {
 diff --git a/include/media/stagefright/MediaDefs.h b/include/media/stagefright/MediaDefs.h
-index ffbd20c..d2bc11f 100644
+index d85d15b..e389992 100644
 --- a/include/media/stagefright/MediaDefs.h
 +++ b/include/media/stagefright/MediaDefs.h
-@@ -30,32 +30,44 @@ extern const char *MEDIA_MIMETYPE_VIDEO_MPEG4;
- extern const char *MEDIA_MIMETYPE_VIDEO_H263;
+@@ -52,22 +52,31 @@ extern const char *MEDIA_MIMETYPE_VIDEO_H263;
  extern const char *MEDIA_MIMETYPE_VIDEO_MPEG2;
  extern const char *MEDIA_MIMETYPE_VIDEO_RAW;
+ extern const char *MEDIA_MIMETYPE_VIDEO_DOLBY_VISION;
 +extern const char *MEDIA_MIMETYPE_VIDEO_MJPG;
  
 +extern const char *MEDIA_MIMETYPE_AUDIO_AMR;
@@ -300,6 +300,7 @@ index ffbd20c..d2bc11f 100644
  extern const char *MEDIA_MIMETYPE_AUDIO_MSGSM;
  extern const char *MEDIA_MIMETYPE_AUDIO_AC3;
  extern const char *MEDIA_MIMETYPE_AUDIO_EAC3;
+@@ -77,10 +86,13 @@ extern const char *MEDIA_MIMETYPE_AUDIO_EAC3_JOC;
  
  extern const char *MEDIA_MIMETYPE_CONTAINER_MPEG4;
  extern const char *MEDIA_MIMETYPE_CONTAINER_WAV;
@@ -314,10 +315,10 @@ index ffbd20c..d2bc11f 100644
  
  extern const char *MEDIA_MIMETYPE_CONTAINER_WVM;
 diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
-index 581bfba..182b7b2 100644
+index 92e2847..fe05e1e 100644
 --- a/media/libstagefright/ACodec.cpp
 +++ b/media/libstagefright/ACodec.cpp
-@@ -548,6 +548,10 @@ ACodec::ACodec()
+@@ -577,6 +577,10 @@ ACodec::ACodec()
  }
  
  ACodec::~ACodec() {
@@ -327,8 +328,8 @@ index 581bfba..182b7b2 100644
 +    }
  }
  
- status_t ACodec::setupCustomCodec(status_t err, const char * /*mime*/, const sp<AMessage> &/*msg*/) {
-@@ -1510,6 +1514,12 @@ ACodec::BufferInfo *ACodec::dequeueBufferFromNativeWindow() {
+ status_t ACodec::setupCustomCodec(status_t err, const char *mime, const sp<AMessage> &msg) {
+@@ -1614,6 +1618,12 @@ ACodec::BufferInfo *ACodec::dequeueBufferFromNativeWindow() {
  
  status_t ACodec::freeBuffersOnPort(OMX_U32 portIndex) {
      status_t err = OK;
@@ -341,7 +342,7 @@ index 581bfba..182b7b2 100644
      for (size_t i = mBuffers[portIndex].size(); i > 0;) {
          i--;
          status_t err2 = freeBuffer(portIndex, i);
-@@ -1659,8 +1669,12 @@ status_t ACodec::setComponentRole(
+@@ -1780,8 +1790,12 @@ const char *ACodec::getComponentRole(
              "video_decoder.mpeg2", "video_encoder.mpeg2" },
          { MEDIA_MIMETYPE_AUDIO_AC3,
              "audio_decoder.ac3", "audio_encoder.ac3" },
@@ -351,12 +352,12 @@ index 581bfba..182b7b2 100644
              "audio_decoder.eac3", "audio_encoder.eac3" },
 +        { MEDIA_MIMETYPE_VIDEO_MJPG,
 +            "video_decoder.mjpg", "video_encoder.mjpg" },
-         { MEDIA_MIMETYPE_VIDEO_MPEG4_DP,
-             "video_decoder.mpeg4", NULL },
-     };
-@@ -2237,6 +2251,17 @@ status_t ACodec::configureCodec(
-             msg->findInt32("bits-per-sample", &bitsPerSample);
-             err = setupEAC3Codec(encoder, numChannels, sampleRate, bitsPerSample);
+ #ifdef DOLBY_ENABLE
+         { MEDIA_MIMETYPE_AUDIO_EAC3_JOC,
+             "audio_decoder.eac3_joc", NULL },
+@@ -2366,6 +2380,17 @@ status_t ACodec::configureCodec(
+         } else {
+             err = setupEAC3Codec(encoder, numChannels, sampleRate, pcmEncoding);
          }
 +    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_IMAADPCM)) {
 +        int32_t numChannels;
@@ -370,9 +371,9 @@ index 581bfba..182b7b2 100644
 +            err = setIMAADPCMFormat(numChannels, sampleRate, blockAlign);
 +        }
      } else {
-         if (!strncmp(mComponentName.c_str(), "OMX.ffmpeg.", 11) && !mIsEncoder) {
-             err = FFMPEGSoftCodec::setAudioFormat(
-@@ -2267,6 +2292,10 @@ status_t ACodec::configureCodec(
+         err = setupCustomCodec(err, mime, msg);
+     }
+@@ -2391,6 +2416,10 @@ status_t ACodec::configureCodec(
      int32_t maxInputSize;
      if (msg->findInt32("max-input-size", &maxInputSize)) {
          err = setMinBufferSize(kPortIndexInput, (size_t)maxInputSize);
@@ -383,7 +384,7 @@ index 581bfba..182b7b2 100644
      } else if (!strcmp("OMX.Nvidia.aac.decoder", mComponentName.c_str())) {
          err = setMinBufferSize(kPortIndexInput, 8192);  // XXX
      }
-@@ -2286,6 +2315,28 @@ status_t ACodec::configureCodec(
+@@ -2410,6 +2439,28 @@ status_t ACodec::configureCodec(
          err = setOperatingRate(rateFloat, video);
      }
  
@@ -409,10 +410,10 @@ index 581bfba..182b7b2 100644
 +        }
 +    }
 +
+     // NOTE: both mBaseOutputFormat and mOutputFormat are outputFormat to signal first frame.
      mBaseOutputFormat = outputFormat;
- 
-     err = getPortFormat(kPortIndexInput, inputFormat);
-@@ -2634,6 +2685,47 @@ status_t ACodec::setupEAC3Codec(
+     // trigger a kWhatOutputFormatChanged msg on first buffer
+@@ -2985,6 +3036,47 @@ status_t ACodec::setupEAC3Codec(
              sizeof(def));
  }
  
@@ -460,16 +461,16 @@ index 581bfba..182b7b2 100644
  static OMX_AUDIO_AMRBANDMODETYPE pickModeFromBitRate(
          bool isAMRWB, int32_t bps) {
      if (isAMRWB) {
-@@ -2966,6 +3058,7 @@ static const struct VideoCodingMapEntry {
+@@ -3343,6 +3435,7 @@ static const struct VideoCodingMapEntry {
      { MEDIA_MIMETYPE_VIDEO_MPEG2, OMX_VIDEO_CodingMPEG2 },
      { MEDIA_MIMETYPE_VIDEO_VP8, OMX_VIDEO_CodingVP8 },
      { MEDIA_MIMETYPE_VIDEO_VP9, OMX_VIDEO_CodingVP9 },
 +    { MEDIA_MIMETYPE_VIDEO_MJPG, OMX_VIDEO_CodingMJPEG },
+     { MEDIA_MIMETYPE_VIDEO_DOLBY_VISION, OMX_VIDEO_CodingDolbyVision },
  };
  
- status_t ACodec::GetVideoCodingTypeFromMime(
-@@ -4573,6 +4666,24 @@ status_t ACodec::getPortFormat(OMX_U32 portIndex, sp<AMessage> &notify) {
-                     break;
+@@ -5214,6 +5307,24 @@ status_t ACodec::getPortFormat(OMX_U32 portIndex, sp<AMessage> &notify) {
+                     // Fall through to set up mime.
                  }
  
 +                case OMX_AUDIO_CodingIMAADPCM:
@@ -491,12 +492,13 @@ index 581bfba..182b7b2 100644
 +                }
 +
                  default:
-                     if (!strncmp(mComponentName.c_str(), "OMX.ffmpeg.", 11)) {
-                         err = FFMPEGSoftCodec::getAudioPortFormat(portIndex,
-@@ -6608,6 +6719,33 @@ status_t ACodec::setParameters(const sp<AMessage> &params) {
+                 {
+                     if (!mIsEncoder && !strncmp(mComponentName.c_str(), "OMX.ffmpeg.", 11)) {
+@@ -7842,6 +7953,34 @@ status_t ACodec::setParameters(const sp<AMessage> &params) {
+             err = OK;
          }
      }
- 
++
 +    AString mode;
 +    if (params->findString("scene-mode", &mode)){
 +        OMX_VIDEO_CONFIG_ENCODERSCENEMODE configParams;
@@ -524,10 +526,10 @@ index 581bfba..182b7b2 100644
 +            return err;
 +        }
 +    }
-     return OK;
- }
- 
-@@ -6787,7 +6925,14 @@ bool ACodec::OutputPortSettingsChangedState::onOMXEvent(
+ #ifdef DOLBY_ENABLE
+     return setDolbyParameterOnProcessedAudio(params);
+ #endif // DOLBY_END
+@@ -8016,7 +8155,14 @@ bool ACodec::OutputPortSettingsChangedState::onOMXEvent(
                              mCodec->mBuffers[kPortIndexOutput].size());
                      err = FAILED_TRANSACTION;
                  } else {
@@ -544,10 +546,10 @@ index 581bfba..182b7b2 100644
  
                  if (err == OK) {
 diff --git a/media/libstagefright/AMRExtractor.cpp b/media/libstagefright/AMRExtractor.cpp
-index 9c07403..48c6e17 100644
+index 2892520..43b1118 100644
 --- a/media/libstagefright/AMRExtractor.cpp
 +++ b/media/libstagefright/AMRExtractor.cpp
-@@ -123,7 +123,8 @@ AMRExtractor::AMRExtractor(const sp<DataSource> &source)
+@@ -126,7 +126,8 @@ AMRExtractor::AMRExtractor(const sp<DataSource> &source)
          return;
      }
  
@@ -558,7 +560,7 @@ index 9c07403..48c6e17 100644
      mMeta = new MetaData;
      mMeta->setCString(
 diff --git a/media/libstagefright/AVIExtractor.cpp b/media/libstagefright/AVIExtractor.cpp
-index 5a6211e..867799e 100644
+index 5a6211e..a29ba20 100644
 --- a/media/libstagefright/AVIExtractor.cpp
 +++ b/media/libstagefright/AVIExtractor.cpp
 @@ -35,6 +35,13 @@
@@ -751,7 +753,14 @@ index 5a6211e..867799e 100644
  ////////////////////////////////////////////////////////////////////////////////
  
  AVIExtractor::AVIExtractor(const sp<DataSource> &dataSource)
-@@ -387,6 +474,9 @@ sp<MediaSource> AVIExtractor::getTrack(size_t index) {
+@@ -381,12 +468,15 @@ size_t AVIExtractor::countTracks() {
+     return mTracks.size();
+ }
+ 
+-sp<MediaSource> AVIExtractor::getTrack(size_t index) {
++sp<IMediaSource> AVIExtractor::getTrack(size_t index) {
+     return index < mTracks.size() ? new AVISource(this, index) : NULL;
+ }
  
  sp<MetaData> AVIExtractor::getTrackMetaData(
          size_t index, uint32_t flags) {
@@ -1657,12 +1666,12 @@ index 5a6211e..867799e 100644
          return true;
      }
 diff --git a/media/libstagefright/Android.mk b/media/libstagefright/Android.mk
-index 792c139..f10f010 100644
+index e708f68..2a52d04 100644
 --- a/media/libstagefright/Android.mk
 +++ b/media/libstagefright/Android.mk
-@@ -71,6 +71,10 @@ LOCAL_SRC_FILES:=                         \
+@@ -78,6 +78,10 @@ LOCAL_SRC_FILES:=                         \
+         XINGSeeker.cpp                    \
          avc_utils.cpp                     \
-         APE.cpp                           \
          FFMPEGSoftCodec.cpp               \
 +        AVIExtractor.cpp                  \
 +        FLVExtractor.cpp                  \
@@ -1671,48 +1680,32 @@ index 792c139..f10f010 100644
  
  LOCAL_C_INCLUDES:= \
          $(TOP)/frameworks/av/include/media/ \
-diff --git a/media/libstagefright/AwesomePlayer.cpp b/media/libstagefright/AwesomePlayer.cpp
-index 933f241..69981f8 100644
---- a/media/libstagefright/AwesomePlayer.cpp
-+++ b/media/libstagefright/AwesomePlayer.cpp
-@@ -526,13 +526,6 @@ void AwesomePlayer::reset_l() {
+@@ -202,6 +206,10 @@ LOCAL_C_INCLUDES += \
+ 	$(TOP)/hardware/samsung/exynos4/include
+ endif
  
-     notifyListener_l(MEDIA_STOPPED);
++ifeq ($(BOARD_USE_SPRD_COLORFORMAT), true)
++LOCAL_CFLAGS += -DUSE_SPRD_COLORFORMAT
++endif
++
+ LOCAL_MODULE:= libstagefright
  
--    if (mDecryptHandle != NULL) {
--            mDrmManagerClient->setPlaybackStatus(mDecryptHandle,
--                    Playback::STOP, 0);
--            mDecryptHandle = NULL;
--            mDrmManagerClient = NULL;
--    }
--
-     if (mFlags & PLAYING) {
-         uint32_t params = IMediaPlayerService::kBatteryDataTrackDecoder;
-         if ((mAudioSource != NULL) && (mAudioSource != mAudioTrack)) {
-@@ -1661,7 +1654,7 @@ status_t AwesomePlayer::initVideoDecoder(uint32_t flags) {
-     }
- #else
-     if (mDecryptHandle != NULL) {
--        flags |= OMXCodec::kEnableGrallocUsageProtected;
-+        // flags |= OMXCodec::kEnableGrallocUsageProtected;
-     }
- #endif
-     ALOGV("initVideoDecoder flags=0x%x", flags);
+ LOCAL_MODULE_TAGS := optional
 diff --git a/media/libstagefright/CameraSource.cpp b/media/libstagefright/CameraSource.cpp
-index f6b4741..66c483d 100644
+index bb4ea41..96847bf 100644
 --- a/media/libstagefright/CameraSource.cpp
 +++ b/media/libstagefright/CameraSource.cpp
-@@ -119,6 +119,8 @@ static int32_t getColorFormat(const char* colorFormat) {
+@@ -130,6 +130,8 @@ static int32_t getColorFormat(const char* colorFormat) {
  #ifdef USE_SAMSUNG_COLORFORMAT
          static const int OMX_SEC_COLOR_FormatNV12LPhysicalAddress = 0x7F000002;
          return OMX_SEC_COLOR_FormatNV12LPhysicalAddress;
-+#elif SPRD_HARDWARE
++#elif USE_SPRD_COLORFORMAT
 +        return OMX_SPRD_COLOR_FormatYVU420SemiPlanar;
  #else
          return OMX_COLOR_FormatYUV420SemiPlanar;
  #endif
 diff --git a/media/libstagefright/DataSource.cpp b/media/libstagefright/DataSource.cpp
-index 34f0649..9933c5f 100644
+index 485aefa..0c804e1 100644
 --- a/media/libstagefright/DataSource.cpp
 +++ b/media/libstagefright/DataSource.cpp
 @@ -33,8 +33,11 @@
@@ -1727,19 +1720,19 @@ index 34f0649..9933c5f 100644
  #include <media/IMediaHTTPConnection.h>
  #include <media/IMediaHTTPService.h>
  #include <media/stagefright/foundation/ADebug.h>
-@@ -218,6 +221,9 @@ void DataSource::RegisterDefaultSniffers() {
-     RegisterSniffer_l(SniffMPEG2PS);
-     RegisterSniffer_l(SniffWVM);
+@@ -196,6 +199,9 @@ void DataSource::RegisterDefaultSniffers() {
+         RegisterSniffer_l(SniffWVM);
+     }
      RegisterSniffer_l(SniffMidi);
 +    RegisterSniffer_l(SniffAVI);
 +    RegisterSniffer_l(SniffPSXSTR);
 +    RegisterSniffer_l(SniffFLV);
      RegisterSniffer_l(AVUtils::get()->getExtendedSniffer());
-     RegisterSnifferPlugin();
+     RegisterSniffer_l(FFMPEGSoftCodec::getSniffer());
  
 diff --git a/media/libstagefright/FLVExtractor.cpp b/media/libstagefright/FLVExtractor.cpp
 new file mode 100644
-index 0000000..38ccd7b
+index 0000000..868b873
 --- /dev/null
 +++ b/media/libstagefright/FLVExtractor.cpp
 @@ -0,0 +1,1392 @@
@@ -2139,7 +2132,7 @@ index 0000000..38ccd7b
 +    return mTracks.size();
 +}
 +
-+sp<MediaSource> FLVExtractor::getTrack(size_t index) {
++sp<IMediaSource> FLVExtractor::getTrack(size_t index) {
 +    return index < mTracks.size() ? new FLVSource(this, index) : NULL;
 +}
 +
@@ -3704,7 +3697,7 @@ index 0000000..25efb02
 +
 +
 diff --git a/media/libstagefright/MP3Extractor.cpp b/media/libstagefright/MP3Extractor.cpp
-index 2e54e8c..59d1432 100644
+index 82e7a26..c0dd6ad 100644
 --- a/media/libstagefright/MP3Extractor.cpp
 +++ b/media/libstagefright/MP3Extractor.cpp
 @@ -214,7 +214,7 @@ public:
@@ -3801,10 +3794,10 @@ index 2e54e8c..59d1432 100644
 -      mFixedHeader(0) {
 +      mFixedHeader(0),
 +      mIsVbr(false){
+ 
      off64_t pos = 0;
      off64_t post_id3_pos;
-     uint32_t header;
-@@ -347,7 +416,15 @@ MP3Extractor::MP3Extractor(
+@@ -348,7 +417,15 @@ MP3Extractor::MP3Extractor(
  
      int64_t durationUs;
  
@@ -3820,8 +3813,8 @@ index 2e54e8c..59d1432 100644
 +        }
          off64_t fileSize;
          if (mDataSource->getSize(&fileSize) == OK) {
-             durationUs = 8000LL * (fileSize - mFirstFramePos) / bitrate;
-@@ -407,7 +484,7 @@ sp<MediaSource> MP3Extractor::getTrack(size_t index) {
+             off64_t dataLength = fileSize - mFirstFramePos;
+@@ -414,7 +491,7 @@ sp<IMediaSource> MP3Extractor::getTrack(size_t index) {
  
      return new MP3Source(
              mMeta, mDataSource, mFirstFramePos, mFixedHeader,
@@ -3830,7 +3823,7 @@ index 2e54e8c..59d1432 100644
  }
  
  sp<MetaData> MP3Extractor::getTrackMetaData(
-@@ -431,7 +508,7 @@ const size_t MP3Source::kMaxFrameSize = (1 << 12); /* 4096 bytes */
+@@ -438,7 +515,7 @@ const size_t MP3Source::kMaxFrameSize = (1 << 12); /* 4096 bytes */
  MP3Source::MP3Source(
          const sp<MetaData> &meta, const sp<DataSource> &source,
          off64_t first_frame_pos, uint32_t fixed_header,
@@ -3839,7 +3832,7 @@ index 2e54e8c..59d1432 100644
      : mMeta(meta),
        mDataSource(source),
        mFirstFramePos(first_frame_pos),
-@@ -442,7 +519,8 @@ MP3Source::MP3Source(
+@@ -449,7 +526,8 @@ MP3Source::MP3Source(
        mSeeker(seeker),
        mGroup(NULL),
        mBasisTimeUs(0),
@@ -3849,7 +3842,7 @@ index 2e54e8c..59d1432 100644
  }
  
  MP3Source::~MP3Source() {
-@@ -491,7 +569,7 @@ status_t MP3Source::read(
+@@ -498,7 +576,7 @@ status_t MP3Source::read(
      int64_t seekTimeUs;
      ReadOptions::SeekMode mode;
      bool seekCBR = false;
@@ -3858,7 +3851,7 @@ index 2e54e8c..59d1432 100644
      if (options != NULL && options->getSeekTo(&seekTimeUs, &mode)) {
          int64_t actualSeekTimeUs = seekTimeUs;
          if (mSeeker == NULL
-@@ -502,10 +580,20 @@ status_t MP3Source::read(
+@@ -509,10 +587,20 @@ status_t MP3Source::read(
                  ALOGI("no bitrate");
  
                  return ERROR_UNSUPPORTED;
@@ -3879,7 +3872,7 @@ index 2e54e8c..59d1432 100644
              seekCBR = true;
          } else {
              mCurrentTimeUs = actualSeekTimeUs;
-@@ -543,6 +631,10 @@ status_t MP3Source::read(
+@@ -550,6 +638,10 @@ status_t MP3Source::read(
  
              // re-calculate mCurrentTimeUs because we might have called Resync()
              if (seekCBR) {
@@ -4015,10 +4008,10 @@ index 0000000..6a8e79d
 +}  // namespace android
 +
 diff --git a/media/libstagefright/MPEG4Extractor.cpp b/media/libstagefright/MPEG4Extractor.cpp
-index c58fee7..8099ed5 100755
+index 6f746f2..450a932 100644
 --- a/media/libstagefright/MPEG4Extractor.cpp
 +++ b/media/libstagefright/MPEG4Extractor.cpp
-@@ -350,6 +350,11 @@ static const char *FourCC2MIME(uint32_t fourcc) {
+@@ -374,6 +374,10 @@ static const char *FourCC2MIME(uint32_t fourcc) {
          case FOURCC('h', 'v', 'c', '1'):
          case FOURCC('h', 'e', 'v', '1'):
              return MEDIA_MIMETYPE_VIDEO_HEVC;
@@ -4026,11 +4019,10 @@ index c58fee7..8099ed5 100755
 +        case FOURCC('j', 'p', 'e', 'g'):
 +        case FOURCC('M', 'J', 'P', 'G'):
 +            return MEDIA_MIMETYPE_VIDEO_MJPG;
-+
-         default:
-             CHECK(!"should not be here.");
-             return NULL;
-@@ -480,7 +485,7 @@ sp<MetaData> MPEG4Extractor::getTrackMetaData(
+ #ifdef DOLBY_ENABLE
+         case FOURCC('a', 'c', '-', '3'):
+             ALOGV("@DDP Track FOURCC = 'ac-3'");
+@@ -534,7 +538,7 @@ sp<MetaData> MPEG4Extractor::getTrackMetaData(
                  }
              } else {
                  uint32_t sampleIndex;
@@ -4039,24 +4031,24 @@ index c58fee7..8099ed5 100755
                  if (track->timescale != 0 &&
                          track->sampleTable->findThumbnailSample(&sampleIndex) == OK
                          && track->sampleTable->getMetaDataForSample(
-@@ -1360,6 +1365,7 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
+@@ -1436,6 +1440,7 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
          case FOURCC('e', 'n', 'c', 'a'):
          case FOURCC('s', 'a', 'm', 'r'):
          case FOURCC('s', 'a', 'w', 'b'):
 +        case FOURCC('.', 'm', 'p', '3'):
-         {
-             uint8_t buffer[8 + 20];
-             if (chunk_data_size < (ssize_t)sizeof(buffer)) {
-@@ -1421,6 +1427,8 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
+ #ifdef DOLBY_ENABLE
+         case FOURCC('a', 'c', '-', '3'):
+         case FOURCC('e', 'c', '-', '3'):
+@@ -1645,6 +1650,8 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
          case FOURCC('a', 'v', 'c', '1'):
          case FOURCC('h', 'v', 'c', '1'):
          case FOURCC('h', 'e', 'v', '1'):
 +        case FOURCC('j', 'p', 'e', 'g'):
 +        case FOURCC('M', 'J', 'P', 'G'):
          {
-             mHasVideo = true;
- 
-@@ -1723,6 +1731,69 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
+             uint8_t buffer[78];
+             if (chunk_data_size < (ssize_t)sizeof(buffer)) {
+@@ -1956,6 +1963,69 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
              mLastTrack->meta->setData(
                      kKeyESDS, kTypeESDS, &buffer[4], chunk_data_size - 4);
  
@@ -4126,7 +4118,7 @@ index c58fee7..8099ed5 100755
              if (mPath.size() >= 2
                      && mPath[mPath.size() - 2] == FOURCC('m', 'p', '4', 'a')) {
                  // Information from the ESDS must be relied on for proper
-@@ -1840,7 +1911,7 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
+@@ -2098,7 +2168,7 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
          case FOURCC('m', 'e', 't', 'a'):
          {
              off64_t stop_offset = *offset + chunk_size;
@@ -4135,7 +4127,7 @@ index c58fee7..8099ed5 100755
              bool isParsingMetaKeys = underQTMetaPath(mPath, 2);
              if (!isParsingMetaKeys) {
                  uint8_t buffer[4];
-@@ -1865,7 +1936,9 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
+@@ -2123,7 +2193,9 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
                      *offset = stop_offset;
                      return OK;
                  }
@@ -4146,7 +4138,7 @@ index c58fee7..8099ed5 100755
              }
  
              while (*offset < stop_offset) {
-@@ -4115,7 +4188,7 @@ status_t MPEG4Source::read(
+@@ -4511,7 +4583,7 @@ status_t MPEG4Source::read(
                      sampleIndex, &syncSampleIndex, findFlags);
          }
  
@@ -4155,7 +4147,7 @@ index c58fee7..8099ed5 100755
          if (err == OK) {
              err = mSampleTable->getMetaDataForSample(
                      sampleIndex, NULL, NULL, &sampleTime);
-@@ -4139,7 +4212,7 @@ status_t MPEG4Source::read(
+@@ -4535,7 +4607,7 @@ status_t MPEG4Source::read(
          }
  
  #if 0
@@ -4164,7 +4156,7 @@ index c58fee7..8099ed5 100755
          CHECK_EQ(OK, mSampleTable->getMetaDataForSample(
                      syncSampleIndex, NULL, NULL, &syncSampleTime));
  
-@@ -4161,7 +4234,8 @@ status_t MPEG4Source::read(
+@@ -4557,7 +4629,8 @@ status_t MPEG4Source::read(
  
      off64_t offset;
      size_t size;
@@ -4174,7 +4166,7 @@ index c58fee7..8099ed5 100755
      bool isSyncSample;
      bool newBuffer = false;
      if (mBuffer == NULL) {
-@@ -4172,6 +4246,9 @@ status_t MPEG4Source::read(
+@@ -4568,6 +4641,9 @@ status_t MPEG4Source::read(
                      mCurrentSampleIndex, &offset, &size, &cts, &isSyncSample, &stts);
  
          if (err != OK) {
@@ -4184,7 +4176,7 @@ index c58fee7..8099ed5 100755
              return err;
          }
  
-@@ -4300,6 +4377,14 @@ status_t MPEG4Source::read(
+@@ -4696,6 +4772,14 @@ status_t MPEG4Source::read(
                      nalLength = parseNALSize(&mSrcBuffer[srcOffset]);
                      srcOffset += mNALLengthSize;
                      isMalFormed = !isInRange((size_t)0u, size, srcOffset, nalLength);
@@ -4199,7 +4191,7 @@ index c58fee7..8099ed5 100755
                  }
  
                  if (isMalFormed) {
-@@ -4734,6 +4819,7 @@ static bool isCompatibleBrand(uint32_t fourcc) {
+@@ -5130,6 +5214,7 @@ static bool isCompatibleBrand(uint32_t fourcc) {
          FOURCC('3', 'g', 'p', '4'),
          FOURCC('m', 'p', '4', '1'),
          FOURCC('m', 'p', '4', '2'),
@@ -4208,10 +4200,10 @@ index c58fee7..8099ed5 100755
          // Won't promise that the following file types can be played.
          // Just give these file types a chance.
 diff --git a/media/libstagefright/MediaCodec.cpp b/media/libstagefright/MediaCodec.cpp
-index 5e0ee55..3ae7111 100644
+index a8e801f..1f26494 100644
 --- a/media/libstagefright/MediaCodec.cpp
 +++ b/media/libstagefright/MediaCodec.cpp
-@@ -1690,6 +1690,10 @@ void MediaCodec::onMessageReceived(const sp<AMessage> &msg) {
+@@ -1770,6 +1770,10 @@ void MediaCodec::onMessageReceived(const sp<AMessage> &msg) {
                  mFlags |= kFlagIsEncoder;
              }
  
@@ -4223,14 +4215,15 @@ index 5e0ee55..3ae7111 100644
  
              mCodec->initiateConfigureComponent(format);
 diff --git a/media/libstagefright/MediaDefs.cpp b/media/libstagefright/MediaDefs.cpp
-index 089c150..48b35bf 100644
+index fd6a84c..41f3765 100644
 --- a/media/libstagefright/MediaDefs.cpp
 +++ b/media/libstagefright/MediaDefs.cpp
-@@ -28,13 +28,20 @@ const char *MEDIA_MIMETYPE_VIDEO_MPEG4 = "video/mp4v-es";
+@@ -47,14 +47,21 @@ const char *MEDIA_MIMETYPE_VIDEO_MPEG4 = "video/mp4v-es";
  const char *MEDIA_MIMETYPE_VIDEO_H263 = "video/3gpp";
  const char *MEDIA_MIMETYPE_VIDEO_MPEG2 = "video/mpeg2";
  const char *MEDIA_MIMETYPE_VIDEO_RAW = "video/raw";
 +const char *MEDIA_MIMETYPE_VIDEO_MJPG = "video/mjpg";
+ const char *MEDIA_MIMETYPE_VIDEO_DOLBY_VISION = "video/dolby-vision";
  
 +const char *MEDIA_MIMETYPE_AUDIO_AMR = "audio/amr";
  const char *MEDIA_MIMETYPE_AUDIO_AMR_NB = "audio/3gpp";
@@ -4247,7 +4240,7 @@ index 089c150..48b35bf 100644
  const char *MEDIA_MIMETYPE_AUDIO_AAC = "audio/mp4a-latm";
  const char *MEDIA_MIMETYPE_AUDIO_QCELP = "audio/qcelp";
  const char *MEDIA_MIMETYPE_AUDIO_VORBIS = "audio/vorbis";
-@@ -42,7 +49,10 @@ const char *MEDIA_MIMETYPE_AUDIO_OPUS = "audio/opus";
+@@ -62,7 +69,10 @@ const char *MEDIA_MIMETYPE_AUDIO_OPUS = "audio/opus";
  const char *MEDIA_MIMETYPE_AUDIO_G711_ALAW = "audio/g711-alaw";
  const char *MEDIA_MIMETYPE_AUDIO_G711_MLAW = "audio/g711-mlaw";
  const char *MEDIA_MIMETYPE_AUDIO_RAW = "audio/raw";
@@ -4258,7 +4251,7 @@ index 089c150..48b35bf 100644
  const char *MEDIA_MIMETYPE_AUDIO_AAC_ADTS = "audio/aac-adts";
  const char *MEDIA_MIMETYPE_AUDIO_MSGSM = "audio/gsm";
  const char *MEDIA_MIMETYPE_AUDIO_AC3 = "audio/ac3";
-@@ -50,10 +60,13 @@ const char *MEDIA_MIMETYPE_AUDIO_EAC3 = "audio/eac3";
+@@ -73,10 +83,13 @@ const char *MEDIA_MIMETYPE_AUDIO_EAC3_JOC = "audio/eac3-joc";
  
  const char *MEDIA_MIMETYPE_CONTAINER_MPEG4 = "video/mp4";
  const char *MEDIA_MIMETYPE_CONTAINER_WAV = "audio/x-wav";
@@ -4273,10 +4266,10 @@ index 089c150..48b35bf 100644
  
  const char *MEDIA_MIMETYPE_CONTAINER_WVM = "video/wvm";
 diff --git a/media/libstagefright/MediaExtractor.cpp b/media/libstagefright/MediaExtractor.cpp
-index 8c63de2..ad9a1fa 100644
+index 31476e5..98a1afa 100644
 --- a/media/libstagefright/MediaExtractor.cpp
 +++ b/media/libstagefright/MediaExtractor.cpp
-@@ -30,6 +30,8 @@
+@@ -32,6 +32,8 @@
  #include "include/FLACExtractor.h"
  #include "include/AACExtractor.h"
  #include "include/MidiExtractor.h"
@@ -4285,15 +4278,15 @@ index 8c63de2..ad9a1fa 100644
  
  #include "matroska/MatroskaExtractor.h"
  
-@@ -39,6 +41,7 @@
- #include <media/stagefright/MediaExtractor.h>
- #include <media/stagefright/MetaData.h>
+@@ -48,6 +50,7 @@
+ #include <cutils/properties.h>
  #include <utils/String8.h>
+ #include <private/android_filesystem_config.h>
 +#include <media/stagefright/MP3FileSource.h>
  
+ #include <media/stagefright/FFMPEGSoftCodec.h>
  #include <stagefright/AVExtensions.h>
- 
-@@ -112,29 +115,53 @@ sp<MediaExtractor> MediaExtractor::Create(
+@@ -241,29 +244,53 @@ sp<MediaExtractor> MediaExtractor::CreateFromService(
      } else if (!strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_MPEG4)
              || !strcasecmp(mime, "audio/mp4")) {
          ret = new MPEG4Extractor(source);
@@ -4337,7 +4330,7 @@ index 8c63de2..ad9a1fa 100644
 +    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_AVI) ||
 +                    !strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_MSVIDEO)) {
 +        ret = new AVIExtractor(source);
-     } else if (!strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_WVM)) {
+     } else if (!strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_WVM) && getuid() == AID_MEDIA) {
          // Return now.  WVExtractor should not have the DrmFlag set in the block below.
          return new WVMExtractor(source);
 -    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_AAC_ADTS)) {
@@ -4353,26 +4346,13 @@ index 8c63de2..ad9a1fa 100644
 +    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_MIDI) ||
 +                   !strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_MIDI1)) {
          ret = new MidiExtractor(source);
-     } else if (!isDrm && sPlugin.create) {
-         ret = sPlugin.create(source, mime, meta);
-diff --git a/media/libstagefright/OMXCodec.cpp b/media/libstagefright/OMXCodec.cpp
-index de00ff2..abe3bd1 100644
---- a/media/libstagefright/OMXCodec.cpp
-+++ b/media/libstagefright/OMXCodec.cpp
-@@ -1271,6 +1271,8 @@ status_t OMXCodec::setVideoOutputFormat(
-         compressionFormat = OMX_VIDEO_CodingVP9;
-     } else if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_MPEG2, mime)) {
-         compressionFormat = OMX_VIDEO_CodingMPEG2;
-+    } else if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_MJPG, mime)) {
-+        compressionFormat = OMX_VIDEO_CodingMJPEG;
-     } else {
-         ALOGE("Not a supported video mime type: %s", mime);
-         CHECK(!"Should not be here. Not a supported video mime type.");
+     } else if (!isDrm) {
+         ret = FFMPEGSoftCodec::createExtractor(source, mime, meta);
 diff --git a/media/libstagefright/SampleIterator.cpp b/media/libstagefright/SampleIterator.cpp
-index f5558ce..5316ce6 100644
+index 54c9fa3..05bdcd4 100644
 --- a/media/libstagefright/SampleIterator.cpp
 +++ b/media/libstagefright/SampleIterator.cpp
-@@ -119,6 +119,10 @@ status_t SampleIterator::seekTo(uint32_t sampleIndex) {
+@@ -108,6 +108,10 @@ status_t SampleIterator::seekTo(uint32_t sampleIndex) {
  
          for (uint32_t i = 0; i < mSamplesPerChunk; ++i) {
              size_t sampleSize;
@@ -4383,7 +4363,7 @@ index f5558ce..5316ce6 100644
              if ((err = getSampleSizeDirect(
                              firstChunkSampleIndex + i, &sampleSize)) != OK) {
                  ALOGE("getSampleSizeDirect return error");
-@@ -326,7 +330,7 @@ status_t SampleIterator::getSampleSizeDirect(
+@@ -300,7 +304,7 @@ status_t SampleIterator::getSampleSizeDirect(
  }
  
  status_t SampleIterator::findSampleTimeAndDuration(
@@ -4392,25 +4372,20 @@ index f5558ce..5316ce6 100644
      if (sampleIndex >= mTable->mNumSampleSizes) {
          return ERROR_OUT_OF_RANGE;
      }
-@@ -345,9 +349,10 @@ status_t SampleIterator::findSampleTimeAndDuration(
-         ++mTimeToSampleIndex;
+@@ -325,7 +329,7 @@ status_t SampleIterator::findSampleTimeAndDuration(
+     if ((offset < 0 && *time < (offset == INT32_MIN ?
+             INT32_MAX : uint32_t(-offset))) ||
+             (offset > 0 && *time > UINT32_MAX - offset)) {
+-        ALOGE("%u + %d would overflow", *time, offset);
++        ALOGE("%llu + %d would overflow", *time, offset);
+         return ERROR_OUT_OF_RANGE;
      }
- 
--    *time = mTTSSampleTime + mTTSDuration * (sampleIndex - mTTSSampleIndex);
--
--    *time += mTable->getCompositionTimeOffset(sampleIndex);
-+    *time = mTTSDuration;
-+    *time = *time * (sampleIndex - mTTSSampleIndex);
-+    *time += mTTSSampleTime;
-+    *time += (int32_t)mTable->getCompositionTimeOffset(sampleIndex);
- 
-     *duration = mTTSDuration;
- 
+     if (offset > 0) {
 diff --git a/media/libstagefright/SampleTable.cpp b/media/libstagefright/SampleTable.cpp
-index 2d7e613..6d1812f 100644
+index de6ee73..ed62147 100644
 --- a/media/libstagefright/SampleTable.cpp
 +++ b/media/libstagefright/SampleTable.cpp
-@@ -600,7 +600,7 @@ status_t SampleTable::getMaxSampleSize(size_t *max_size) {
+@@ -614,7 +614,7 @@ status_t SampleTable::getMaxSampleSize(size_t *max_size) {
      return OK;
  }
  
@@ -4419,7 +4394,7 @@ index 2d7e613..6d1812f 100644
      return time1 > time2 ? time1 - time2 : time2 - time1;
  }
  
-@@ -645,7 +645,7 @@ void SampleTable::buildSampleEntriesTable() {
+@@ -662,7 +662,7 @@ void SampleTable::buildSampleEntriesTable() {
      }
  
      uint32_t sampleIndex = 0;
@@ -4428,7 +4403,16 @@ index 2d7e613..6d1812f 100644
  
      for (uint32_t i = 0; i < mTimeToSampleCount; ++i) {
          uint32_t n = mTimeToSample[2 * i];
-@@ -823,19 +823,19 @@ status_t SampleTable::findSyncSampleNear(
+@@ -685,7 +685,7 @@ void SampleTable::buildSampleEntriesTable() {
+                                 INT32_MAX : uint32_t(-compTimeDelta)))
+                         || (compTimeDelta > 0 &&
+                                 sampleTime > UINT32_MAX - compTimeDelta)) {
+-                    ALOGE("%u + %d would overflow, clamping",
++                    ALOGE("%llu + %d would overflow, clamping",
+                             sampleTime, compTimeDelta);
+                     if (compTimeDelta < 0) {
+                         sampleTime = 0;
+@@ -856,19 +856,19 @@ status_t SampleTable::findSyncSampleNear(
              if (err != OK) {
                  return err;
              }
@@ -4451,7 +4435,7 @@ index 2d7e613..6d1812f 100644
  
              // use abs_difference for safety
              if (abs_difference(upper_time, sample_time) >
-@@ -903,7 +903,7 @@ status_t SampleTable::getMetaDataForSample(
+@@ -936,7 +936,7 @@ status_t SampleTable::getMetaDataForSample(
          uint32_t sampleIndex,
          off64_t *offset,
          size_t *size,
@@ -4461,10 +4445,10 @@ index 2d7e613..6d1812f 100644
          uint32_t *sampleDuration) {
      Mutex::Autolock autoLock(mLock);
 diff --git a/media/libstagefright/StagefrightMetadataRetriever.cpp b/media/libstagefright/StagefrightMetadataRetriever.cpp
-index d39f34b..34a91c8 100644
+index f00b8b7..9ccafa6 100644
 --- a/media/libstagefright/StagefrightMetadataRetriever.cpp
 +++ b/media/libstagefright/StagefrightMetadataRetriever.cpp
-@@ -179,7 +179,8 @@ static VideoFrame *extractVideoFrame(
+@@ -184,7 +184,8 @@ static VideoFrame *extractVideoFrame(
          return NULL;
      }
  
@@ -4475,10 +4459,10 @@ index d39f34b..34a91c8 100644
          ALOGW("configure returned error %d (%s)", err, asString(err));
          decoder->release();
 diff --git a/media/libstagefright/codecs/mp3dec/SoftMP3.cpp b/media/libstagefright/codecs/mp3dec/SoftMP3.cpp
-index 005956d..a8b01d3 100644
+index a059a24..9f55f5c 100644
 --- a/media/libstagefright/codecs/mp3dec/SoftMP3.cpp
 +++ b/media/libstagefright/codecs/mp3dec/SoftMP3.cpp
-@@ -354,7 +354,9 @@ void SoftMP3::onQueueFilled(OMX_U32 /* portIndex */) {
+@@ -351,7 +351,9 @@ void SoftMP3::onQueueFilled(OMX_U32 /* portIndex */) {
              }
          } else if (mConfig->samplingRate != mSamplingRate
                  || mConfig->num_channels != mNumChannels) {
@@ -4489,7 +4473,7 @@ index 005956d..a8b01d3 100644
              mNumChannels = mConfig->num_channels;
  
              notify(OMX_EventPortSettingsChanged, 1, 0, NULL);
-@@ -377,6 +379,10 @@ void SoftMP3::onQueueFilled(OMX_U32 /* portIndex */) {
+@@ -374,6 +376,10 @@ void SoftMP3::onQueueFilled(OMX_U32 /* portIndex */) {
              outHeader->nFilledLen = mConfig->outputFrameSize * sizeof(int16_t);
          }
  
@@ -4501,10 +4485,10 @@ index 005956d..a8b01d3 100644
              mAnchorTimeUs + (mNumFramesOutput * 1000000ll) / mSamplingRate;
          tmpTime = outHeader->nTimeStamp;
 diff --git a/media/libstagefright/codecs/vorbis/dec/SoftVorbis.cpp b/media/libstagefright/codecs/vorbis/dec/SoftVorbis.cpp
-index 7209796..f08bcfa 100644
+index be04e08..c154b8e 100644
 --- a/media/libstagefright/codecs/vorbis/dec/SoftVorbis.cpp
 +++ b/media/libstagefright/codecs/vorbis/dec/SoftVorbis.cpp
-@@ -395,6 +395,7 @@ void SoftVorbis::onQueueFilled(OMX_U32 portIndex) {
+@@ -401,6 +401,7 @@ void SoftVorbis::onQueueFilled(OMX_U32 portIndex) {
  #else
              ALOGW("vorbis_dsp_synthesis returned %d", err);
  #endif
@@ -4513,10 +4497,10 @@ index 7209796..f08bcfa 100644
              size_t numSamplesPerBuffer = kMaxNumSamplesPerBuffer;
              if (numSamplesPerBuffer > outHeader->nAllocLen / sizeof(int16_t)) {
 diff --git a/media/libstagefright/include/AVIExtractor.h b/media/libstagefright/include/AVIExtractor.h
-index ff5dcb5..a0132a6 100644
+index 3be505c..ca400da 100644
 --- a/media/libstagefright/include/AVIExtractor.h
 +++ b/media/libstagefright/include/AVIExtractor.h
-@@ -25,6 +25,10 @@
+@@ -25,12 +25,16 @@
  
  namespace android {
  
@@ -4527,16 +4511,23 @@ index ff5dcb5..a0132a6 100644
  struct AVIExtractor : public MediaExtractor {
      AVIExtractor(const sp<DataSource> &dataSource);
  
-@@ -37,6 +41,8 @@ struct AVIExtractor : public MediaExtractor {
+     virtual size_t countTracks();
  
+-    virtual sp<MediaSource> getTrack(size_t index);
++    virtual sp<IMediaSource> getTrack(size_t index);
+ 
+     virtual sp<MetaData> getTrackMetaData(
+             size_t index, uint32_t flags);
+@@ -38,6 +42,8 @@ struct AVIExtractor : public MediaExtractor {
      virtual sp<MetaData> getMetaData();
+     virtual const char * name() { return "AVIExtractor"; }
  
 +    virtual uint32_t flags() const;
 +
  protected:
      virtual ~AVIExtractor();
  
-@@ -47,6 +53,7 @@ private:
+@@ -48,6 +54,7 @@ private:
      struct SampleInfo {
          uint32_t mOffset;
          bool mIsKey;
@@ -4544,7 +4535,7 @@ index ff5dcb5..a0132a6 100644
      };
  
      struct Track {
-@@ -72,11 +79,28 @@ private:
+@@ -73,11 +80,28 @@ private:
          ssize_t mThumbnailSampleIndex;
          size_t mMaxSampleSize;
  
@@ -4573,7 +4564,7 @@ index ff5dcb5..a0132a6 100644
      sp<DataSource> mDataSource;
      status_t mInitCheck;
      Vector<Track> mTracks;
-@@ -88,7 +112,8 @@ private:
+@@ -89,7 +113,8 @@ private:
      ssize_t parseChunk(off64_t offset, off64_t size, int depth = 0);
      status_t parseStreamHeader(off64_t offset, size_t size);
      status_t parseStreamFormat(off64_t offset, size_t size);
@@ -4585,7 +4576,7 @@ index ff5dcb5..a0132a6 100644
  
 diff --git a/media/libstagefright/include/FLVExtractor.h b/media/libstagefright/include/FLVExtractor.h
 new file mode 100644
-index 0000000..67f498e
+index 0000000..a379fa2
 --- /dev/null
 +++ b/media/libstagefright/include/FLVExtractor.h
 @@ -0,0 +1,263 @@
@@ -4737,7 +4728,7 @@ index 0000000..67f498e
 +
 +    virtual size_t countTracks();
 +
-+    virtual sp<MediaSource> getTrack(size_t index);
++    virtual sp<IMediaSource> getTrack(size_t index);
 +
 +    virtual sp<MetaData> getTrackMetaData(
 +            size_t index, uint32_t flags);
@@ -4853,18 +4844,18 @@ index 0000000..67f498e
 +#endif  // FLV_EXTRACTOR_H_
 +
 diff --git a/media/libstagefright/include/MP3Extractor.h b/media/libstagefright/include/MP3Extractor.h
-index c83d9e8..7371966 100644
+index 2fd04f2..059109e 100644
 --- a/media/libstagefright/include/MP3Extractor.h
 +++ b/media/libstagefright/include/MP3Extractor.h
-@@ -38,6 +38,7 @@ public:
-     virtual sp<MetaData> getTrackMetaData(size_t index, uint32_t flags);
+@@ -39,6 +39,7 @@ public:
  
      virtual sp<MetaData> getMetaData();
+     virtual const char * name() { return "MP3Extractor"; }
 +    bool TestVBR(const sp<DataSource> &source, int *avg_bitrate, uint32_t match_header,off64_t inout_pos);
  
  private:
      status_t mInitCheck;
-@@ -47,6 +48,7 @@ private:
+@@ -48,6 +49,7 @@ private:
      sp<MetaData> mMeta;
      uint32_t mFixedHeader;
      sp<MP3Seeker> mSeeker;
@@ -4924,10 +4915,10 @@ index 0000000..6cc5ac0
 +
 +#endif
 diff --git a/media/libstagefright/include/SampleIterator.h b/media/libstagefright/include/SampleIterator.h
-index 4ad7f2e..d55862d 100644
+index 2ef41ae..b478a3e 100644
 --- a/media/libstagefright/include/SampleIterator.h
 +++ b/media/libstagefright/include/SampleIterator.h
-@@ -34,7 +34,7 @@ struct SampleIterator {
+@@ -33,7 +33,7 @@ struct SampleIterator {
      uint32_t getDescIndex() const { return mChunkDesc; }
      off64_t getSampleOffset() const { return mCurrentSampleOffset; }
      size_t getSampleSize() const { return mCurrentSampleSize; }
@@ -4936,7 +4927,7 @@ index 4ad7f2e..d55862d 100644
      uint32_t getSampleDuration() const { return mCurrentSampleDuration; }
  
      status_t getSampleSizeDirect(
-@@ -59,14 +59,14 @@ private:
+@@ -58,20 +58,20 @@ private:
  
      uint32_t mTimeToSampleIndex;
      uint32_t mTTSSampleIndex;
@@ -4952,8 +4943,6 @@ index 4ad7f2e..d55862d 100644
 +    uint64_t mCurrentSampleTime;
      uint32_t mCurrentSampleDuration;
  
-     uint8_t *mSampleCache;
-@@ -76,7 +76,7 @@ private:
      void reset();
      status_t findChunkRange(uint32_t sampleIndex);
      status_t getChunkOffset(uint32_t chunk, off64_t *offset);
@@ -4963,7 +4952,7 @@ index 4ad7f2e..d55862d 100644
      SampleIterator(const SampleIterator &);
      SampleIterator &operator=(const SampleIterator &);
 diff --git a/media/libstagefright/include/SampleTable.h b/media/libstagefright/include/SampleTable.h
-index 552eef7..70db558 100644
+index 2100ca6..4df228f 100644
 --- a/media/libstagefright/include/SampleTable.h
 +++ b/media/libstagefright/include/SampleTable.h
 @@ -65,7 +65,7 @@ public:
@@ -4985,10 +4974,10 @@ index 552eef7..70db558 100644
      SampleTimeEntry *mSampleTimeEntries;
  
 diff --git a/media/libstagefright/omx/OMXMaster.cpp b/media/libstagefright/omx/OMXMaster.cpp
-index f7bb733..c7b85a4 100644
+index 2d2d500..4e8b971 100644
 --- a/media/libstagefright/omx/OMXMaster.cpp
 +++ b/media/libstagefright/omx/OMXMaster.cpp
-@@ -40,6 +40,7 @@ OMXMaster::~OMXMaster() {
+@@ -64,6 +64,7 @@ OMXMaster::~OMXMaster() {
  }
  
  void OMXMaster::addVendorPlugin() {
@@ -4997,10 +4986,10 @@ index f7bb733..c7b85a4 100644
  }
  
 diff --git a/media/libstagefright/omx/SoftOMXPlugin.cpp b/media/libstagefright/omx/SoftOMXPlugin.cpp
-index 4afd5d5..f093651 100755
+index adb7370..ab13885 100644
 --- a/media/libstagefright/omx/SoftOMXPlugin.cpp
 +++ b/media/libstagefright/omx/SoftOMXPlugin.cpp
-@@ -59,6 +59,9 @@ static const struct {
+@@ -78,6 +78,9 @@ static const struct {
      { "OMX.google.raw.decoder", "rawdec", "audio_decoder.raw" },
      { "OMX.google.flac.encoder", "flacenc", "audio_encoder.flac" },
      { "OMX.google.gsm.decoder", "gsmdec", "audio_decoder.gsm" },
@@ -5011,10 +5000,10 @@ index 4afd5d5..f093651 100755
      { "OMX.qti.audio.decoder.flac", "flacdec", "audio_decoder.flac" },
  #endif
 diff --git a/media/mtp/MtpDataPacket.cpp b/media/mtp/MtpDataPacket.cpp
-index 052b700..2c43da8 100644
+index 0e9bc34..a6f721f 100644
 --- a/media/mtp/MtpDataPacket.cpp
 +++ b/media/mtp/MtpDataPacket.cpp
-@@ -421,7 +421,9 @@ void MtpDataPacket::putString(const uint16_t* string) {
+@@ -440,7 +440,9 @@ void MtpDataPacket::putString(const uint16_t* string) {
  
  #ifdef MTP_DEVICE 
  int MtpDataPacket::read(int fd) {
@@ -5026,7 +5015,7 @@ index 052b700..2c43da8 100644
          return -1;
      mPacketSize = ret;
 diff --git a/media/mtp/MtpServer.cpp b/media/mtp/MtpServer.cpp
-index d5f8ff4..3f771c8 100644
+index e184d48..6584e62 100644
 --- a/media/mtp/MtpServer.cpp
 +++ b/media/mtp/MtpServer.cpp
 @@ -442,8 +442,10 @@ bool MtpServer::handleRequest() {
@@ -5042,50 +5031,31 @@ index d5f8ff4..3f771c8 100644
      mResponse.setResponseCode(response);
      return true;
  }
-diff --git a/services/audiopolicy/common/managerdefinitions/include/ConfigParsingUtils.h b/services/audiopolicy/common/managerdefinitions/include/ConfigParsingUtils.h
-index 6f80435..bf854f3 100644
---- a/services/audiopolicy/common/managerdefinitions/include/ConfigParsingUtils.h
-+++ b/services/audiopolicy/common/managerdefinitions/include/ConfigParsingUtils.h
-@@ -72,6 +72,9 @@ const StringToEnum sDeviceTypeToEnumTable[] = {
-     STRING_TO_ENUM(AUDIO_DEVICE_OUT_HDMI_ARC),
-     STRING_TO_ENUM(AUDIO_DEVICE_OUT_SPDIF),
-     STRING_TO_ENUM(AUDIO_DEVICE_OUT_FM),
-+    STRING_TO_ENUM(AUDIO_DEVICE_OUT_FM_HEADSET),
-+    STRING_TO_ENUM(AUDIO_DEVICE_OUT_FM_SPEAKER),
-+    STRING_TO_ENUM(AUDIO_DEVICE_OUT_ALL_FM),
-     STRING_TO_ENUM(AUDIO_DEVICE_OUT_AUX_LINE),
-     STRING_TO_ENUM(AUDIO_DEVICE_OUT_IP),
- #ifdef AUDIO_EXTN_AFE_PROXY_ENABLED
-@@ -131,6 +134,9 @@ const StringToEnum sDeviceNameToEnumTable[] = {
-     NAME_TO_ENUM("HDMI ARC Out", AUDIO_DEVICE_OUT_HDMI_ARC),
-     NAME_TO_ENUM("S/PDIF Out", AUDIO_DEVICE_OUT_SPDIF),
-     NAME_TO_ENUM("FM transceiver Out", AUDIO_DEVICE_OUT_FM),
-+    NAME_TO_ENUM("FM Headset Out", AUDIO_DEVICE_OUT_FM_HEADSET),
-+    NAME_TO_ENUM("FM Speaker Out", AUDIO_DEVICE_OUT_FM_SPEAKER),
-+    NAME_TO_ENUM("", AUDIO_DEVICE_OUT_ALL_FM),
-     NAME_TO_ENUM("Aux Line Out", AUDIO_DEVICE_OUT_AUX_LINE),
-     NAME_TO_ENUM("IP Out", AUDIO_DEVICE_OUT_IP),
-     NAME_TO_ENUM("Ambient Mic", AUDIO_DEVICE_IN_AMBIENT),
-diff --git a/services/audiopolicy/managerdefault/AudioPolicyManager.cpp b/services/audiopolicy/managerdefault/AudioPolicyManager.cpp
-index 13499ae..6146d0a 100644
---- a/services/audiopolicy/managerdefault/AudioPolicyManager.cpp
-+++ b/services/audiopolicy/managerdefault/AudioPolicyManager.cpp
-@@ -1731,6 +1731,18 @@ status_t AudioPolicyManager::setStreamVolumeIndex(audio_stream_type_t stream,
- 
-     // update volume on all outputs whose current device is also selected by the same
-     // strategy as the device specified by the caller
-+    /**
-+    *SPRD:Bug 532626: After play music,Play the default notification sound,will not be able to adjust the volume.
-+    *@{
-+    **/
-+    if(stream ==AUDIO_STREAM_NOTIFICATION)
-+    {
-+        checkOutputForStrategy(STRATEGY_SONIFICATION_RESPECTFUL);
-+        updateDevicesAndOutputs();
-+    }
-+    /**
-+    *}@
-+    **/
-     audio_devices_t strategyDevice = getDeviceForStrategy(getStrategy(stream), true /*fromCache*/);
- 
- 
+diff --git a/services/audioflinger/Threads.cpp b/services/audioflinger/Threads.cpp
+index facfc86..4713f50 100644
+--- a/services/audioflinger/Threads.cpp
++++ b/services/audioflinger/Threads.cpp
+@@ -488,6 +488,9 @@ String8 devicesToString(audio_devices_t devices)
+         {AUDIO_DEVICE_OUT_HDMI_ARC,         "HDMI_ARC"},
+         {AUDIO_DEVICE_OUT_SPDIF,            "SPDIF"},
+         {AUDIO_DEVICE_OUT_FM,               "FM"},
++        {AUDIO_DEVICE_OUT_FM_HEADSET,       "FM Headset Out"},
++        {AUDIO_DEVICE_OUT_FM_SPEAKER,       "FM Speaker Out"},
++        {AUDIO_DEVICE_OUT_ALL_FM,           ""},
+         {AUDIO_DEVICE_OUT_AUX_LINE,         "AUX_LINE"},
+         {AUDIO_DEVICE_OUT_SPEAKER_SAFE,     "SPEAKER_SAFE"},
+         {AUDIO_DEVICE_OUT_IP,               "IP"},
+diff --git a/services/audiopolicy/common/managerdefinitions/src/TypeConverter.cpp b/services/audiopolicy/common/managerdefinitions/src/TypeConverter.cpp
+index b731e2b..d68b46e 100644
+--- a/services/audiopolicy/common/managerdefinitions/src/TypeConverter.cpp
++++ b/services/audiopolicy/common/managerdefinitions/src/TypeConverter.cpp
+@@ -48,6 +48,9 @@ const DeviceConverter::Table DeviceConverter::mTable[] = {
+         MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_HDMI_ARC),
+         MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_SPDIF),
+         MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_FM),
++        MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_FM_HEADSET),
++        MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_FM_SPEAKER),
++        MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_ALL_FM),
+         MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_AUX_LINE),
+         MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_IP),
+         MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_BUS),

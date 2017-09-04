@@ -54,18 +54,6 @@
         <item>"mobile_ent2,29,0,2,-1,true"</item>
     </string-array>
 
-    <!-- Set of NetworkInfo.getType() that reflect data usage. -->
-    <integer-array translatable="false" name="config_data_usage_network_types">
-        <item>0</item> <!-- TYPE_MOBILE -->
-        <item>2</item> <!-- TYPE_MOBILE_MMS -->
-        <item>3</item> <!-- TYPE_MOBILE_SUPL -->
-        <item>4</item> <!-- TYPE_MOBILE_DUN -->
-        <item>5</item> <!-- TYPE_MOBILE_HIPRI -->
-        <item>10</item> <!-- TYPE_MOBILE_FOTA -->
-        <item>12</item> <!-- TYPE_MOBILE_CBS -->
-        <item>14</item> <!-- TYPE_MOBILE_IA -->
-    </integer-array>
-
     <!-- List of regexpressions describing the interface (if any) that represent tetherable
          USB interfaces.  If the device doesn't want to support tethering over USB this should
          be empty.  An example would be "usb.*" -->
@@ -310,9 +298,51 @@
          format is UMTS|LTE|... -->
     <string translatable="false" name="config_radio_access_family">GPRS|EDGE|UMTS|HSDPA|HSUPA|LTE|HSPAP|GSM|CDMA|EVDO|WCDMA</string>
 
-    <!-- MMS user agent string -->
-    <string name="config_mms_user_agent" translatable="false">SAMSUNG-ANDROID-MMS/uaprof</string>
+    <!-- Set this to true to enable the platform's auto-power-save modes like doze and
+         app standby.  These are not enabled by default because they require a standard
+         cloud-to-device messaging service for apps to interact correctly with the modes
+         (such as to be able to deliver an instant message to the device even when it is
+         dozing).  This should be enabled if you have such services and expect apps to
+         correctly use them when installed on your device.  Otherwise, keep this disabled
+         so that applications can still use their own mechanisms. -->
+    <bool name="config_enableAutoPowerModes">true</bool>
 
-    <!-- MMS user agent profile url -->
-    <string name="config_mms_user_agent_profile_url" translatable="false">http://wap.samsungmobile.com/uaprof/uaprof.rdf</string>
+    <!-- ComponentName of a dream to show whenever the system would otherwise have
+         gone to sleep.  When the PowerManager is asked to go to sleep, it will instead
+         try to start this dream if possible.  The dream should typically call startDozing()
+         to put the display into a low power state and allow the application processor
+         to be suspended.  When the dream ends, the system will go to sleep as usual.
+         Specify the component name or an empty string if none.
+
+         Note that doze dreams are not subject to the same start conditions as ordinary dreams.
+         Doze dreams will run whenever the power manager is in a dozing state. -->
+    <string name="config_dozeComponent" translatable="false">com.android.systemui/com.android.systemui.doze.DozeService</string>
+
+    <!-- If true, the doze component is not started until after the screen has been
+         turned off and the screen off animation has been performed. -->
+    <bool name="config_dozeAfterScreenOff">true</bool>
+
+    <!-- Power Management: Specifies whether to decouple the interactive state of the
+         device from the display on/off state.
+
+         When false, setInteractive(..., true) will be called before the display is turned on
+         and setInteractive(..., false) will be called after the display is turned off.
+         This mode provides best compatibility for devices that expect the interactive
+         state to be tied to the display state.
+
+         When true, setInteractive(...) will be called independently of whether the display
+         is being turned on or off.  This mode enables the power manager to reduce
+         clocks and disable the touch controller while the display is on.
+
+         This resource should be set to "true" when a doze component has been specified
+         to maximize power savings but not all devices support it.
+
+         Refer to power.h for details.
+    -->
+    <bool name="config_powerDecoupleInteractiveModeFromDisplay">true</bool>
+
+    <!-- Screen brightness used to dim the screen while dozing in a very low power state.
+         May be less than the minimum allowed brightness setting
+         that can be set by the user. -->
+    <integer name="config_screenBrightnessDoze">50</integer>
 </resources>

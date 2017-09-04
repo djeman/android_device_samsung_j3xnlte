@@ -1,0 +1,12 @@
+service wcnd /system/bin/wcnd
+    class core
+    #   we will start as root and wcnd will switch to user system
+    user system
+    group system shell wifi inet bluetooth net_bt_stack
+    oneshot
+
+service wcnd_eng /system/bin/wcnd -G
+    class core
+    group system shell wifi inet bluetooth net_bt_stack
+    disabled
+    oneshot

@@ -8,4 +8,3 @@ allow cmd_services cmd_services:capability { sys_module dac_read_search dac_over
 allow cmd_services wifi_data_file:dir { search };
 allow cmd_services wifi_data_file:file { open read };
 allow cmd_services system_file:file { execute_no_trans };
-allow cmd_services debugfs:file { read };

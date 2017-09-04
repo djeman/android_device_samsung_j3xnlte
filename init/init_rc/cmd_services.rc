@@ -1,0 +1,5 @@
+service cmd_services /system/bin/cmd_services
+    class main
+    user root
+    disabled
+    oneshot

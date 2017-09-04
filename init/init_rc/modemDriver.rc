@@ -1,0 +1,5 @@
+#volte
+service modemDriver /system/bin/modemDriver_vpad_main
+    class core
+    user root
+    group system radio shell

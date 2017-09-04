@@ -16,12 +16,11 @@ DTBTOOL := $(HOST_OUT_EXECUTABLES)/$(DTBTOOL_NAME)$(HOST_EXECUTABLE_SUFFIX)
 INSTALLED_DTIMAGE_TARGET := $(PRODUCT_OUT)/dt.img
 
 # Most specific paths must come first in possible_dtb_dirs
-possible_dtb_dirs = $(KERNEL_OUT)/arch/$(KERNEL_ARCH)/boot/dts/ $(KERNEL_OUT)/arch/$(KERNEL_ARCH)/boot/ 
-dtb_dir = $(firstword $(wildcard $(possible_dtb_dirs)))
+DTB_DIR = $(KERNEL_OUT)/arch/$(KERNEL_ARCH)/boot/dts/
 
 define build-dtimage-target
     $(call pretty,"Target dt image: $@")
-    $(hide) $(DTBTOOL) $(BOARD_DTBTOOL_ARGS) -o $@ -s $(BOARD_KERNEL_PAGESIZE) -p $(KERNEL_OUT)/scripts/dtc/ $(dtb_dir)
+    $(hide) $(DTBTOOL) $(BOARD_DTBTOOL_ARGS) -o $@ -s $(BOARD_KERNEL_PAGESIZE) -p $(KERNEL_OUT)/scripts/dtc/ $(DTB_DIR)
     $(hide) chmod a+r $@
 endef
 
