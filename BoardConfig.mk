@@ -99,7 +99,7 @@ TARGET_BOOTANIMATION_TEXTURE_CACHE := true
 
 # telephony
 BOARD_PROVIDES_LIBRIL := true
-SIM_COUNT := 2
+BOARD_PROVIDES_RILD := true
 USE_BOOT_AT_DIAG := true
 BOARD_RIL_CLASS := ../../../device/samsung/j3xnlte/ril/java/
 
