@@ -32,8 +32,6 @@
 #include "log.h"
 #include "util.h"
 
-#define ISMATCH(a,b) (!strncmp(a,b,PROP_VALUE_MAX))
-
 static void import_kernel_hwrev(const std::string& key, const std::string& value, bool for_emulator)
 {
     if (key.empty()) return;
@@ -66,7 +64,7 @@ void vendor_load_properties()
         property_set("ro.msms.phone_count", simslot_count);
         property_set("ro.modem.w.count", simslot_count);
         property_set("persist.msms.phone_count", simslot_count);
-        if (ISMATCH(simslot_count, "2"))
+        if (simslot_count[0] == '2')
             property_set("persist.radio.multisim.config", "dsds");
 
         fclose(file);
