@@ -315,34 +315,10 @@ index d85d15b..e389992 100644
  
  extern const char *MEDIA_MIMETYPE_CONTAINER_WVM;
 diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
-index 92e2847..fe05e1e 100644
+index 92e2847..2b856b8 100644
 --- a/media/libstagefright/ACodec.cpp
 +++ b/media/libstagefright/ACodec.cpp
-@@ -577,6 +577,10 @@ ACodec::ACodec()
- }
- 
- ACodec::~ACodec() {
-+    while( !allYourBuffersAreBelongToUs(kPortIndexOutput)){
-+        usleep(2000);
-+        ALOGE("peter:~ACodec wait all buffer belong to us");
-+    }
- }
- 
- status_t ACodec::setupCustomCodec(status_t err, const char *mime, const sp<AMessage> &msg) {
-@@ -1614,6 +1618,12 @@ ACodec::BufferInfo *ACodec::dequeueBufferFromNativeWindow() {
- 
- status_t ACodec::freeBuffersOnPort(OMX_U32 portIndex) {
-     status_t err = OK;
-+    if(portIndex == kPortIndexOutput){
-+        while(!allYourBuffersAreBelongToUs(kPortIndexOutput)){
-+            usleep(2000);
-+            ALOGE("peter:freeBuffersOnPort wait all buffer belong to us");
-+        }
-+    }
-     for (size_t i = mBuffers[portIndex].size(); i > 0;) {
-         i--;
-         status_t err2 = freeBuffer(portIndex, i);
-@@ -1780,8 +1790,12 @@ const char *ACodec::getComponentRole(
+@@ -1780,8 +1780,12 @@ const char *ACodec::getComponentRole(
              "video_decoder.mpeg2", "video_encoder.mpeg2" },
          { MEDIA_MIMETYPE_AUDIO_AC3,
              "audio_decoder.ac3", "audio_encoder.ac3" },
@@ -355,7 +331,7 @@ index 92e2847..fe05e1e 100644
  #ifdef DOLBY_ENABLE
          { MEDIA_MIMETYPE_AUDIO_EAC3_JOC,
              "audio_decoder.eac3_joc", NULL },
-@@ -2366,6 +2380,17 @@ status_t ACodec::configureCodec(
+@@ -2366,6 +2370,17 @@ status_t ACodec::configureCodec(
          } else {
              err = setupEAC3Codec(encoder, numChannels, sampleRate, pcmEncoding);
          }
@@ -373,7 +349,7 @@ index 92e2847..fe05e1e 100644
      } else {
          err = setupCustomCodec(err, mime, msg);
      }
-@@ -2391,6 +2416,10 @@ status_t ACodec::configureCodec(
+@@ -2391,6 +2406,10 @@ status_t ACodec::configureCodec(
      int32_t maxInputSize;
      if (msg->findInt32("max-input-size", &maxInputSize)) {
          err = setMinBufferSize(kPortIndexInput, (size_t)maxInputSize);
@@ -384,7 +360,7 @@ index 92e2847..fe05e1e 100644
      } else if (!strcmp("OMX.Nvidia.aac.decoder", mComponentName.c_str())) {
          err = setMinBufferSize(kPortIndexInput, 8192);  // XXX
      }
-@@ -2410,6 +2439,28 @@ status_t ACodec::configureCodec(
+@@ -2410,6 +2429,28 @@ status_t ACodec::configureCodec(
          err = setOperatingRate(rateFloat, video);
      }
  
@@ -413,7 +389,7 @@ index 92e2847..fe05e1e 100644
      // NOTE: both mBaseOutputFormat and mOutputFormat are outputFormat to signal first frame.
      mBaseOutputFormat = outputFormat;
      // trigger a kWhatOutputFormatChanged msg on first buffer
-@@ -2985,6 +3036,47 @@ status_t ACodec::setupEAC3Codec(
+@@ -2985,6 +3026,47 @@ status_t ACodec::setupEAC3Codec(
              sizeof(def));
  }
  
@@ -461,7 +437,7 @@ index 92e2847..fe05e1e 100644
  static OMX_AUDIO_AMRBANDMODETYPE pickModeFromBitRate(
          bool isAMRWB, int32_t bps) {
      if (isAMRWB) {
-@@ -3343,6 +3435,7 @@ static const struct VideoCodingMapEntry {
+@@ -3343,6 +3425,7 @@ static const struct VideoCodingMapEntry {
      { MEDIA_MIMETYPE_VIDEO_MPEG2, OMX_VIDEO_CodingMPEG2 },
      { MEDIA_MIMETYPE_VIDEO_VP8, OMX_VIDEO_CodingVP8 },
      { MEDIA_MIMETYPE_VIDEO_VP9, OMX_VIDEO_CodingVP9 },
@@ -469,7 +445,7 @@ index 92e2847..fe05e1e 100644
      { MEDIA_MIMETYPE_VIDEO_DOLBY_VISION, OMX_VIDEO_CodingDolbyVision },
  };
  
-@@ -5214,6 +5307,24 @@ status_t ACodec::getPortFormat(OMX_U32 portIndex, sp<AMessage> &notify) {
+@@ -5214,6 +5297,24 @@ status_t ACodec::getPortFormat(OMX_U32 portIndex, sp<AMessage> &notify) {
                      // Fall through to set up mime.
                  }
  
@@ -494,7 +470,7 @@ index 92e2847..fe05e1e 100644
                  default:
                  {
                      if (!mIsEncoder && !strncmp(mComponentName.c_str(), "OMX.ffmpeg.", 11)) {
-@@ -7842,6 +7953,34 @@ status_t ACodec::setParameters(const sp<AMessage> &params) {
+@@ -7842,6 +7943,34 @@ status_t ACodec::setParameters(const sp<AMessage> &params) {
              err = OK;
          }
      }
@@ -529,22 +505,6 @@ index 92e2847..fe05e1e 100644
  #ifdef DOLBY_ENABLE
      return setDolbyParameterOnProcessedAudio(params);
  #endif // DOLBY_END
-@@ -8016,7 +8155,14 @@ bool ACodec::OutputPortSettingsChangedState::onOMXEvent(
-                             mCodec->mBuffers[kPortIndexOutput].size());
-                     err = FAILED_TRANSACTION;
-                 } else {
--                    mCodec->mDealer[kPortIndexOutput].clear();
-+                    while(1){
-+                        if(mCodec->allYourBuffersAreBelongToUs(kPortIndexOutput)){
-+                            mCodec->mDealer[kPortIndexOutput].clear();
-+                            break;
-+                        }
-+                        ALOGE("peter: wait all out buffer belong to us");
-+                        usleep(2000);
-+                    }
-                 }
- 
-                 if (err == OK) {
 diff --git a/media/libstagefright/AMRExtractor.cpp b/media/libstagefright/AMRExtractor.cpp
 index 2892520..43b1118 100644
 --- a/media/libstagefright/AMRExtractor.cpp
@@ -4445,9 +4405,22 @@ index de6ee73..ed62147 100644
          uint32_t *sampleDuration) {
      Mutex::Autolock autoLock(mLock);
 diff --git a/media/libstagefright/StagefrightMetadataRetriever.cpp b/media/libstagefright/StagefrightMetadataRetriever.cpp
-index f00b8b7..9ccafa6 100644
+index f00b8b7..9b7285a 100644
 --- a/media/libstagefright/StagefrightMetadataRetriever.cpp
 +++ b/media/libstagefright/StagefrightMetadataRetriever.cpp
+@@ -168,10 +168,10 @@ static VideoFrame *extractVideoFrame(
+     // input and output ports, if seeking to a sync frame. NOTE: This request may
+     // fail if component requires more than that for decoding.
+     bool isSeekingClosest = (seekMode == MediaSource::ReadOptions::SEEK_CLOSEST);
+-    if (!isSeekingClosest) {
++    /*if (!isSeekingClosest) {
+         videoFormat->setInt32("android._num-input-buffers", 1);
+         videoFormat->setInt32("android._num-output-buffers", 1);
+-    }
++    }*/
+ 
+     status_t err;
+     sp<ALooper> looper = new ALooper;
 @@ -184,7 +184,8 @@ static VideoFrame *extractVideoFrame(
          return NULL;
      }
