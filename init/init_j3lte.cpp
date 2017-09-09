@@ -32,6 +32,9 @@
 #include "log.h"
 #include "util.h"
 
+#define _REALLY_INCLUDE_SYS__SYSTEM_PROPERTIES_H_
+#include <sys/_system_properties.h>
+
 static void import_kernel_hwrev(const std::string& key, const std::string& value, bool for_emulator)
 {
     if (key.empty()) return;
@@ -39,6 +42,17 @@ static void import_kernel_hwrev(const std::string& key, const std::string& value
     if (key == "hw_revision") {
         property_set("ro.revision", value.c_str());
     }
+}
+
+void property_override(char const prop[], char const value[])
+{
+    prop_info *pi;
+
+    pi = (prop_info*) __system_property_find(prop);
+    if (pi)
+        __system_property_update(pi, value, strlen(value));
+    else
+        __system_property_add(prop, strlen(prop), value, strlen(value));
 }
 
 void vendor_load_properties()
@@ -73,11 +87,11 @@ void vendor_load_properties()
     std::string bootloader = property_get("ro.bootloader");
     if (strstr(bootloader.c_str(), "J320FN")) {
         /* SM-J320FN */
-        property_set("ro.product.model", "SM-J320FN");
-        property_set("ro.product.device", "j3xnlte");
+        property_override("ro.product.model", "SM-J320FN");
+        property_override("ro.product.device", "j3xnlte");
     } else {
-        property_set("ro.product.model", "SM-J320F");
-        property_set("ro.product.device", "j3xlte");
+        property_override("ro.product.model", "SM-J320F");
+        property_override("ro.product.device", "j3xlte");
     }
 
     std::string device = property_get("ro.product.device");
