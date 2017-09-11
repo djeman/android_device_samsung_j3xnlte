@@ -89,6 +89,9 @@ void vendor_load_properties()
         /* SM-J320FN */
         property_override("ro.product.model", "SM-J320FN");
         property_override("ro.product.device", "j3xnlte");
+    } else if (strstr(bootloader.c_str(), "J320G")) {
+        property_override("ro.product.model", "SM-J320G");
+        property_override("ro.product.device", "j3xlte");
     } else {
         property_override("ro.product.model", "SM-J320F");
         property_override("ro.product.device", "j3xlte");
