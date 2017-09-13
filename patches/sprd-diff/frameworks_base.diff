@@ -68,3 +68,34 @@ index e08c290..434c1ae 100644
          case DEVICE_OUT_AUX_LINE:
              return DEVICE_OUT_AUX_LINE_NAME;
          case DEVICE_OUT_SPEAKER_SAFE:
+diff --git a/services/core/jni/com_android_server_location_GnssLocationProvider.cpp b/services/core/jni/com_android_server_location_GnssLocationProvider.cpp
+index c6cd714..891a3ae 100644
+--- a/services/core/jni/com_android_server_location_GnssLocationProvider.cpp
++++ b/services/core/jni/com_android_server_location_GnssLocationProvider.cpp
+@@ -166,7 +166,7 @@ static void sv_status_callback(GpsSvStatus* sv_status)
+         } else if (info.svid >= QZSS_SVID_MIN && info.svid <= QZSS_SVID_MAX) {
+             info.constellation = GNSS_CONSTELLATION_QZSS;
+         } else {
+-            ALOGD("Unknown constellation type with Svid = %d.", info.svid);
++            ALOGD("sv_status_callback: Unknown constellation type with Svid = %d.", info.svid);
+             info.constellation = GNSS_CONSTELLATION_UNKNOWN;
+         }
+         info.c_n0_dbhz = sv_status->sv_list[i].snr;
+@@ -1233,7 +1233,7 @@ static jobject translate_gps_measurement(JNIEnv* env,
+     if (measurement->prn >= 1 && measurement->prn <= 32) {
+         SET(ConstellationType, static_cast<int32_t>(GNSS_CONSTELLATION_GPS));
+     } else {
+-        ALOGD("Unknown constellation type with Svid = %d.", measurement->prn);
++        ALOGD("gps_measurement: Unknown constellation type with Svid = %d.", measurement->prn);
+         SET(ConstellationType,
+             static_cast<int32_t>(GNSS_CONSTELLATION_UNKNOWN));
+     }
+@@ -1493,7 +1493,7 @@ static jobject translate_gps_navigation_message(JNIEnv* env, GpsNavigationMessag
+         // correctly. Set the higher byte to 'GPS'.
+         SET(Type, static_cast<int32_t>(message->type | 0x0100));
+     } else {
+-        ALOGD("Unknown constellation type with Svid = %d.", message->prn);
++        ALOGD("gps_navigation_message: Unknown constellation type with Svid = %d.", message->prn);
+         SET(ConstellationType,
+             static_cast<int32_t>(GNSS_CONSTELLATION_UNKNOWN));
+         SET(Type, static_cast<int32_t>(GNSS_NAVIGATION_MESSAGE_TYPE_UNKNOWN));
