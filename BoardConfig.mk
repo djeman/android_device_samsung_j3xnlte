@@ -210,7 +210,7 @@ BUILD_WITH_ALSA_UTILS := false
 BOARD_AUDIO_OLD_MODEM := false
 
 # power
-BOARD_POWERHINT_HAL := interhotplug
+BOARD_POWERHINT_HAL := interactive
 
 # Charger
 BACKLIGHT_PATH := "/sys/class/backlight/panel/brightness"
