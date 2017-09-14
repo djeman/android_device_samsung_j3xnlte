@@ -128,9 +128,6 @@ TARGET_NO_SENSOR_PERMISSION_CHECK := true
 BOARD_NFC_CHIPSET := pn548
 TARGET_USES_NQ_NFC := true
 
-# WEBGL
-ENABLE_WEBGL := true
-
 #######################################################
 # camera configs
 USE_CAMERA_STUB := true
