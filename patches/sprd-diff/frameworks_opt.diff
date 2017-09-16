@@ -13,7 +13,7 @@ index d9366e7..47d3e56 100644
          // IFNAME=wlan0 ANQP-QUERY-DONE addr=18:cf:5e:26:a4:88 result=SUCCESS
          if (eventStr.startsWith("IFNAME=")) {
              int space = eventStr.indexOf(' ');
-@@ -804,14 +808,52 @@ public class WifiMonitor {
+@@ -804,11 +808,39 @@ public class WifiMonitor {
          } else {
              // events without prefix belong to p2p0 monitor
              iface = "p2p0";
@@ -53,16 +53,3 @@ index d9366e7..47d3e56 100644
              mConnected = false;
              return true;
          }
-+
-+        //NOTE: Add for WCND RESET Feature -->
-+        if (supplicantExecption) {
-+            Log.d(TAG, "somethine wrong with supplicant, recieve terminating event, tell WifiStateMachine!");
-+            dispatchEvent(eventStr, iface);
-+            mConnected = false;
-+            return true;
-+        }
-+        //<-- Add for WCND RESET Feature
-+
-         return false;
-     }
- 
