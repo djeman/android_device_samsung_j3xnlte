@@ -1,0 +1,33 @@
+diff --git a/Jelly/app/src/main/java/org/lineageos/jelly/MainActivity.java b/Jelly/app/src/main/java/org/lineageos/jelly/MainActivity.java
+index 606676a..d5a49a4 100644
+--- a/Jelly/app/src/main/java/org/lineageos/jelly/MainActivity.java
++++ b/Jelly/app/src/main/java/org/lineageos/jelly/MainActivity.java
+@@ -638,8 +638,8 @@ public class MainActivity extends WebViewExtActivity implements
+         mCustomView.setBackgroundColor(ContextCompat.getColor(this, android.R.color.black));
+         addContentView(mCustomView, new ViewGroup.LayoutParams(
+                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+-        findViewById(R.id.app_bar_layout).setVisibility(View.GONE);
+-        findViewById(R.id.web_view_container).setVisibility(View.VISIBLE);
++        //findViewById(R.id.app_bar_layout).setVisibility(View.GONE);
++        //findViewById(R.id.web_view_container).setVisibility(View.VISIBLE);
+     }
+ 
+     @Override
+@@ -649,13 +649,15 @@ public class MainActivity extends WebViewExtActivity implements
+         }
+         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+         setImmersiveMode(false);
+-        findViewById(R.id.app_bar_layout).setVisibility(View.VISIBLE);
+-        findViewById(R.id.web_view_container).setVisibility(View.GONE);
++        //findViewById(R.id.app_bar_layout).setVisibility(View.VISIBLE);
++        //findViewById(R.id.web_view_container).setVisibility(View.GONE);
+         ViewGroup viewGroup = (ViewGroup) mCustomView.getParent();
+         viewGroup.removeView(mCustomView);
+         mFullScreenCallback.onCustomViewHidden();
+         mFullScreenCallback = null;
+         mCustomView = null;
++
++        findViewById(R.id.app_bar_layout).requestFocus();
+     }
+ 
+     private void addShortcut() {
