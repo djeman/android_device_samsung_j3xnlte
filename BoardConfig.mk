@@ -107,9 +107,6 @@ BOARD_PROVIDES_RILD := true
 USE_BOOT_AT_DIAG := true
 BOARD_RIL_CLASS := ../../../device/samsung/j3xnlte/ril/
 
-# healthd
-BOARD_HAL_STATIC_LIBRARIES := libhealthd.j3xnlte
-
 # lights
 TARGET_PROVIDES_LIBLIGHT := true
 
@@ -216,11 +213,12 @@ BUILD_WITH_ALSA_UTILS := false
 BOARD_AUDIO_OLD_MODEM := false
 
 # power
-BOARD_POWERHINT_HAL := interhotplug
+BOARD_POWERHINT_HAL := interactive
 
 # Charger
 BACKLIGHT_PATH := "/sys/class/backlight/panel/brightness"
 BOARD_CHARGER_ENABLE_SUSPEND := true
+BOARD_CHARGER_DISABLE_INIT_BLANK := true
 BOARD_NO_CHARGER_LED := true
 HAVE_KEYBOARD_BACKLIGHT := false
 BOARD_CHARGING_MODE_BOOTING_LPM := "/sys/class/power_supply/battery/batt_lp_charging"

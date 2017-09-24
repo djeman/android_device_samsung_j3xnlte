@@ -158,3 +158,8 @@ service swapon /sbin/sswap -s
     user root
     group root
     oneshot
+
+service healthd-charger /sbin/healthd -c
+    class charger
+    critical
+    seclabel u:r:healthd:s0
