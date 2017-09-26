@@ -247,8 +247,7 @@ PRODUCT_PACKAGES += \
     dm_verity_hash
 
 PRODUCT_PACKAGES += \
-    charge \
-    charge_res_images
+    charger_res_images
 
 PRODUCT_PACKAGES += \
     libdmitry \
@@ -288,7 +287,6 @@ PRODUCT_PACKAGES += \
     libstagefrighthw_cm \
     libstagefrighthw \
     libomxvpu \
-    batterysrv \
     iwnpi \
     liboemcrypto \
     modem_control \

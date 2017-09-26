@@ -668,17 +668,6 @@ on property:sys.init_log_level=*
     loglevel ${sys.init_log_level}
 
 on charger
-#    mount_all /fstab.sc8830 # mount_all may trigger "on nonencrypted"
-    mount ext4 /dev/block/platform/sdio_emmc/by-name/SYSTEM /system wait ro
-    copy /system/etc/battery_charging_temp.data /sys/class/power_supply/battery/batt_temp_table
-
-    wait /dev/block/platform/sdio_emmc/by-name/efs
-    check_fs /dev/block/platform/sdio_emmc/by-name/efs ext4
-    mount ext4 /dev/block/platform/sdio_emmc/by-name/efs /efs nosuid nodev noatime noauto_da_alloc,discard,journal_async_commit,errors=panic
-
-    chown system radio /efs
-    chmod 0771 /efs
-    mkdir /efs/Battery 0775 radio system
     class_start charger
 
 on property:vold.decrypt=trigger_reset_main

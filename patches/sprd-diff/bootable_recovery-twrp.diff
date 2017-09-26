@@ -1,0 +1,37 @@
+diff --git a/minui/Android.mk b/minui/Android.mk
+index 249feeb..4bb201d 100644
+--- a/minui/Android.mk
++++ b/minui/Android.mk
+@@ -59,6 +59,10 @@ ifeq ($(subst ",,$(TARGET_RECOVERY_PIXEL_FORMAT)),BGRA_8888)
+   LOCAL_CFLAGS += -DRECOVERY_BGRA
+ endif
+ 
++ifeq ($(RECOVERY_GRAPHICS_FORCE_SINGLE_BUFFER), true)
++LOCAL_CFLAGS += -DRECOVERY_GRAPHICS_FORCE_SINGLE_BUFFER
++endif
++
+ ifneq ($(TARGET_RECOVERY_OVERSCAN_PERCENT),)
+   LOCAL_CFLAGS += -DOVERSCAN_PERCENT=$(TARGET_RECOVERY_OVERSCAN_PERCENT)
+ else
+diff --git a/minui/graphics_fbdev.cpp b/minui/graphics_fbdev.cpp
+index 5f64e1e..d3ef5d7 100644
+--- a/minui/graphics_fbdev.cpp
++++ b/minui/graphics_fbdev.cpp
+@@ -151,6 +151,7 @@ static GRSurface* fbdev_init(minui_backend* backend) {
+     memset(gr_framebuffer[0].data, 0, gr_framebuffer[0].height * gr_framebuffer[0].row_bytes);
+ 
+     /* check if we can use double buffering */
++#ifndef RECOVERY_GRAPHICS_FORCE_SINGLE_BUFFER
+     if (vi.yres * fi.line_length * 2 <= fi.smem_len) {
+         double_buffered = true;
+ 
+@@ -161,6 +162,9 @@ static GRSurface* fbdev_init(minui_backend* backend) {
+         gr_draw = gr_framebuffer+1;
+ 
+     } else {
++#else
++    {
++#endif
+         double_buffered = false;
+ 
+         // Without double-buffering, we allocate RAM for a buffer to
