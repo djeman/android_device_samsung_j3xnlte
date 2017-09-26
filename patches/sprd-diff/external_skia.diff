@@ -1,0 +1,44 @@
+diff --git a/include/core/SkBitmap.h b/include/core/SkBitmap.h
+index a81e03e..c24c324 100644
+--- a/include/core/SkBitmap.h
++++ b/include/core/SkBitmap.h
+@@ -232,6 +232,9 @@ public:
+                                  fInfo.width(), fInfo.height());
+     }
+ 
++    bool setConfig(int config, int width, int height, size_t rowBytes,
++                         SkAlphaType alphaType);
++
+     bool setInfo(const SkImageInfo&, size_t rowBytes = 0);
+ 
+     /**
+diff --git a/src/core/SkBitmap.cpp b/src/core/SkBitmap.cpp
+index fdb66b3..80dc1df 100644
+--- a/src/core/SkBitmap.cpp
++++ b/src/core/SkBitmap.cpp
+@@ -113,6 +113,25 @@ void SkBitmap::getBounds(SkIRect* bounds) const {
+ 
+ ///////////////////////////////////////////////////////////////////////////////
+ 
++SkColorType SkBitmapConfigToColorType(uint32_t config) {
++    static const SkColorType gCT[] = {
++        kUnknown_SkColorType,   // kNo_Config
++        kAlpha_8_SkColorType,   // kA8_Config
++        kIndex_8_SkColorType,   // kIndex8_Config
++        kRGB_565_SkColorType,   // kRGB_565_Config
++        kARGB_4444_SkColorType, // kARGB_4444_Config
++        kN32_SkColorType,   // kARGB_8888_Config
++    };
++    SkASSERT((unsigned)config < SK_ARRAY_COUNT(gCT));
++    return gCT[config];
++}
++
++bool SkBitmap::setConfig(int config, int width, int height, size_t rowBytes,
++                         SkAlphaType alphaType) {
++    SkColorType ct = SkBitmapConfigToColorType(config);
++    return this->setInfo(SkImageInfo::Make(width, height, ct, alphaType), rowBytes);
++}
++
+ bool SkBitmap::setInfo(const SkImageInfo& info, size_t rowBytes) {
+     SkAlphaType newAT = info.alphaType();
+     if (!SkColorTypeValidateAlphaType(info.colorType(), info.alphaType(), &newAT)) {

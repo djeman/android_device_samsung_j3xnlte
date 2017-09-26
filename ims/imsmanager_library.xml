@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<permissions>
+    <library name="sec_samsung" file="/system/framework/sec_samsung.jar"/>
+    <library name="commonimsinterface" file="/system/framework/commonimsinterface.jar"/>
+    <library name="imsmanager" file="/system/framework/imsmanager.jar"/>
+    <library name="imsmanager-internal" file="/system/framework/imsmanager-internal.jar"/>
+</permissions>
+

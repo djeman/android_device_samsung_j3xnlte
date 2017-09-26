@@ -25,3 +25,11 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES
 include $(BUILD_SHARED_LIBRARY)
 
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := libimsshim.c
+LOCAL_SHARED_LIBRARIES := liblog libcutils libmedia libbinder libutils \
+                          libstagefright libcamera_client libssl
+LOCAL_MODULE := libimsshim
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_CLASS := SHARED_LIBRARIES
+include $(BUILD_SHARED_LIBRARY)

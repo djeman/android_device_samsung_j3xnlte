@@ -11,7 +11,8 @@ LOCAL_C_INCLUDES += \
 	external/expat/lib
 
 LOCAL_SHARED_LIBRARIES := \
-	libexpat
+	libexpat \
+	libcutils
 
 LOCAL_CFLAGS := -Wall -Werror
 

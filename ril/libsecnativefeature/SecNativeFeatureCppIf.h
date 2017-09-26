@@ -18,8 +18,7 @@ private:
     static SecNativeFeature* _instance;
     SecNativeFeature();
     ~SecNativeFeature();
-    int _loadFeature();
-    int _loadDefault();
+    int _loadFeature(const char* xmlPath, const char* xmlPath2);
     std::map<std::string,std::string> _features;
 };
 
