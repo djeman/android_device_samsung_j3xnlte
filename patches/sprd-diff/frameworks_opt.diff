@@ -79,3 +79,28 @@ index cd324b4..9f37fb7 100644
                      if (DBG) Log.d(TAG, "Dropping event because (" + iface + ") is stopped");
                      return false;
                  }
+
+diff --git a/src/java/com/android/internal/telephony/PhoneBase.java b/src/java/com/android/internal/telephony/PhoneBase.java
+index dc790d798..07b36c362 100644
+--- a/src/java/com/android/internal/telephony/PhoneBase.java
++++ b/src/java/com/android/internal/telephony/PhoneBase.java
+@@ -1750,7 +1750,7 @@ public void setPreferredNetworkType(int networkType, Message response) {
+         // Only set preferred network types to that which the modem supports
+         int modemRaf = getRadioAccessFamily();
+         int rafFromType = RadioAccessFamily.getRafFromNetworkType(networkType);
+-
++/*
+         if (modemRaf == RadioAccessFamily.RAF_UNKNOWN
+                 || rafFromType == RadioAccessFamily.RAF_UNKNOWN) {
+             Rlog.d(LOG_TAG, "setPreferredNetworkType: Abort, unknown RAF: "
+@@ -1764,8 +1764,8 @@ public void setPreferredNetworkType(int networkType, Message response) {
+             }
+             return;
+         }
+-
+-        int filteredRaf = (rafFromType & modemRaf);
++*/
++        int filteredRaf = (rafFromType);
+         int filteredType = RadioAccessFamily.getNetworkTypeFromRaf(filteredRaf);
+ 
+         // The getNetworkTypeFromRaf, has no way to differentiate between MODE_GSM_UMTS
