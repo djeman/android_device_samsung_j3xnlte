@@ -1,8 +1,24 @@
 diff --git a/Jelly/app/src/main/java/org/lineageos/jelly/MainActivity.java b/Jelly/app/src/main/java/org/lineageos/jelly/MainActivity.java
-index 606676a..d5a49a4 100644
+index 606676a..e6308d8 100644
 --- a/Jelly/app/src/main/java/org/lineageos/jelly/MainActivity.java
 +++ b/Jelly/app/src/main/java/org/lineageos/jelly/MainActivity.java
-@@ -638,8 +638,8 @@ public class MainActivity extends WebViewExtActivity implements
+@@ -61,6 +61,7 @@ import android.view.WindowManager;
+ import android.view.inputmethod.EditorInfo;
+ import android.webkit.CookieManager;
+ import android.webkit.URLUtil;
++import android.webkit.ValueCallback;
+ import android.webkit.WebChromeClient;
+ import android.widget.AutoCompleteTextView;
+ import android.widget.EditText;
+@@ -115,6 +116,7 @@ public class MainActivity extends WebViewExtActivity implements
+         }
+     };
+ 
++    private ValueCallback<Uri[]> mPathCallback;
+     private CoordinatorLayout mCoordinator;
+     private WebViewExt mWebView;
+     private ProgressBar mLoadingProgress;
+@@ -638,8 +640,8 @@ public class MainActivity extends WebViewExtActivity implements
          mCustomView.setBackgroundColor(ContextCompat.getColor(this, android.R.color.black));
          addContentView(mCustomView, new ViewGroup.LayoutParams(
                  ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -13,7 +29,7 @@ index 606676a..d5a49a4 100644
      }
  
      @Override
-@@ -649,13 +649,15 @@ public class MainActivity extends WebViewExtActivity implements
+@@ -649,13 +651,15 @@ public class MainActivity extends WebViewExtActivity implements
          }
          getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
          setImmersiveMode(false);
@@ -31,3 +47,65 @@ index 606676a..d5a49a4 100644
      }
  
      private void addShortcut() {
+@@ -699,4 +703,16 @@ public class MainActivity extends WebViewExtActivity implements
+         super.onWindowFocusChanged(hasFocus);
+         setImmersiveMode(hasFocus && mCustomView != null);
+     }
++
++    public void setPathCallback(ValueCallback<Uri[]> path) {
++        mPathCallback = path;
++    }
++
++    @Override
++    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
++        if (requestCode == WebViewExtActivity.REQUEST_SELECT_FILE && mPathCallback != null) {
++            mPathCallback.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(resultCode, intent));
++            mPathCallback = null;
++        }
++    }
+ }
+diff --git a/Jelly/app/src/main/java/org/lineageos/jelly/webview/ChromeClient.java b/Jelly/app/src/main/java/org/lineageos/jelly/webview/ChromeClient.java
+index acf91be..1a2fd46 100644
+--- a/Jelly/app/src/main/java/org/lineageos/jelly/webview/ChromeClient.java
++++ b/Jelly/app/src/main/java/org/lineageos/jelly/webview/ChromeClient.java
+@@ -76,9 +76,10 @@ class ChromeClient extends WebChromeClientCompat {
+     @Override
+     public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> path,
+                                      FileChooserParams params) {
+-        Intent intent = params.createIntent();
+         try {
+-            mActivity.startActivity(intent);
++            Intent intent = params.createIntent();
++            mActivity.setPathCallback(path);
++            mActivity.startActivityForResult(intent, WebViewExtActivity.REQUEST_SELECT_FILE);
+         } catch (ActivityNotFoundException e) {
+             Toast.makeText(mActivity, mActivity.getString(R.string.error_no_activity_found),
+                     Toast.LENGTH_LONG).show();
+diff --git a/Jelly/app/src/main/java/org/lineageos/jelly/webview/WebViewExtActivity.java b/Jelly/app/src/main/java/org/lineageos/jelly/webview/WebViewExtActivity.java
+index dcf02d4..0b90eb1 100644
+--- a/Jelly/app/src/main/java/org/lineageos/jelly/webview/WebViewExtActivity.java
++++ b/Jelly/app/src/main/java/org/lineageos/jelly/webview/WebViewExtActivity.java
+@@ -16,12 +16,16 @@
+ package org.lineageos.jelly.webview;
+ 
+ import android.graphics.Bitmap;
++import android.net.Uri;
+ import android.support.v7.app.AppCompatActivity;
+ import android.view.View;
++import android.webkit.ValueCallback;
+ import android.webkit.WebChromeClient;
+ 
+ public abstract class WebViewExtActivity extends AppCompatActivity {
+ 
++    public static final int REQUEST_SELECT_FILE = 100;
++
+     public abstract void downloadFileAsk(String url, String contentDisposition, String mimeType);
+ 
+     public abstract boolean hasLocationPermission();
+@@ -37,4 +41,6 @@ public abstract class WebViewExtActivity extends AppCompatActivity {
+     public abstract void onShowCustomView(View view, WebChromeClient.CustomViewCallback callback);
+ 
+     public abstract void onHideCustomView();
++
++    public abstract void setPathCallback(ValueCallback<Uri[]> path);
+ }
