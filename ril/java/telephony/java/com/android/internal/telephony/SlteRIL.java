@@ -65,6 +65,32 @@ public class SlteRIL extends RIL {
     }
 
     @Override
+    protected Object
+    responseCallForward(Parcel p) {
+        int numInfos;
+        CallForwardInfo infos[];
+
+        numInfos = p.readInt();
+
+        infos = new CallForwardInfo[numInfos];
+
+        for (int i = 0 ; i < numInfos ; i++) {
+            infos[i] = new CallForwardInfo();
+
+            infos[i].status = p.readInt();
+            infos[i].reason = p.readInt();
+            infos[i].serviceClass = p.readInt();
+            infos[i].toa = p.readInt();
+            infos[i].number = p.readString();
+            infos[i].timeSeconds = p.readInt();
+            p.readString(); // startTime
+            p.readString(); // endTime
+        }
+
+        return infos;
+    }
+
+    @Override
     public void
     acceptCall(Message result) {
         RILRequest rr =
