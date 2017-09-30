@@ -61,10 +61,13 @@ namespace android {
 #define REQ_SET_LOOPBACK            110
 #define REQ_SEND_MODEM          111
 #define REQ_SET_AUDIO_MODE      112
+#define REQ_SET_CLOCK_MODE      113
+#define REQ_SET_PDN             114
 
 // OEM request function ID
 #define OEM_FUNC_SOUND          0x08
 #define OEM_FUNC_MODEM          0x11
+#define OEM_FUNC_PDN            0x53
 
 // OEM request sub function ID
 #define OEM_SND_SET_VOLUME_CTRL     0x03
@@ -79,6 +82,7 @@ namespace android {
 #define OEM_SND_SET_TWO_MIC_CTL     0x0D
 #define OEM_SND_SET_DHA_CTL     0x0E
 #define OEM_SND_SET_AUDIO_MODE      0x10
+#define OEM_SND_SET_CLOCK_MODE      0x11
 
 #define OEM_SND_TYPE_VOICE          0x01 // Receiver(0x00) + Voice(0x01)
 #define OEM_SND_TYPE_SPEAKER        0x11 // SpeakerPhone(0x10) + Voice(0x01)
@@ -1001,7 +1005,7 @@ int SetDhaSolution(HRilClient client, DhaSolMode mode, DhaSolSelect select, char
         return RIL_CLIENT_ERR_CONNECT;
     }
 
-    RLOGE("%s: DHA mode=%d, select=%d", __FUNCTION__,mode, select);
+    RLOGD("%s: DHA mode=%d, select=%d", __FUNCTION__,mode, select);
 
     // Make raw data
     data[0] = OEM_FUNC_SOUND;
@@ -1104,6 +1108,51 @@ int SetAudioMode(HRilClient client, uint32_t mode, uint32_t select) {
 }
 
 /**
+ * Set sound clock mode
+ */
+extern "C"
+int SetSoundClockMode(HRilClient client, uint32_t mode) {
+    RilClientPrv *client_prv;
+    int ret;
+    char data[5] = {0,};
+
+    if (client == NULL || client->prv == NULL) {
+        RLOGE("%s: Invalid client %p", __FUNCTION__, client);
+        return RIL_CLIENT_ERR_INVAL;
+    }
+
+    client_prv = (RilClientPrv *)(client->prv);
+
+    if (client_prv->sock < 0) {
+        RLOGE("%s: Not connected.", __FUNCTION__);
+        return RIL_CLIENT_ERR_CONNECT;
+    }
+
+    if (mode > 6) {
+        RLOGE("%s: Invalid sound audio mode", __FUNCTION__);
+        return RIL_CLIENT_ERR_INVAL;
+    }
+
+    // Make raw data
+    data[0] = OEM_FUNC_SOUND;
+    data[1] = OEM_SND_SET_CLOCK_MODE;
+    data[2] = 0x00;     // data length
+    data[3] = 0x05;     // data length
+    data[4] = mode;
+
+    RLOGD("%s: Set sound clock mode : %d", __FUNCTION__, mode);
+
+    RegisterRequestCompleteHandler(client, REQ_SET_CLOCK_MODE, NULL);
+
+    ret = SendOemRequestHookRaw(client, REQ_SET_CLOCK_MODE, data, sizeof(data));
+    if (ret != RIL_CLIENT_ERR_SUCCESS) {
+        RegisterRequestCompleteHandler(client, REQ_SET_CLOCK_MODE, NULL);
+    }
+
+    return ret;
+}
+
+/**
  * Send to modem
  */
 extern "C"
@@ -1116,6 +1165,42 @@ extern "C"
 int ModemAPI_Send_request(HRilClient client, char *data, char *dataH, size_t dataLen, uint32_t mode) {
     RLOGW("%s: Not implanted.", __FUNCTION__);
     return 0;
+}
+
+extern "C"
+int SetupPublicSafetyPdn(HRilClient client, char value, RilOnComplete handler) {
+    RilClientPrv *client_prv;
+    int ret;
+    char data[5] = {0,};
+
+    if (client == NULL || client->prv == NULL) {
+        RLOGE("%s: Invalid client %p", __FUNCTION__, client);
+        return RIL_CLIENT_ERR_INVAL;
+    }
+
+    client_prv = (RilClientPrv *)(client->prv);
+
+    if (client_prv->sock < 0) {
+        RLOGE("%s: Not connected.", __FUNCTION__);
+        return RIL_CLIENT_ERR_CONNECT;
+    }
+
+    // Make raw data
+    data[0] = OEM_FUNC_PDN;
+    data[1] = 0x02;
+    data[2] = 0x00;     // data length
+    data[3] = 0x05;     // data length
+    data[4] = value;
+
+    RegisterRequestCompleteHandler(client, REQ_SET_PDN, NULL);
+
+    ret = SendOemRequestHookRaw(client, REQ_SET_PDN, data, sizeof(data));
+    if (ret != RIL_CLIENT_ERR_SUCCESS) {
+        RLOGE("%s: failed.", __FUNCTION__);
+        RegisterRequestCompleteHandler(client, REQ_SET_PDN, NULL);
+    }
+
+    return ret;
 }
 
 /**

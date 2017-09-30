@@ -317,11 +317,18 @@ int SetLoopbackTest(HRilClient client, LoopbackMode mode, AudioPath path);
 int SetAudioMode(HRilClient client, uint32_t mode, uint32_t select);
 
 /**
+ * Set sound clock mode
+ */
+int SetSoundClockMode(HRilClient client, uint32_t mode);
+
+/**
  * Send to modem
  */
 int ConvertReturnValue(uint32_t respLen, int resReq, int mode, int *result);
 
 int ModemAPI_Send_request(HRilClient client, char *data, char *dataH, size_t dataLen, uint32_t mode);
+
+int SetupPublicSafetyPdn(HRilClient client, char value, RilOnComplete handler);
 
 /**
  * Get set client data
