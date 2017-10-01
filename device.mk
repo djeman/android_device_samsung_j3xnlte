@@ -18,6 +18,9 @@ $(call inherit-product, vendor/sprd/proprietaries/proprietaries-scx35l.mk)
 # init services
 $(call inherit-product, $(LOCAL_PATH)/init/init_rc.mk)
 
+# gps
+$(call inherit-product, $(LOCAL_PATH)/gps/device-gps.mk)
+
 # Permissions
 PRODUCT_COPY_FILES += \
     external/ant-wireless/antradio-library/com.dsi.ant.antradio_library.xml:system/etc/permissions/com.dsi.ant.antradio_library.xml \
@@ -249,7 +252,7 @@ PRODUCT_PACKAGES += \
     charger_res_images
 
 PRODUCT_PACKAGES += \
-    libdmitry
+    libgpsshim
 
 PRODUCT_PACKAGES += \
     sec_samsung \

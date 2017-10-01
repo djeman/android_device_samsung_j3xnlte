@@ -1,7 +1,7 @@
 # bin
 bin/at_distributor
 bin/mfgloader
-bin/gpsd
+#bin/gpsd
 bin/sprdSleepLog
 #bin/modem_control
 bin/modemd
@@ -18,7 +18,7 @@ bin/ddexe
 bin/connfwexe
 bin/wlandutservice
 bin/scs
-bin/gps.cer
+#bin/gps.cer
 #bin/wcnd
 #bin/wcnd_cli
 #bin/refnotify
@@ -45,7 +45,7 @@ etc/connectivity_calibration.ini
 etc/connectivity_configure.ini
 etc/feature_default.xml
 etc/floating_feature.xml
-etc/gps.xml
+#etc/gps.xml
 etc/nwk_info.xml
 etc/purenandpackages_pref.txt
 etc/purenandpackages.txt
@@ -66,7 +66,7 @@ etc/firmware/sc2331_fw.bin
 #lib/hw/nfc_nci.sc8830.so
 #lib/hw/power.sc8830.so
 lib/hw/sensors.sc8830.so
-lib/hw/gps.default.so
+#lib/hw/gps.default.so
 #lib/hw/gralloc.sc8830.so
 #lib/hw/hwcomposer.sc8830.so
 #lib/hw/sprd_gsp.sc8830.so
@@ -171,7 +171,7 @@ lib/libshdace.so
 lib/libsimageis_jni.so
 
 #lib/libstagefrighthw_cm.so
-lib/libwrappergps.so
+#lib/libwrappergps.so
 lib/libaccauthentication_jni.so
 #lib/libAF.so
 lib/libaf_running.so
