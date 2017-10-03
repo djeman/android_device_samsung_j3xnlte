@@ -174,10 +174,10 @@ lib/libsimageis_jni.so
 #lib/libwrappergps.so
 lib/libaccauthentication_jni.so
 #lib/libAF.so
-lib/libaf_running.so
+#lib/libaf_running.so
 #lib/libaf_tune.so
-lib/libAl_Awb.so
-lib/libAl_Awb_Sp.so
+#lib/libAl_Awb.so
+#lib/libAl_Awb_Sp.so
 lib/libboost.so
 
 #lib/libbt-codec_aptx.so

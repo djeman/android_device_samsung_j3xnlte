@@ -194,6 +194,11 @@ TARGET_BOARD_BACK_CAMERA_MIPI := phya
 #select ccir pclk src(source0, source1)
 TARGET_BOARD_FRONT_CAMERA_CCIR_PCLK := source0
 TARGET_BOARD_BACK_CAMERA_CCIR_PCLK := source0
+#third lib
+TARGET_BOARD_USE_THRID_LIB := true
+TARGET_BOARD_USE_THIRD_AWB_LIB_A := true
+TARGET_BOARD_USE_ALC_AE_AWB := false
+TARGET_BOARD_USE_THIRD_AF_LIB_A := true
 
 #######################################################
 
