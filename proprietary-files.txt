@@ -180,11 +180,11 @@ lib/libAl_Awb.so
 lib/libAl_Awb_Sp.so
 lib/libboost.so
 
-lib/libbt-codec_aptx.so
-lib/libbt-aptx-4.0.3.so
-lib/libbt-codec_sshd.so
-lib/libbt-iopdb.so
-lib/libbt-iopdb_mod.so
+#lib/libbt-codec_aptx.so
+#lib/libbt-aptx-4.0.3.so
+#lib/libbt-codec_sshd.so
+#lib/libbt-iopdb.so
+#lib/libbt-iopdb_mod.so
 
 #lib/libatchannel.so
 #lib/libae.so
