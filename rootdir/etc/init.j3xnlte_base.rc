@@ -20,6 +20,10 @@ on boot
     chown system system /sys/class/lcd/panel/temperature
 	chmod 0664 /sys/class/lcd/panel/temperature
 
+#camera flash
+    chown system camera /sys/class/flash_test/flash_test/flash_value
+    chmod 0664 /sys/class/flash_test/flash_test/flash_value
+
 # mdnie
 	chown system media_rw /sys/class/mdnie/mdnie/scenario
 	chmod 0664 /sys/class/mdnie/mdnie/scenario
