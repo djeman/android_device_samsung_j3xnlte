@@ -178,8 +178,9 @@ TARGET_BOARD_CAMERA_ADAPTER_IMAGE := 0
 TARGET_BOARD_CAMERA_PRE_ALLOC_CAPTURE_MEM := true
 #sc8830g isp ver 0;sc9630 isp ver 1;sp9832a_2h11 isp version 2
 TARGET_BOARD_CAMERA_ISP_SOFTWARE_VERSION := 2
-#set hal version to 3
-TARGET_BOARD_CAMERA_HAL_VERSION := 3
+#set hal version to 1.0
+TARGET_HAS_LEGACY_CAMERA_HAL1 := true
+TARGET_BOARD_CAMERA_HAL_VERSION := 1.0
 #support auto anti-flicker
 TARGET_BOARD_CAMERA_ANTI_FLICKER := true
 #multi cap memory mode

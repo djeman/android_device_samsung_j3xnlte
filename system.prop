@@ -171,4 +171,5 @@ ro.setupwizard.mode=OPTIONAL
 ro.com.google.gmsversion=7.1_r4
 ro.build.aapt.config.prefer=xhdpi
 ro.com.android.mobiledata=false
-
+media.stagefright.legacyencoder=true
+media.stagefright.less-secure=true

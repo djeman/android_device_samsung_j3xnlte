@@ -275,6 +275,7 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     camera.sc8830 \
     power.sc8830 \
+    libcamoem \
     lights.sc8830 \
     hwcomposer.sc8830 \
     sprd_gsp.sc8830 \
