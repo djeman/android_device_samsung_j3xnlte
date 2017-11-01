@@ -11,6 +11,7 @@ LOCAL_C_INCLUDES += \
 	external/expat/lib
 
 LOCAL_SHARED_LIBRARIES := \
+	liblog \
 	libexpat \
 	libcutils
 
