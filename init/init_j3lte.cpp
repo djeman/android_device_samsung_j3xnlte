@@ -35,13 +35,10 @@
 #define _REALLY_INCLUDE_SYS__SYSTEM_PROPERTIES_H_
 #include <sys/_system_properties.h>
 
-static void import_kernel_hwrev(const std::string& key, const std::string& value, bool for_emulator)
-{
-    if (key.empty()) return;
-
-    if (key == "hw_revision") {
-        property_set("ro.revision", value.c_str());
-    }
+std::string property_get(const char* name) {
+    char value[PROP_VALUE_MAX] = {0};
+    __system_property_get(name, value);
+    return value;
 }
 
 void property_override(char const prop[], char const value[])
@@ -53,6 +50,15 @@ void property_override(char const prop[], char const value[])
         __system_property_update(pi, value, strlen(value));
     else
         __system_property_add(prop, strlen(prop), value, strlen(value));
+}
+
+static void import_kernel_hwrev(const std::string& key, const std::string& value, bool for_emulator)
+{
+    if (key.empty()) return;
+
+    if (key == "hw_revision") {
+        property_set("ro.revision", value.c_str());
+    }
 }
 
 void vendor_load_properties()
@@ -98,5 +104,6 @@ void vendor_load_properties()
     }
 
     std::string device = property_get("ro.product.device");
-    INFO("Found bootloader id %s setting build properties for %s device\n", bootloader.c_str(), device.c_str());
+    LOG(INFO) << "Found bootloader id " << bootloader.c_str() 
+              << " setting build properties for " << device.c_str() << "  device";
 }
