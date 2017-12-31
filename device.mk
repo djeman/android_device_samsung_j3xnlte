@@ -260,7 +260,6 @@ PRODUCT_PACKAGES += \
     commonimsinterface \
     imsmanager \
     imsmanager-internal \
-    imsservice \
     ImsSettings \
     ImsTelephonyService \
     libims_engine \
