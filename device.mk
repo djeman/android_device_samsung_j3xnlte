@@ -1,5 +1,5 @@
 
-LOCAL_PATH := device/samsung/j3xnlte
+LOCAL_PATH := device/samsung/j2xlte
 
 $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
 
@@ -7,10 +7,10 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
 $(call inherit-product, device/common/gps/gps_eu_supl.mk)
 
 # Get non-open-source specific aspects
-$(call inherit-product-if-exists, vendor/samsung/j3xnlte/j3xnlte-vendor.mk)
+$(call inherit-product-if-exists, vendor/samsung/j2xlte/j2xlte-vendor.mk)
 
 # Overlays
-PRODUCT_PACKAGE_OVERLAYS += device/samsung/j3xnlte/overlay
+PRODUCT_PACKAGE_OVERLAYS += device/samsung/j2xlte/overlay
 
 # Sprd proprietaries drm libomx
 $(call inherit-product, vendor/sprd/proprietaries/proprietaries-scx35l.mk)
@@ -160,16 +160,6 @@ PRODUCT_PACKAGES += \
     service_contexts \
     selinux_version
 
-# NFC
-PRODUCT_PACKAGES += \
-    com.android.nfc_extras \
-    com.nxp.nfc.nq \
-    nfc_nci.nqx.default \
-    NQNfcNci \
-    nqnfcee_access.xml \
-    nqnfcse_access.xml \
-    Tag
-
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/nfc/libnfc-brcm.conf:system/etc/libnfc-brcm.conf \
     $(LOCAL_PATH)/configs/nfc/libnfc-nxp.conf:system/etc/libnfc-nxp.conf \
@@ -203,8 +193,8 @@ PRODUCT_PACKAGES += \
     init.board.rc \
     init.recovery.board.rc \
     init.cali.rc \
-    init.j3xnlte.rc \
-    init.j3xnlte_base.rc \
+    init.j2xlte.rc \
+    init.j2xlte_base.rc \
     init.sc8830.rc \
     init.sc8830.usb.rc \
     init.sc8830_ss.rc \
@@ -260,7 +250,6 @@ PRODUCT_PACKAGES += \
     commonimsinterface \
     imsmanager \
     imsmanager-internal \
-    imsservice \
     ImsSettings \
     ImsTelephonyService \
     libims_engine \
@@ -376,7 +365,7 @@ $(call inherit-product, frameworks/native/build/phone-xhdpi-1024-dalvik-heap.mk)
 
 # Prebuilt kernel
 ifeq ($(TARGET_PREBUILT_KERNEL),)
-    LOCAL_KERNEL := device/samsung/j3xnlte/kernel
+    LOCAL_KERNEL := device/samsung/j2xlte/kernel
 else
     LOCAL_KERNEL := $(TARGET_PREBUILT_KERNEL)
     PRODUCT_COPY_FILES += \

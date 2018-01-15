@@ -168,6 +168,6 @@ ro.ril.hsxpa=1
 ro.ril.gprsclass=10
 ro.adb.qemud=1
 ro.setupwizard.mode=OPTIONAL
-ro.com.google.gmsversion=7.1_r4
+ro.com.google.gmsversion=7.1_r36
 ro.build.aapt.config.prefer=xhdpi
 ro.com.android.mobiledata=false
