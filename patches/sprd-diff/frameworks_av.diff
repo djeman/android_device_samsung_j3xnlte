@@ -315,7 +315,7 @@ index d85d15b..e389992 100644
  
  extern const char *MEDIA_MIMETYPE_CONTAINER_WVM;
 diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
-index 92e2847..2b856b8 100644
+index a11494d..43aaf0e 100644
 --- a/media/libstagefright/ACodec.cpp
 +++ b/media/libstagefright/ACodec.cpp
 @@ -1780,8 +1780,12 @@ const char *ACodec::getComponentRole(
@@ -445,7 +445,7 @@ index 92e2847..2b856b8 100644
      { MEDIA_MIMETYPE_VIDEO_DOLBY_VISION, OMX_VIDEO_CodingDolbyVision },
  };
  
-@@ -5214,6 +5297,24 @@ status_t ACodec::getPortFormat(OMX_U32 portIndex, sp<AMessage> &notify) {
+@@ -5213,6 +5296,24 @@ status_t ACodec::getPortFormat(OMX_U32 portIndex, sp<AMessage> &notify) {
                      // Fall through to set up mime.
                  }
  
@@ -470,7 +470,7 @@ index 92e2847..2b856b8 100644
                  default:
                  {
                      if (!mIsEncoder && !strncmp(mComponentName.c_str(), "OMX.ffmpeg.", 11)) {
-@@ -7842,6 +7943,34 @@ status_t ACodec::setParameters(const sp<AMessage> &params) {
+@@ -7841,6 +7942,34 @@ status_t ACodec::setParameters(const sp<AMessage> &params) {
              err = OK;
          }
      }
@@ -3968,7 +3968,7 @@ index 0000000..6a8e79d
 +}  // namespace android
 +
 diff --git a/media/libstagefright/MPEG4Extractor.cpp b/media/libstagefright/MPEG4Extractor.cpp
-index ed4447b..5a960d6 100644
+index 989ce75..bbb16c0 100644
 --- a/media/libstagefright/MPEG4Extractor.cpp
 +++ b/media/libstagefright/MPEG4Extractor.cpp
 @@ -375,6 +375,10 @@ static const char *FourCC2MIME(uint32_t fourcc) {
@@ -4008,7 +4008,7 @@ index ed4447b..5a960d6 100644
          {
              uint8_t buffer[78];
              if (chunk_data_size < (ssize_t)sizeof(buffer)) {
-@@ -1963,6 +1970,69 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
+@@ -1966,6 +1973,69 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
              mLastTrack->meta->setData(
                      kKeyESDS, kTypeESDS, &buffer[4], chunk_data_size - 4);
  
@@ -4078,7 +4078,7 @@ index ed4447b..5a960d6 100644
              if (mPath.size() >= 2
                      && mPath[mPath.size() - 2] == FOURCC('m', 'p', '4', 'a')) {
                  // Information from the ESDS must be relied on for proper
-@@ -2105,7 +2175,7 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
+@@ -2108,7 +2178,7 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
          case FOURCC('m', 'e', 't', 'a'):
          {
              off64_t stop_offset = *offset + chunk_size;
@@ -4087,7 +4087,7 @@ index ed4447b..5a960d6 100644
              bool isParsingMetaKeys = underQTMetaPath(mPath, 2);
              if (!isParsingMetaKeys) {
                  uint8_t buffer[4];
-@@ -2130,7 +2200,9 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
+@@ -2133,7 +2203,9 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
                      *offset = stop_offset;
                      return OK;
                  }
@@ -4098,7 +4098,7 @@ index ed4447b..5a960d6 100644
              }
  
              while (*offset < stop_offset) {
-@@ -4567,7 +4639,7 @@ status_t MPEG4Source::read(
+@@ -4570,7 +4642,7 @@ status_t MPEG4Source::read(
                      sampleIndex, &syncSampleIndex, findFlags);
          }
  
@@ -4107,7 +4107,7 @@ index ed4447b..5a960d6 100644
          if (err == OK) {
              err = mSampleTable->getMetaDataForSample(
                      sampleIndex, NULL, NULL, &sampleTime);
-@@ -4591,7 +4663,7 @@ status_t MPEG4Source::read(
+@@ -4594,7 +4666,7 @@ status_t MPEG4Source::read(
          }
  
  #if 0
@@ -4116,7 +4116,7 @@ index ed4447b..5a960d6 100644
          CHECK_EQ(OK, mSampleTable->getMetaDataForSample(
                      syncSampleIndex, NULL, NULL, &syncSampleTime));
  
-@@ -4613,7 +4685,8 @@ status_t MPEG4Source::read(
+@@ -4616,7 +4688,8 @@ status_t MPEG4Source::read(
  
      off64_t offset;
      size_t size;
@@ -4126,7 +4126,7 @@ index ed4447b..5a960d6 100644
      bool isSyncSample;
      bool newBuffer = false;
      if (mBuffer == NULL) {
-@@ -4624,6 +4697,9 @@ status_t MPEG4Source::read(
+@@ -4627,6 +4700,9 @@ status_t MPEG4Source::read(
                      mCurrentSampleIndex, &offset, &size, &cts, &isSyncSample, &stts);
  
          if (err != OK) {
@@ -4136,7 +4136,7 @@ index ed4447b..5a960d6 100644
              return err;
          }
  
-@@ -4752,6 +4828,14 @@ status_t MPEG4Source::read(
+@@ -4757,6 +4833,14 @@ status_t MPEG4Source::read(
                      nalLength = parseNALSize(&mSrcBuffer[srcOffset]);
                      srcOffset += mNALLengthSize;
                      isMalFormed = !isInRange((size_t)0u, size, srcOffset, nalLength);
@@ -4151,7 +4151,7 @@ index ed4447b..5a960d6 100644
                  }
  
                  if (isMalFormed) {
-@@ -5197,6 +5281,7 @@ static bool isCompatibleBrand(uint32_t fourcc) {
+@@ -5204,6 +5288,7 @@ static bool isCompatibleBrand(uint32_t fourcc) {
          FOURCC('3', 'g', 'p', '4'),
          FOURCC('m', 'p', '4', '1'),
          FOURCC('m', 'p', '4', '2'),
