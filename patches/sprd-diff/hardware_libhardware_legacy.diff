@@ -1,5 +1,5 @@
 diff --git a/wifi/wifi.c b/wifi/wifi.c
-index de2f8ee..d692121 100644
+index e9a2958..0704a7b 100644
 --- a/wifi/wifi.c
 +++ b/wifi/wifi.c
 @@ -23,6 +23,8 @@
@@ -34,7 +34,7 @@ index de2f8ee..d692121 100644
  extern int do_dhcp();
  extern int ifc_init();
  extern void ifc_close();
-@@ -181,6 +199,94 @@ static char supplicant_name[PROPERTY_VALUE_MAX];
+@@ -176,6 +194,94 @@ static char supplicant_name[PROPERTY_VALUE_MAX];
  /* Is either SUPP_PROP_NAME or P2P_PROP_NAME */
  static char supplicant_prop_name[PROPERTY_KEY_MAX];
  
@@ -129,7 +129,7 @@ index de2f8ee..d692121 100644
  #ifdef SAMSUNG_WIFI
  char* get_samsung_wifi_type()
  {
-@@ -417,6 +523,20 @@ int wifi_load_driver()
+@@ -378,6 +484,20 @@ int wifi_load_driver()
      usleep(200000);
  #endif
  
@@ -150,7 +150,7 @@ index de2f8ee..d692121 100644
      if (insmod(DRIVER_MODULE_PATH, DRIVER_MODULE_ARG) < 0) {
  #endif
  
-@@ -473,6 +593,13 @@ int wifi_unload_driver()
+@@ -428,6 +548,13 @@ int wifi_unload_driver()
      wifi_fst_unload_driver();
  
  #ifdef WIFI_DRIVER_MODULE_PATH
@@ -164,7 +164,7 @@ index de2f8ee..d692121 100644
      if (rmmod(DRIVER_MODULE_NAME) == 0) {
          int count = 20; /* wait at most 10 seconds for completion */
          while (count-- > 0) {
-@@ -491,6 +618,36 @@ int wifi_unload_driver()
+@@ -446,6 +573,36 @@ int wifi_unload_driver()
      } else
          return -1;
  #else
@@ -201,7 +201,7 @@ index de2f8ee..d692121 100644
  #ifdef WIFI_DRIVER_STATE_CTRL_PARAM
      if (is_wifi_driver_loaded()) {
          if (wifi_change_driver_state(WIFI_DRIVER_STATE_OFF) < 0)
-@@ -832,6 +989,12 @@ int wifi_start_supplicant(int p2p_supported)
+@@ -787,6 +944,12 @@ int wifi_start_supplicant(int p2p_supported)
      const prop_info *pi;
      unsigned serial = 0, i;
  
@@ -214,7 +214,7 @@ index de2f8ee..d692121 100644
      if (wifi_start_fstman(0)) {
          return -1;
      }
-@@ -923,6 +1086,13 @@ int wifi_stop_supplicant(int p2p_supported)
+@@ -878,6 +1041,13 @@ int wifi_stop_supplicant(int p2p_supported)
      char supp_status[PROPERTY_VALUE_MAX] = {'\0'};
      int count = 50; /* wait at most 5 seconds for completion */
  
@@ -228,7 +228,7 @@ index de2f8ee..d692121 100644
      if (p2p_supported) {
          strcpy(supplicant_name, P2P_SUPPLICANT_NAME);
          strcpy(supplicant_prop_name, P2P_PROP_NAME);
-@@ -1022,6 +1192,16 @@ int wifi_send_command(const char *cmd, char *reply, size_t *reply_len)
+@@ -977,6 +1147,16 @@ int wifi_send_command(const char *cmd, char *reply, size_t *reply_len)
          ALOGV("Not connected to wpa_supplicant - \"%s\" command dropped.\n", cmd);
          return -1;
      }
@@ -245,7 +245,7 @@ index de2f8ee..d692121 100644
      ret = wpa_ctrl_request(ctrl_conn, cmd, strlen(cmd), reply, reply_len, NULL);
      if (ret == -2) {
          ALOGD("'%s' command timed out.\n", cmd);
-@@ -1154,6 +1334,21 @@ int wifi_wait_on_socket(char *buf, size_t buflen)
+@@ -1109,6 +1289,21 @@ int wifi_wait_on_socket(char *buf, size_t buflen)
          ALOGW("supplicant generated event without interface and without message level - %s\n", buf);
      }
  
