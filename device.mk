@@ -255,24 +255,6 @@ PRODUCT_PACKAGES += \
     libgpsshim
 
 PRODUCT_PACKAGES += \
-    sec_samsung \
-    rcsopenapi \
-    commonimsinterface \
-    imsmanager \
-    imsmanager-internal \
-    imsservice \
-    ImsSettings \
-    ImsTelephonyService \
-    libims_engine \
-    libapve-client \
-    libcpve-client \
-    libimsshim
-
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/ims/imsmanager_library.xml:system/etc/permissions/imsmanager_library.xml \
-    $(LOCAL_PATH)/ims/rcsopenapi_library.xml:system/etc/permissions/rcsopenapi_library.xml
-
-PRODUCT_PACKAGES += \
     camera.sc8830 \
     power.sc8830 \
     libcamoem \
