@@ -25,6 +25,8 @@ LOCAL_INIT_RC := rild.rc
 
 LOCAL_C_INCLUDES += $(TARGET_OUT_HEADERS)/libril
 
+LOCAL_PROPRIETARY_MODULE := true
+
 include $(BUILD_EXECUTABLE)
 
 endif

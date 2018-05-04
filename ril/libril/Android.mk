@@ -31,6 +31,8 @@ LOCAL_MODULE:= libril
 LOCAL_CLANG := true
 LOCAL_SANITIZE := integer
 
+LOCAL_PROPRIETARY_MODULE := true
+
 include $(BUILD_SHARED_LIBRARY)
 
 
