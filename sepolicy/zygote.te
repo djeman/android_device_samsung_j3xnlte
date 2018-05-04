@@ -1,5 +1,4 @@
 allow zygote system_data_file:dir { write add_name };
-allow zygote zygote_tmpfs:file { create open };
 allow zygote fuse:file { create read write open };
 allow zygote zygote:capability sys_boot;
 allow zygote proc_sysrq:file { write open };

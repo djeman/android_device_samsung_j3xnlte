@@ -9,4 +9,3 @@ allow kernel kernel:system syslog_mod;
 # add for root check
 allow kernel block_device:dir search;
 allow kernel mmcblk_device:blk_file { open read write };
-allow kernel self:capability { dac_override dac_read_search };

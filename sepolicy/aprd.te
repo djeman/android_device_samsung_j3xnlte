@@ -19,4 +19,3 @@ allow aprd apr_data_file:dir { write search add_name remove_name};
 allow aprd anr_data_file:dir read;
 allow aprd tombstone_data_file:dir read;
 allow aprd system_data_file:dir read;
-allow aprd log_device:chr_file read;

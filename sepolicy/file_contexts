@@ -19,7 +19,6 @@
 /dev/sprd_isp           u:object_r:camera_device:s0
 /dev/sprd_scale         u:object_r:camera_device:s0
 /dev/sprd_image         u:object_r:camera_device:s0
-/dev/ttyV1              u:object_r:gps_device:s0
 /dev/sprd_vsp           u:object_r:video_device:s0
 /dev/sprd_coda7l        u:object_r:video_device:s0
 /dev/sprd_vpp           u:object_r:video_device:s0
@@ -73,54 +72,50 @@
 /dev/gnss_download        u:object_r:wcn_device:s0
 /dev/gnss_dbg        u:object_r:wcn_device:s0
 /dev/slog_gnss           u:object_r:slog_device:s0
-/dev/cgxdrv          u:object_r:gps_device:s0
-/dev/ttyV0           u:object_r:gps_device:s0
 /dev/spipe_lte9      u:object_r:modemdriver_vpad_device:s0
 #############################
 # System files
 #
-/system/bin/data_on.sh  u:object_r:data_on_exec:s0
-/system/bin/data_off.sh u:object_r:data_off_exec:s0
-/system/bin/mplayer     u:object_r:mediaserver_exec:s0
-/system/bin/wcnd     	u:object_r:wcnd_exec:s0
-/system/bin/engpc       u:object_r:engpc_exec:s0
-/system/bin/autotest    u:object_r:autotest_exec:s0
-/system/bin/charge u:object_r:charge_exec:s0
+/vendor/bin/data_on.sh  u:object_r:data_on_exec:s0
+/vendor/bin/data_off.sh u:object_r:data_off_exec:s0
+/vendor/bin/mplayer     u:object_r:mediaserver_exec:s0
+/vendor/bin/wcnd     	u:object_r:wcnd_exec:s0
+/vendor/bin/engpc       u:object_r:engpc_exec:s0
+/vendor/bin/autotest    u:object_r:autotest_exec:s0
+/vendor/bin/charge u:object_r:charge_exec:s0
 /system/xbin/zram.sh 	u:object_r:zram_exec:s0
 /system/xbin/srtd    	u:object_r:srtd_exec:s0
-/system/bin/refnotify   u:object_r:refnotify_exec:s0
-/system/bin/modemd      u:object_r:rild_exec:s0
-/system/bin/phoneserver u:object_r:rild_exec:s0
-/system/bin/modem_control u:object_r:modem_control_exec:s0
-/system/bin/rild_sp u:object_r:rild_exec:s0
-/system/bin/cp_diskserver u:object_r:cp_diskserver_exec:s0
-/system/bin/download    u:object_r:download_exec:s0
-/system/bin/gnss_download    u:object_r:gnss_download_exec:s0
-/system/bin/slogmodem	u:object_r:slogmodem_exec:s0
-/system/bin/factorytest u:object_r:factorytest_exec:s0
-/system/bin/phasecheckserver u:object_r:phasecheckserver_exec:s0
-/system/bin/tune2fs       u:object_r:fsck_exec:s0
-/system/bin/resize2fs     u:object_r:fsck_exec:s0
-/system/bin/GPSenseEngine       u:object_r:GPSenseEngine_exec:s0
+/vendor/bin/refnotify   u:object_r:refnotify_exec:s0
+/vendor/bin/modemd      u:object_r:rild_exec:s0
+/vendor/bin/phoneserver u:object_r:rild_exec:s0
+/vendor/bin/modem_control u:object_r:modem_control_exec:s0
+/vendor/bin/rild_sp u:object_r:rild_exec:s0
+/vendor/bin/cp_diskserver u:object_r:cp_diskserver_exec:s0
+/vendor/bin/download    u:object_r:download_exec:s0
+/vendor/bin/gnss_download    u:object_r:gnss_download_exec:s0
+/vendor/bin/slogmodem	u:object_r:slogmodem_exec:s0
+/vendor/bin/factorytest u:object_r:factorytest_exec:s0
+/vendor/bin/phasecheckserver u:object_r:phasecheckserver_exec:s0
+/vendor/bin/resize2fs     u:object_r:fsck_exec:s0
+/vendor/bin/GPSenseEngine       u:object_r:GPSenseEngine_exec:s0
 
-/system/bin/IPSecService       u:object_r:IPSecService_exec:s0
-/system/bin/at_distributor     u:object_r:at_distributor_exec:s0
-/system/bin/connfwexe          u:object_r:connfwexe_exec:s0
-/system/bin/ddexe              u:object_r:ddexe_exec:s0
-/system/bin/ext_symlink.sh     u:object_r:ext_symlink_exec:s0
-/system/bin/macloader          u:object_r:macloader_exec:s0
-/system/bin/smdexe             u:object_r:smdexe_exec:s0
+/vendor/bin/IPSecService       u:object_r:IPSecService_exec:s0
+/vendor/bin/at_distributor     u:object_r:at_distributor_exec:s0
+/vendor/bin/connfwexe          u:object_r:connfwexe_exec:s0
+/vendor/bin/ddexe              u:object_r:ddexe_exec:s0
+/vendor/bin/ext_symlink.sh     u:object_r:ext_symlink_exec:s0
+/vendor/bin/macloader          u:object_r:macloader_exec:s0
+/vendor/bin/smdexe             u:object_r:smdexe_exec:s0
 /sbin/sswap                    u:object_r:sswap_exec:s0
 
-/system/bin/batterysrv u:object_r:batterysrv_exec:s0
-/system/bin/gpsd        u:object_r:gpsd_exec:s0
-/system/bin/cmd_services       u:object_r:cmd_services_exec:s0
-/system/bin/modemDriver_vpad_main u:object_r:modemdriver_vpad_exec:s0
+/vendor/bin/batterysrv u:object_r:batterysrv_exec:s0
+/vendor/bin/cmd_services       u:object_r:cmd_services_exec:s0
+/vendor/bin/modemDriver_vpad_main u:object_r:modemdriver_vpad_exec:s0
 /dev/block/zram0 u:object_r:zram_block_device:s0
 
 /data/modem_log(/.*)?	u:object_r:slogmodem_data:s0
 /data/local/englog(/.*)?    u:object_r:engpc_data:s0
-/system/bin/thermald        u:object_r:thermald_exec:s0
+/vendor/bin/thermald        u:object_r:thermald_exec:s0
 ############################
 #for sharkl64
 #

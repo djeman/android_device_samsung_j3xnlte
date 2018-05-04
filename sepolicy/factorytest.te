@@ -26,13 +26,11 @@ allow factorytest bluetooth_data_file:file { open read write create getattr seta
 allow factorytest factorytest:capability { dac_override sys_nice fowner setgid setuid fsetid sys_module sys_admin chown net_admin net_raw sys_boot };
 allow factorytest factorytest:capability2 { block_suspend syslog };
 allow factorytest factorytest:process { execmem };
-allow factorytest factorytest:netlink_route_socket { create read bind write nlmsg_write };
 allow factorytest factorytest:netlink_socket { write read create getopt setopt bind getattr };
 allow factorytest factorytest:udp_socket { create ioctl };
 allow factorytest factorytest:tcp_socket { create bind listen setopt };
-allow factorytest factorytest:packet_socket { create ioctl bind read };
+allow factorytest factorytest:packet_socket { create bind read };
 allow factorytest tty_device:chr_file { open read write ioctl getattr };
-allow factorytest gps_device:chr_file { open read write ioctl };
 allow factorytest wifi_data_file:dir { getattr setattr search create open read write add_name remove_name rmdir };
 allow factorytest wifi_data_file:file { open read write getattr setattr create unlink append };
 allow factorytest wifi_data_file:chr_file { getattr setattr read write };
@@ -40,7 +38,6 @@ allow factorytest wifi_data_file:sock_file { create setattr unlink open write };
 allow factorytest wpa_socket:dir { setattr getattr search write add_name remove_name rmdir};
 allow factorytest wpa_socket:file { setattr getattr open write };
 allow factorytest wpa_socket:sock_file { create setattr write unlink };
-allow factorytest wpa_exec:file { execute getattr execute_no_trans open read };
 allow factorytest block_device:dir { search };
 allow factorytest mmcblk_device:blk_file { open read write ioctl getattr };
 allow factorytest system_data_file:dir { open write read create setattr add_name remove_name rmdir };
@@ -78,7 +75,6 @@ allow factorytest wcn_device:chr_file{ read write open ioctl };
 allow factorytest mmitest_file:dir { search create open write add_name remove_name setattr };
 allow factorytest mmitest_file:file { create read write open rename setattr getattr unlink append };
 allow factorytest logcat_exec:file { getattr execute read open execute_no_trans };
-allow factorytest log_device:chr_file { open read };
 allow factorytest fm_device:chr_file { open read write ioctl };
 
 allow healthd device:dir { write };
@@ -90,7 +86,6 @@ allow factorytest audio_device:fifo_file { open write };
 allow factorytest GPSenseEngine:unix_stream_socket { connectto };
 allow factorytest system_prop:property_service { set };
 allow factorytest wpa_socket:dir { open read };
-allow factorytest wpa:unix_dgram_socket { sendto };
 
 allow factorytest gnss_file:dir { create search add_name open read write remove_name };
 allow factorytest gnss_file:file { read write open create getattr setattr append unlink };

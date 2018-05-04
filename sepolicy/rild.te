@@ -27,8 +27,6 @@ allow rild servicemanager:dir search;
 allow rild servicemanager:file { write read open };
 allow rild vold:dir search;
 allow rild vold:file { write read open };
-allow rild debuggerd:dir search;
-allow rild debuggerd:file { write read open };
 allow rild surfaceflinger:dir search;
 allow rild surfaceflinger:file { write read open };
 allow rild batterysrv:dir search;

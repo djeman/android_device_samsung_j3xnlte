@@ -4,7 +4,7 @@ allow init shell_data_file:sock_file { create getattr unlink };
 allow init init:process execmem;
 allow init fuse:dir { search open read write add_name create unlink remove_name };
 allow init fuse:file { open write read append create unlink getattr rename };
-allow init init:packet_socket { create ioctl setopt read getopt };
+allow init init:packet_socket { create setopt read getopt };
 allow init radio:process signal;
 allow init vfat:dir {write add_name create};
 allow init vfat:file {create write};
@@ -42,10 +42,6 @@ allow init logdr_socket:sock_file write;
 allow init sysfs_lowmemorykiller:file getattr;
 allow init debugfs:file getattr;
 
-###for bug:472144 {
-allow init init:netlink_route_socket {create setopt bind getattr write read nlmsg_read nlmsg_write };
-### }
-
 allow init kmsg_device:chr_file write;
 
 allow init system_data_file:sock_file { create write read };
@@ -57,11 +53,9 @@ allow init sensors_device:chr_file { write ioctl };
 allow init wcnd:unix_stream_socket { connectto };
 allow init factorytest:unix_stream_socket { connectto };
 allow init self:capability { sys_nice };
-allow init gps_device:chr_file { write ioctl };
 allow init self:capability2 { block_suspend };
 allow init proc_bluetooth_writable:file { open write };
 allow init wpa_socket:sock_file { open write read };
-allow init wpa:unix_dgram_socket sendto;
 allow init serial_device:chr_file { read write open ioctl };
 allow init bluetooth_data_file:file { create read write open unlink rename getattr setattr };
 allow init audio_device:fifo_file { create open write read };

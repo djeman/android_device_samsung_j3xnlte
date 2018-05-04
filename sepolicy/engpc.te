@@ -42,7 +42,6 @@ allow engpc tty_device:chr_file { read write open };
 allow engpc cache_file:dir { write open create read add_name remove_name rmdir };
 allow engpc cache_file:file { write open create read unlink };
 allow engpc proc_sysrq:file { write open create read };
-allow engpc gps_device:chr_file { open read write ioctl };
 allow engpc system_data_file:sock_file { unlink setattr write create };
 allow engpc engpc:netlink_socket { create bind connect listen accept write read setopt getopt getattr};
 allow engpc engpc:udp_socket { create ioctl };
@@ -57,9 +56,6 @@ allow engpc system_wpa_socket:sock_file create_file_perms;
 
 allow engpc wpa_socket:sock_file unlink;
 
-unix_socket_send(engpc, wpa, wpa)
-unix_socket_send(wpa, wpa, engpc)
-
 unix_socket_send(engpc, netd, netd)
 unix_socket_connect(engpc, netd, netd)
 
@@ -67,8 +63,6 @@ allow engpc wifi_data_file:dir create_dir_perms;
 allow engpc wifi_data_file:file create_file_perms;
 
 allow engpc self:capability { setuid setgid };
-
-allow engpc self:netlink_route_socket { create_socket_perms nlmsg_read nlmsg_write};
 
 allow engpc kernel:system { module_request };
 allow engpc bluetooth_data_file:dir { open getattr search write add_name remove_name };
@@ -89,7 +83,6 @@ allow engpc wcn_device:chr_file { open read write ioctl };
 allow engpc engpc_data:dir { add_name setattr getattr create search open read remove_name rmdir write unlink };
 allow engpc engpc_data:file { setattr getattr create open read rename write unlink append lock };
 allow engpc logcat_exec:file { getattr execute read open execute_no_trans };
-allow engpc log_device:chr_file { read };
 allow engpc powerctl_prop:property_service { set };
 
 allow engpc media_data_file:dir { open write read search add_name };

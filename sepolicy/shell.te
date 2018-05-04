@@ -6,7 +6,6 @@ allow shell prod_file:dir getattr;
 allow shell net_data_file:dir search;
 ### }
 
-allow shell log_device:chr_file read;
 allow shell ctl_default_prop:property_service set;
 allow shell slog_file:dir {search getattr read open write remove_name rmdir};
 allow shell ylog_file:dir {search getattr read open write remove_name rmdir};

@@ -4,7 +4,6 @@ type GPSenseEngine_exec, exec_type, file_type;
 init_daemon_domain(GPSenseEngine)
 
 allow GPSenseEngine serial_device:chr_file { read write open ioctl };
-allow GPSenseEngine gps_device:chr_file { open read write ioctl getattr };
 allow GPSenseEngine system_data_file:sock_file { unlink setattr write create };
 allow GPSenseEngine GPSenseEngine:process { execmem };
 allow GPSenseEngine system_data_file:dir { open read write remove_name add_name };

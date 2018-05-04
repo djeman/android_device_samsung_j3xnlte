@@ -97,10 +97,6 @@ allow slogd netd:file {open read};
 allow slogd netd:dir {open read search getattr};
 allow slogd netd:lnk_file {getattr read};
 
-allow slogd debuggerd:dir {search getattr read open};
-allow slogd debuggerd:file {read open};
-allow slogd debuggerd:lnk_file {read getattr};
-
 allow slogd engpc:file {open read};
 allow slogd engpc:dir {open read search getattr};
 allow slogd engpc:lnk_file {getattr read};
@@ -154,8 +150,6 @@ allow slogd srtd:dir {open read getattr search};
 allow slogd srtd:file {open read};
 allow slogd srtd:lnk_file {getattr read};
 
-allow slogd log_device:chr_file read;
-
 allow slogd system_server:dir {getattr search open read};
 allow slogd system_server:file {read open};
 allow slogd system_server:lnk_file {getattr read};
@@ -182,9 +176,6 @@ allow slogd untrusted_app:lnk_file {read getattr};
 allow slogd system_app:lnk_file {getattr read};
 allow slogd system_app:dir {getattr search};
 allow slogd system_app:file {read open};
-allow slogd wpa:dir {getattr search open read};
-allow slogd wpa:file {read open};
-allow slogd wpa:lnk_file {getattr read};
 allow slogd sdcardd:dir {search getattr read open};
 allow slogd sdcardd:file {read open};
 allow slogd sdcardd:lnk_file {getattr read};
@@ -208,7 +199,7 @@ allow slogd slogmodem:lnk_file {getattr read};
 
 allow slogd activity_service:service_manager find;
 
-allow slogd slogd:packet_socket {setopt create ioctl getopt read write};
+allow slogd slogd:packet_socket {setopt create getopt read write};
 allow slogd tombstone_data_file:file {open read getattr};
 allow slogd tombstone_data_file:dir {read setattr search};
 allow slogd logcat_exec:file {getattr execute read open execute_no_trans};

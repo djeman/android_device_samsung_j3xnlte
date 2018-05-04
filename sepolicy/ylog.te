@@ -98,10 +98,6 @@ allow ylog netd:dir {open read search getattr};
 allow ylog netd:lnk_file {getattr read};
 allow ylog netd:unix_stream_socket {connectto};
 
-allow ylog debuggerd:dir {search getattr read open};
-allow ylog debuggerd:file {read open};
-allow ylog debuggerd:lnk_file {read getattr};
-
 allow ylog engpc:file {open read};
 allow ylog engpc:dir {open read search getattr};
 allow ylog engpc:lnk_file {getattr read};
@@ -157,8 +153,6 @@ allow ylog srtd:dir {open read getattr search};
 allow ylog srtd:file {open read};
 allow ylog srtd:lnk_file {getattr read};
 
-allow ylog log_device:chr_file read;
-
 allow ylog system_server:dir {getattr search open read};
 allow ylog system_server:file {read open};
 allow ylog system_server:lnk_file {getattr read};
@@ -182,9 +176,6 @@ allow ylog untrusted_app:lnk_file {read getattr};
 allow ylog system_app:lnk_file {getattr read};
 allow ylog system_app:dir {getattr search open read};
 allow ylog system_app:file {read open};
-allow ylog wpa:dir {getattr search open read};
-allow ylog wpa:file {read open};
-allow ylog wpa:lnk_file {getattr read};
 allow ylog sdcardd:dir {search getattr read open};
 allow ylog sdcardd:file {read open};
 allow ylog sdcardd:lnk_file {getattr read};
@@ -204,7 +195,7 @@ allow ylog activity_service:service_manager find;
 
 allow ylog mnt_media_rw_file:dir search;
 
-allow ylog ylog:packet_socket {setopt create ioctl getopt read write};
+allow ylog ylog:packet_socket {setopt create getopt read write};
 allow ylog tombstone_data_file:file {open read getattr};
 allow ylog tombstone_data_file:dir {read setattr search};
 allow ylog logcat_exec:file {getattr execute read open execute_no_trans};
@@ -235,7 +226,6 @@ allow ylog init_exec:file {getattr};
 
 allow ylog block_device:dir {search getattr read open};
 allow ylog block_device:blk_file {getattr};
-allow ylog gps_device:chr_file {getattr};
 allow ylog console_device:chr_file {getattr};
 allow ylog dm_device:chr_file {getattr};
 allow ylog fm_device:chr_file {getattr};
@@ -247,8 +237,6 @@ allow ylog ppp_device:chr_file {getattr};
 allow ylog mtp_device:chr_file {getattr};
 #allow ylog kmem_device:chr_file {getattr};
 allow ylog sensors_device:chr_file {getattr};
-allow ylog log_device:chr_file {getattr};
-allow ylog log_device:dir {getattr};
 allow ylog kmsg_device:chr_file {getattr};
 allow ylog input_device:chr_file {getattr};
 allow ylog input_device:dir {getattr};
