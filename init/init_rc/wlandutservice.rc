@@ -1,4 +1,4 @@
-service wlandutservice /system/bin/wlandutservice
+service wlandutservice /vendor/bin/wlandutservice
     class main
     user system
     group wifi net_raw net_admin system inet

@@ -1,4 +1,4 @@
-service DR-daemon /system/bin/ddexe
+service DR-daemon /vendor/bin/ddexe
     class main
     user root
     group system radio inet net_raw

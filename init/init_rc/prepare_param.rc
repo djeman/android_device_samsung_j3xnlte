@@ -1,4 +1,4 @@
-service prepare_param /system/bin/prepare_param.sh /dev/block/platform/sdio_emmc/by-name/PARAM
+service prepare_param /vendor/bin/prepare_param.sh /dev/block/platform/sdio_emmc/by-name/PARAM
     class core
     user root
     group root

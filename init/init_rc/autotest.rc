@@ -1,4 +1,4 @@
-service autotest /system/bin/autotest
+service autotest /vendor/bin/autotest
     class main
     disabled
     user root

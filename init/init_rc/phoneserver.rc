@@ -1,32 +1,32 @@
-service phoneserver_t /system/bin/phoneserver -m t
+service phoneserver_t /vendor/bin/phoneserver -m t
     class core
     user root
     group radio system shell dhcp
     disabled
     oneshot
 
-service phoneserver_w /system/bin/phoneserver -m w
+service phoneserver_w /vendor/bin/phoneserver -m w
     class core
     user root
     group radio system shell dhcp
     disabled
     oneshot
 
-service phoneserver_l /system/bin/phoneserver -m l
+service phoneserver_l /vendor/bin/phoneserver -m l
     class core
     user root
     group radio system shell dhcp
     disabled
     oneshot
 
-service phoneserver_tl /system/bin/phoneserver -m tl
+service phoneserver_tl /vendor/bin/phoneserver -m tl
     class core
     user root
     group radio system shell
     disabled
     oneshot
 
-service phoneserver_lf /system/bin/phoneserver -m lf
+service phoneserver_lf /vendor/bin/phoneserver -m lf
     class core
     user root
     group radio system shell

@@ -1,4 +1,4 @@
-service download /system/bin/download
+service download /vendor/bin/download
     class core
     user system
     group system shell wifi bluetooth net_bt_stack

@@ -1,4 +1,4 @@
-service cmd_services /system/bin/cmd_services
+service cmd_services /vendor/bin/cmd_services
     class main
     user root
     disabled

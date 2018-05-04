@@ -1,4 +1,4 @@
-service  inputfreq  /system/bin/inputfreq.sh
+service  inputfreq  /vendor/bin/inputfreq.sh
     user root
     disabled
     oneshot

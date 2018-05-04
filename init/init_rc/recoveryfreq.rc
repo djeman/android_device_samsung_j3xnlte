@@ -1,4 +1,4 @@
-service  recoveryfreq  /system/bin/recoveryfreq.sh
+service  recoveryfreq  /vendor/bin/recoveryfreq.sh
     user root
     disabled
     oneshot

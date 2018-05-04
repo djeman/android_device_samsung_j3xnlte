@@ -1,4 +1,4 @@
-service modemd /system/bin/modemd
+service modemd /vendor/bin/modemd
     class core
     user system
     group system radio shell
