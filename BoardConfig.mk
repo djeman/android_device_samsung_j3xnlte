@@ -254,6 +254,10 @@ EXTENDED_FONT_FOOTPRINT := true
 # DRM
 BOARD_WIDEVINE_OEMCRYPTO_LEVEL := 3
 
+# SHIMS
+TARGET_LD_SHIM_LIBS := \
+    /system/vendor/bin/gpsd|/system/vendor/lib/libgpsshim.so
+
 # Dex
 ifeq ($(HOST_OS),linux)
   ifeq ($(TARGET_BUILD_VARIANT),user)

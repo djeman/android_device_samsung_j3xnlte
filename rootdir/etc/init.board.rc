@@ -1,8 +1,6 @@
 import /init.wifi.rc
 
 on init
-    export LD_SHIM_LIBS /vendor/lib/libims_engine.so|libimsshim.so
-
     # SEC_SELINUX
     # for audit message
     chown system system /proc/avc_msg

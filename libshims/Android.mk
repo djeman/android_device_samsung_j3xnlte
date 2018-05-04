@@ -18,8 +18,8 @@
 LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES := libgpsshim.c
-LOCAL_SHARED_LIBRARIES := libsensor libbinder libutils
+LOCAL_SRC_FILES := libgpsshim.cpp
+LOCAL_SHARED_LIBRARIES := libsensor
 LOCAL_MODULE := libgpsshim
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES
