@@ -1,8 +1,8 @@
 diff --git a/include/tinyalsa/asoundlib.h b/include/tinyalsa/asoundlib.h
-index b789573..d20ab62 100644
+index dc71d37..1f0825d 100644
 --- a/include/tinyalsa/asoundlib.h
 +++ b/include/tinyalsa/asoundlib.h
-@@ -257,6 +257,10 @@ int pcm_get_poll_fd(struct pcm *pcm);
+@@ -265,6 +265,10 @@ int pcm_get_poll_fd(struct pcm *pcm);
   */
  int pcm_set_avail_min(struct pcm *pcm, int avail_min);
  
@@ -14,10 +14,10 @@ index b789573..d20ab62 100644
   * MIXER API
   */
 diff --git a/pcm.c b/pcm.c
-index 612d068..e3aad16 100644
+index 120d182..16c41c4 100644
 --- a/pcm.c
 +++ b/pcm.c
-@@ -1312,3 +1312,55 @@ int pcm_ioctl(struct pcm *pcm, int request, ...)
+@@ -1346,3 +1346,55 @@ int pcm_ioctl(struct pcm *pcm, int request, ...)
  
      return ioctl(pcm->fd, request, arg);
  }

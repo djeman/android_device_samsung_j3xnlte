@@ -1,8 +1,8 @@
-diff --git a/Jelly/app/src/main/java/org/lineageos/jelly/MainActivity.java b/Jelly/app/src/main/java/org/lineageos/jelly/MainActivity.java
-index 606676a..e6308d8 100644
+diff --git a/Jelly/app/src/main/java/org/lineageos/jelly/MainActivity.java b/app/src/main/java/org/lineageos/jelly/MainActivity.java
+index 724c83a..532d26a 100644
 --- a/Jelly/app/src/main/java/org/lineageos/jelly/MainActivity.java
 +++ b/Jelly/app/src/main/java/org/lineageos/jelly/MainActivity.java
-@@ -61,6 +61,7 @@ import android.view.WindowManager;
+@@ -66,6 +66,7 @@ import android.view.WindowManager;
  import android.view.inputmethod.EditorInfo;
  import android.webkit.CookieManager;
  import android.webkit.URLUtil;
@@ -10,7 +10,7 @@ index 606676a..e6308d8 100644
  import android.webkit.WebChromeClient;
  import android.widget.AutoCompleteTextView;
  import android.widget.EditText;
-@@ -115,6 +116,7 @@ public class MainActivity extends WebViewExtActivity implements
+@@ -120,6 +121,7 @@ public class MainActivity extends WebViewExtActivity implements
          }
      };
  
@@ -18,27 +18,7 @@ index 606676a..e6308d8 100644
      private CoordinatorLayout mCoordinator;
      private WebViewExt mWebView;
      private ProgressBar mLoadingProgress;
-@@ -638,8 +640,8 @@ public class MainActivity extends WebViewExtActivity implements
-         mCustomView.setBackgroundColor(ContextCompat.getColor(this, android.R.color.black));
-         addContentView(mCustomView, new ViewGroup.LayoutParams(
-                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
--        findViewById(R.id.app_bar_layout).setVisibility(View.GONE);
--        findViewById(R.id.web_view_container).setVisibility(View.VISIBLE);
-+        //findViewById(R.id.app_bar_layout).setVisibility(View.GONE);
-+        //findViewById(R.id.web_view_container).setVisibility(View.VISIBLE);
-     }
- 
-     @Override
-@@ -649,13 +651,15 @@ public class MainActivity extends WebViewExtActivity implements
-         }
-         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-         setImmersiveMode(false);
--        findViewById(R.id.app_bar_layout).setVisibility(View.VISIBLE);
--        findViewById(R.id.web_view_container).setVisibility(View.GONE);
-+        //findViewById(R.id.app_bar_layout).setVisibility(View.VISIBLE);
-+        //findViewById(R.id.web_view_container).setVisibility(View.GONE);
-         ViewGroup viewGroup = (ViewGroup) mCustomView.getParent();
-         viewGroup.removeView(mCustomView);
+@@ -661,6 +663,8 @@ public class MainActivity extends WebViewExtActivity implements
          mFullScreenCallback.onCustomViewHidden();
          mFullScreenCallback = null;
          mCustomView = null;
@@ -47,9 +27,9 @@ index 606676a..e6308d8 100644
      }
  
      private void addShortcut() {
-@@ -699,4 +703,16 @@ public class MainActivity extends WebViewExtActivity implements
-         super.onWindowFocusChanged(hasFocus);
-         setImmersiveMode(hasFocus && mCustomView != null);
+@@ -737,4 +741,16 @@ public class MainActivity extends WebViewExtActivity implements
+             }
+         }
      }
 +
 +    public void setPathCallback(ValueCallback<Uri[]> path) {
@@ -64,7 +44,7 @@ index 606676a..e6308d8 100644
 +        }
 +    }
  }
-diff --git a/Jelly/app/src/main/java/org/lineageos/jelly/webview/ChromeClient.java b/Jelly/app/src/main/java/org/lineageos/jelly/webview/ChromeClient.java
+diff --git a/Jelly/app/src/main/java/org/lineageos/jelly/webview/ChromeClient.java b/app/src/main/java/org/lineageos/jelly/webview/ChromeClient.java
 index acf91be..1a2fd46 100644
 --- a/Jelly/app/src/main/java/org/lineageos/jelly/webview/ChromeClient.java
 +++ b/Jelly/app/src/main/java/org/lineageos/jelly/webview/ChromeClient.java
@@ -81,7 +61,7 @@ index acf91be..1a2fd46 100644
          } catch (ActivityNotFoundException e) {
              Toast.makeText(mActivity, mActivity.getString(R.string.error_no_activity_found),
                      Toast.LENGTH_LONG).show();
-diff --git a/Jelly/app/src/main/java/org/lineageos/jelly/webview/WebViewExtActivity.java b/Jelly/app/src/main/java/org/lineageos/jelly/webview/WebViewExtActivity.java
+diff --git a/Jelly/app/src/main/java/org/lineageos/jelly/webview/WebViewExtActivity.java b/app/src/main/java/org/lineageos/jelly/webview/WebViewExtActivity.java
 index dcf02d4..0b90eb1 100644
 --- a/Jelly/app/src/main/java/org/lineageos/jelly/webview/WebViewExtActivity.java
 +++ b/Jelly/app/src/main/java/org/lineageos/jelly/webview/WebViewExtActivity.java
@@ -109,3 +89,15 @@ index dcf02d4..0b90eb1 100644
 +
 +    public abstract void setPathCallback(ValueCallback<Uri[]> path);
  }
+diff --git a/FMRadio/jni/fmr/Android.mk b/jni/fmr/Android.mk
+index 2a86937..ce915cc 100644
+--- a/FMRadio/jni/fmr/Android.mk
++++ b/FMRadio/jni/fmr/Android.mk
+@@ -27,6 +27,7 @@ LOCAL_C_INCLUDES := $(JNI_H_INCLUDE) \
+     frameworks/base/include/media
+ 
+ LOCAL_SHARED_LIBRARIES := \
++    liblog \
+     libcutils \
+     libdl \
+     libmedia \

@@ -1,20 +1,20 @@
 diff --git a/include/hardware/gralloc.h b/include/hardware/gralloc.h
-index 0c87fb0..c45bbb6 100644
+index 5dafea0..731760c 100644
 --- a/include/hardware/gralloc.h
 +++ b/include/hardware/gralloc.h
-@@ -143,6 +143,7 @@ enum {
-     GRALLOC_USAGE_PRIVATE_2             = 0x40000000,
-     GRALLOC_USAGE_PRIVATE_3             = 0x80000000,
-     GRALLOC_USAGE_PRIVATE_MASK          = 0xF0000000,
-+    GRALLOC_USAGE_HW_TILE_ALIGN         = 0x08000000,
+@@ -142,6 +142,7 @@ enum {
+     GRALLOC_USAGE_PRIVATE_2             = 0x40000000U,
+     GRALLOC_USAGE_PRIVATE_3             = 0x80000000U,
+     GRALLOC_USAGE_PRIVATE_MASK          = 0xF0000000U,
++    GRALLOC_USAGE_HW_TILE_ALIGN         = 0x08000000U,
+ };
  
- #ifdef EXYNOS4_ENHANCEMENTS
-     /* SAMSUNG */
+ /*****************************************************************************/
 diff --git a/include/hardware/hwcomposer.h b/include/hardware/hwcomposer.h
-index 28877e1..87466b1 100644
+index 9eb1aaf..0e495d6 100644
 --- a/include/hardware/hwcomposer.h
 +++ b/include/hardware/hwcomposer.h
-@@ -777,6 +777,12 @@ typedef struct hwc_composer_device_1 {
+@@ -773,6 +773,12 @@ typedef struct hwc_composer_device_1 {
      int (*setCursorPositionAsync)(struct hwc_composer_device_1 *dev, int disp, int x_pos, int y_pos);
  
      /*

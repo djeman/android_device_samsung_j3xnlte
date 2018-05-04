@@ -1,8 +1,8 @@
 diff --git a/minui/Android.mk b/minui/Android.mk
-index a8d0aa4..89a4254 100644
+index d817e13..6307b85 100644
 --- a/minui/Android.mk
 +++ b/minui/Android.mk
-@@ -34,6 +34,10 @@ ifeq ($(subst ",,$(TARGET_RECOVERY_PIXEL_FORMAT)),BGRA_8888)
+@@ -55,6 +55,10 @@ ifeq ($(subst ",,$(TARGET_RECOVERY_PIXEL_FORMAT)),BGRA_8888)
    LOCAL_CFLAGS += -DRECOVERY_BGRA
  endif
  
@@ -14,24 +14,24 @@ index a8d0aa4..89a4254 100644
    LOCAL_CFLAGS += -DOVERSCAN_PERCENT=$(TARGET_RECOVERY_OVERSCAN_PERCENT)
  else
 diff --git a/minui/graphics_fbdev.cpp b/minui/graphics_fbdev.cpp
-index b017ff2..1f1a91f 100644
+index b705db8..bfd111e 100644
 --- a/minui/graphics_fbdev.cpp
 +++ b/minui/graphics_fbdev.cpp
-@@ -143,6 +143,7 @@ static GRSurface* fbdev_init(minui_backend* backend) {
-     memset(gr_framebuffer[0].data, 0, gr_framebuffer[0].height * gr_framebuffer[0].row_bytes);
+@@ -109,6 +109,7 @@ GRSurface* MinuiBackendFbdev::Init() {
+   memset(gr_framebuffer[0].data, 0, gr_framebuffer[0].height * gr_framebuffer[0].row_bytes);
  
-     /* check if we can use double buffering */
+   /* check if we can use double buffering */
 +#ifndef RECOVERY_GRAPHICS_FORCE_SINGLE_BUFFER
-     if (vi.yres * fi.line_length * 2 <= fi.smem_len) {
-         double_buffered = true;
+   if (vi.yres * fi.line_length * 2 <= fi.smem_len) {
+     double_buffered = true;
  
-@@ -153,6 +154,9 @@ static GRSurface* fbdev_init(minui_backend* backend) {
-         gr_draw = gr_framebuffer+1;
+@@ -119,6 +120,9 @@ GRSurface* MinuiBackendFbdev::Init() {
+     gr_draw = gr_framebuffer + 1;
  
-     } else {
+   } else {
 +#else
-+    {
++  {
 +#endif
-         double_buffered = false;
+     double_buffered = false;
  
-         // Without double-buffering, we allocate RAM for a buffer to
+     // Without double-buffering, we allocate RAM for a buffer to

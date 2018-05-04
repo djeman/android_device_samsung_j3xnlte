@@ -1,277 +1,79 @@
-diff --git a/include/media/stagefright/ACodec.h b/include/media/stagefright/ACodec.h
-index d682632..94de612 100644
---- a/include/media/stagefright/ACodec.h
-+++ b/include/media/stagefright/ACodec.h
-@@ -495,6 +495,8 @@ protected:
-     status_t setupEAC3Codec(bool encoder, int32_t numChannels, int32_t sampleRate,
-             AudioEncoding encoding = kAudioEncodingPcm16bit);
+diff --git a/media/libmedia/MediaDefs.cpp b/media/libmedia/MediaDefs.cpp
+index 544a6ae..1be4628 100644
+--- a/media/libmedia/MediaDefs.cpp
++++ b/media/libmedia/MediaDefs.cpp
+@@ -28,15 +28,21 @@ const char *MEDIA_MIMETYPE_VIDEO_MPEG4 = "video/mp4v-es";
+ const char *MEDIA_MIMETYPE_VIDEO_H263 = "video/3gpp";
+ const char *MEDIA_MIMETYPE_VIDEO_MPEG2 = "video/mpeg2";
+ const char *MEDIA_MIMETYPE_VIDEO_RAW = "video/raw";
++const char *MEDIA_MIMETYPE_VIDEO_MJPG = "video/mjpg";
+ const char *MEDIA_MIMETYPE_VIDEO_DOLBY_VISION = "video/dolby-vision";
+ const char *MEDIA_MIMETYPE_VIDEO_SCRAMBLED = "video/scrambled";
  
-+    status_t setIMAADPCMFormat(int32_t numChannels, int32_t sampleRate, int32_t blockAlign);
-+
-     status_t selectAudioPortFormat(
-             OMX_U32 portIndex, OMX_AUDIO_CODINGTYPE desiredFormat);
++const char *MEDIA_MIMETYPE_AUDIO_AMR = "audio/amr";
+ const char *MEDIA_MIMETYPE_AUDIO_AMR_NB = "audio/3gpp";
+ const char *MEDIA_MIMETYPE_AUDIO_AMR_WB = "audio/amr-wb";
+ const char *MEDIA_MIMETYPE_AUDIO_MPEG = "audio/mpeg";
++const char *MEDIA_MIMETYPE_AUDIO_MP3 = "audio/mp3";
++const char *MEDIA_MIMETYPE_AUDIO_MPG3 = "audio/mpg3";
++const char *MEDIA_MIMETYPE_AUDIO_BP3 = "audio/bp3";
+ const char *MEDIA_MIMETYPE_AUDIO_MPEG_LAYER_I = "audio/mpeg-L1";
+ const char *MEDIA_MIMETYPE_AUDIO_MPEG_LAYER_II = "audio/mpeg-L2";
+ const char *MEDIA_MIMETYPE_AUDIO_MIDI = "audio/midi";
++const char *MEDIA_MIMETYPE_AUDIO_MIDI1= "audio/sp-midi";
+ const char *MEDIA_MIMETYPE_AUDIO_AAC = "audio/mp4a-latm";
+ const char *MEDIA_MIMETYPE_AUDIO_QCELP = "audio/qcelp";
+ const char *MEDIA_MIMETYPE_AUDIO_VORBIS = "audio/vorbis";
+@@ -44,7 +50,10 @@ const char *MEDIA_MIMETYPE_AUDIO_OPUS = "audio/opus";
+ const char *MEDIA_MIMETYPE_AUDIO_G711_ALAW = "audio/g711-alaw";
+ const char *MEDIA_MIMETYPE_AUDIO_G711_MLAW = "audio/g711-mlaw";
+ const char *MEDIA_MIMETYPE_AUDIO_RAW = "audio/raw";
++const char *MEDIA_MIMETYPE_AUDIO_IMAADPCM = "audio/ima-adpcm";
+ const char *MEDIA_MIMETYPE_AUDIO_FLAC = "audio/flac";
++const char *MEDIA_MIMETYPE_AUDIO_AAC2 = "audio/x-aac";
++const char *MEDIA_MIMETYPE_AUDIO_AAC3 = "audio/aac";
+ const char *MEDIA_MIMETYPE_AUDIO_AAC_ADTS = "audio/aac-adts";
+ const char *MEDIA_MIMETYPE_AUDIO_MSGSM = "audio/gsm";
+ const char *MEDIA_MIMETYPE_AUDIO_AC3 = "audio/ac3";
+@@ -53,11 +62,16 @@ const char *MEDIA_MIMETYPE_AUDIO_SCRAMBLED = "audio/scrambled";
  
-diff --git a/include/media/stagefright/DataSource.h b/include/media/stagefright/DataSource.h
-index a9c899d..0c31119 100644
---- a/include/media/stagefright/DataSource.h
-+++ b/include/media/stagefright/DataSource.h
-@@ -46,6 +46,11 @@ public:
-         kIsHTTPBasedSource     = 8,
-     };
+ const char *MEDIA_MIMETYPE_CONTAINER_MPEG4 = "video/mp4";
+ const char *MEDIA_MIMETYPE_CONTAINER_WAV = "audio/x-wav";
++const char *MEDIA_MIMETYPE_CONTAINER_WAV2 = "audio/wav";
+ const char *MEDIA_MIMETYPE_CONTAINER_OGG = "application/ogg";
++const char *MEDIA_MIMETYPE_CONTAINER_OGG2 = "audio/ogg";
+ const char *MEDIA_MIMETYPE_CONTAINER_MATROSKA = "video/x-matroska";
+ const char *MEDIA_MIMETYPE_CONTAINER_MPEG2TS = "video/mp2ts";
+ const char *MEDIA_MIMETYPE_CONTAINER_AVI = "video/avi";
++const char *MEDIA_MIMETYPE_CONTAINER_MSVIDEO = "video/x-msvideo";
+ const char *MEDIA_MIMETYPE_CONTAINER_MPEG2PS = "video/mp2p";
++const char *MEDIA_MIMETYPE_CONTAINER_FLV = "video/x-flv";
++const char *MEDIA_MIMETYPE_CONTAINER_WEBM = "video/webm";
  
-+    virtual void getFd(int *fd, int64_t *offset) {
-+        *fd = -1;
-+        *offset = 0;
-+    }
-+
-     static sp<DataSource> CreateFromURI(
-             const sp<IMediaHTTPService> &httpService,
-             const char *uri,
-diff --git a/include/media/stagefright/FileCache.h b/include/media/stagefright/FileCache.h
-new file mode 100644
-index 0000000..413cde0
---- /dev/null
-+++ b/include/media/stagefright/FileCache.h
-@@ -0,0 +1,137 @@
-+
-+#ifndef FMHALSOURCE_H
-+#define FMHALSOURCE_H
-+
-+
-+#include <stdint.h>
-+#include <sys/types.h>
-+#include <limits.h>
-+
-+#include <utils/Atomic.h>
-+#include <utils/Errors.h>
-+#include <utils/threads.h>
-+
-+#include <utils/SortedVector.h>
-+#include <utils/Vector.h>
-+#include <utils/KeyedVector.h>
-+#include <utils/RefBase.h>
-+
-+
-+namespace android {
-+
-+class RingBuffer
-+{
-+
-+public:
-+
-+    struct Buffer {
-+        void *mData;
-+        size_t mSize;
-+    };
-+
-+    RingBuffer(size_t size);
-+    ~RingBuffer();
-+
-+    int32_t init();
-+
-+    int getBuf( Buffer * buf, uint32_t wait);
-+
-+    void putData(Buffer *buf,int wake);
-+
-+    int getData(Buffer * buf ,uint32_t wait);
-+
-+    void putBuf(Buffer *buf, int wake);
-+
-+    size_t dataCount();
-+
-+    void reset();
-+
-+    size_t dataRelease(size_t size);
-+
-+    int dataCopy(uint32_t offset, Buffer *buf, int wait);
-+
-+    void wakeUpForGetBuf();
-+    void  wakeUpForDataCopy();
-+    void  wakeUpForGetData();
-+    void  cleanNoMoreData();
-+    void  wakeUpAndSetNoMoreData();
-+private:
-+    bool isFull();
-+    bool isEmpty();
-+
-+    uint8_t * buf_addr;
-+    size_t rd_index;
-+    size_t wr_index;
-+    size_t  mSize;
-+    int getbuf_wakeup;
-+    int getdata_wakeup;
-+    int no_more_data;
-+    int datacopy_wakeup;
-+    mutable     Mutex                   mLock;
-+    mutable     Mutex                   mLock_rd;
-+    mutable     Mutex                   mLock_wr;
-+    Mutex mDataLock;
-+    Condition mDataCond;
-+    Mutex mBufLock;
-+    Condition mBufCond;
-+
-+
-+};
-+
-+
-+class FileCache : public Thread
-+{
-+public:
-+    enum type_t {
-+        NOP,
-+        READ,
-+        SEEK,
-+        STOP
-+    };
-+
-+    enum state_t {
-+        OK = 0 ,
-+        SEEK_ERROR = -1
-+    };
-+
-+    FileCache(int mFd , int64_t length, size_t cacheSize, size_t maxPerRead,size_t preCahceSize);
-+     ~FileCache();
-+    int32_t    init();
-+    virtual status_t    readyToRun() { return NO_ERROR; }
-+    virtual bool        threadLoop();
-+    void  wakeUpForThreadLoop();
-+    void      exit();
-+
-+    ssize_t readAt(off64_t offset, void *data, size_t size);
-+
-+private:
-+    void commandProcess();
-+    void seekTo(off64_t offset);
-+    int mFd;
-+    int64_t mOffset;
-+    int64_t mLength;
-+
-+    size_t mCacheSize;
-+    size_t mPreCacheSize;
-+
-+    int mCommand;
-+    int mState;
-+    int errorCount;
-+    bool mThreadLoop_wakeup;
-+
-+    mutable     Mutex       mLock;
-+    Condition               mWaitCond;
-+
-+    mutable     Mutex       mLock_thread;
-+    Condition               mCond_thread;
-+
-+    uint32_t                mMaxPerRead;
-+    int  count;
-+    static int mcount;
-+    class RingBuffer *      mRingBuffer;
-+};
-+
-+}
-+#endif
-+
-+
-diff --git a/include/media/stagefright/MP3FileSource.h b/include/media/stagefright/MP3FileSource.h
-new file mode 100644
-index 0000000..97177fc
---- /dev/null
-+++ b/include/media/stagefright/MP3FileSource.h
-@@ -0,0 +1,63 @@
-+/*
-+ * Copyright (C) 2009 The Android Open Source Project
-+ *
-+ * Licensed under the Apache License, Version 2.0 (the "License");
-+ * you may not use this file except in compliance with the License.
-+ * You may obtain a copy of the License at
-+ *
-+ *      http://www.apache.org/licenses/LICENSE-2.0
-+ *
-+ * Unless required by applicable law or agreed to in writing, software
-+ * distributed under the License is distributed on an "AS IS" BASIS,
-+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-+ * See the License for the specific language governing permissions and
-+ * limitations under the License.
-+ */
-+
-+#ifndef MP3_FILE_SOURCE_H_
-+
-+#define MP3_FILE_SOURCE_H_
-+
-+#include <stdio.h>
-+
-+#include <media/stagefright/DataSource.h>
-+#include <media/stagefright/MediaErrors.h>
-+#include <utils/threads.h>
-+#include <drm/DrmManagerClient.h>
-+#include <media/stagefright/FileCache.h>
-+
-+namespace android {
-+
-+class MP3FileSource : public DataSource {
-+public:
-+    MP3FileSource(int fd, int64_t offset, int64_t length);
-+
-+    virtual status_t initCheck() const;
-+
-+    virtual ssize_t readAt(off64_t offset, void *data, size_t size);
-+
-+    virtual status_t getSize(off64_t *size);
-+
-+
-+
-+protected:
-+    virtual ~MP3FileSource();
-+
-+private:
-+    int mFd;
-+    int64_t mOffset;
-+    int64_t mLength;
-+    int32_t mFileCache_flag;
-+    Mutex mLock;
-+
-+    sp<FileCache> mFilecache;
-+
-+
-+    MP3FileSource(const MP3FileSource &);
-+    MP3FileSource &operator=(const MP3FileSource &);
-+};
-+
-+}  // namespace android
-+
-+#endif  // FILE_SOURCE_H_
-+
-diff --git a/include/media/stagefright/MPEG4Writer.h b/include/media/stagefright/MPEG4Writer.h
-index 5932610..f567797 100644
---- a/include/media/stagefright/MPEG4Writer.h
-+++ b/include/media/stagefright/MPEG4Writer.h
-@@ -118,6 +118,8 @@ private:
-     status_t startTracks(MetaData *params);
-     size_t numTracks();
-     int64_t estimateMoovBoxSize(int32_t bitRate);
-+    size_t getNumTracksWithData();
-+    void incNumTracksWithData();
- 
-     struct Chunk {
-         Track               *mTrack;        // Owner
-diff --git a/include/media/stagefright/MediaCodec.h b/include/media/stagefright/MediaCodec.h
-index 05f6581..5dc5cda 100644
---- a/include/media/stagefright/MediaCodec.h
-+++ b/include/media/stagefright/MediaCodec.h
-@@ -46,6 +46,7 @@ class Surface;
- struct MediaCodec : public AHandler {
-     enum ConfigureFlags {
-         CONFIGURE_FLAG_ENCODE   = 1,
-+        CONFIGURE_FLAG_THUMBNAIL   = 2,
-     };
- 
-     enum BufferFlags {
-diff --git a/include/media/stagefright/MediaDefs.h b/include/media/stagefright/MediaDefs.h
-index d85d15b..e389992 100644
---- a/include/media/stagefright/MediaDefs.h
-+++ b/include/media/stagefright/MediaDefs.h
-@@ -52,22 +52,31 @@ extern const char *MEDIA_MIMETYPE_VIDEO_H263;
- extern const char *MEDIA_MIMETYPE_VIDEO_MPEG2;
+ const char *MEDIA_MIMETYPE_TEXT_3GPP = "text/3gpp-tt";
+ const char *MEDIA_MIMETYPE_TEXT_SUBRIP = "application/x-subrip";
+diff --git a/media/libmedia/TypeConverter.cpp b/media/libmedia/TypeConverter.cpp
+index e6c8f9c..550661e 100644
+--- a/media/libmedia/TypeConverter.cpp
++++ b/media/libmedia/TypeConverter.cpp
+@@ -50,6 +50,9 @@ const OutputDeviceConverter::Table OutputDeviceConverter::mTable[] = {
+     MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_HDMI_ARC),
+     MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_SPDIF),
+     MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_FM),
++    MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_FM_HEADSET),
++    MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_FM_SPEAKER),
++    MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_ALL_FM),
+     MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_AUX_LINE),
+     MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_IP),
+     MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_BUS),
+diff --git a/media/libmedia/include/media/MediaDefs.h b/media/libmedia/include/media/MediaDefs.h
+index 7f17013..bbb8e4d 100644
+--- a/media/libmedia/include/media/MediaDefs.h
++++ b/media/libmedia/include/media/MediaDefs.h
+@@ -32,22 +32,31 @@ extern const char *MEDIA_MIMETYPE_VIDEO_MPEG2;
  extern const char *MEDIA_MIMETYPE_VIDEO_RAW;
  extern const char *MEDIA_MIMETYPE_VIDEO_DOLBY_VISION;
+ extern const char *MEDIA_MIMETYPE_VIDEO_SCRAMBLED;
 +extern const char *MEDIA_MIMETYPE_VIDEO_MJPG;
  
 +extern const char *MEDIA_MIMETYPE_AUDIO_AMR;
@@ -300,7 +102,7 @@ index d85d15b..e389992 100644
  extern const char *MEDIA_MIMETYPE_AUDIO_MSGSM;
  extern const char *MEDIA_MIMETYPE_AUDIO_AC3;
  extern const char *MEDIA_MIMETYPE_AUDIO_EAC3;
-@@ -77,10 +86,13 @@ extern const char *MEDIA_MIMETYPE_AUDIO_EAC3_JOC;
+@@ -55,11 +64,16 @@ extern const char *MEDIA_MIMETYPE_AUDIO_SCRAMBLED;
  
  extern const char *MEDIA_MIMETYPE_CONTAINER_MPEG4;
  extern const char *MEDIA_MIMETYPE_CONTAINER_WAV;
@@ -312,28 +114,114 @@ index d85d15b..e389992 100644
  extern const char *MEDIA_MIMETYPE_CONTAINER_AVI;
 +extern const char *MEDIA_MIMETYPE_CONTAINER_MSVIDEO;
  extern const char *MEDIA_MIMETYPE_CONTAINER_MPEG2PS;
++extern const char *MEDIA_MIMETYPE_CONTAINER_FLV;
++extern const char *MEDIA_MIMETYPE_CONTAINER_WEBM;
  
- extern const char *MEDIA_MIMETYPE_CONTAINER_WVM;
+ extern const char *MEDIA_MIMETYPE_TEXT_3GPP;
+ extern const char *MEDIA_MIMETYPE_TEXT_SUBRIP;
 diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
-index 92e2847..2b856b8 100644
+index def8ada..eec08d5 100644
 --- a/media/libstagefright/ACodec.cpp
 +++ b/media/libstagefright/ACodec.cpp
-@@ -1780,8 +1780,12 @@ const char *ACodec::getComponentRole(
-             "video_decoder.mpeg2", "video_encoder.mpeg2" },
-         { MEDIA_MIMETYPE_AUDIO_AC3,
-             "audio_decoder.ac3", "audio_encoder.ac3" },
-+        { MEDIA_MIMETYPE_AUDIO_IMAADPCM,
-+            "audio_decoder.imaadpcm", "audio_encoder.imaadpcm" },
-         { MEDIA_MIMETYPE_AUDIO_EAC3,
-             "audio_decoder.eac3", "audio_encoder.eac3" },
-+        { MEDIA_MIMETYPE_VIDEO_MJPG,
-+            "video_decoder.mjpg", "video_encoder.mjpg" },
- #ifdef DOLBY_ENABLE
-         { MEDIA_MIMETYPE_AUDIO_EAC3_JOC,
-             "audio_decoder.eac3_joc", NULL },
-@@ -2366,6 +2370,17 @@ status_t ACodec::configureCodec(
-         } else {
-             err = setupEAC3Codec(encoder, numChannels, sampleRate, pcmEncoding);
+@@ -2250,6 +2250,10 @@ status_t ACodec::configureCodec(
+     int32_t maxInputSize;
+     if (msg->findInt32("max-input-size", &maxInputSize)) {
+         err = setMinBufferSize(kPortIndexInput, (size_t)maxInputSize);
++        //sprd added. inputPort must be identical to output for raw decoder.
++        if ((err == OK) && !strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_RAW) ) {
++            err = setMinBufferSize(kPortIndexOutput, (size_t)maxInputSize);
++        }
+         err = OK; // ignore error
+     } else if (!strcmp("OMX.Nvidia.aac.decoder", mComponentName.c_str())) {
+         err = setMinBufferSize(kPortIndexInput, 8192);  // XXX
+@@ -2273,6 +2277,26 @@ status_t ACodec::configureCodec(
+         err = OK; // ignore errors
+     }
+ 
++    //check thumbnail mode
++    int32_t thumbnail = -1;
++    if (msg->findInt32("thumbnail", &thumbnail)) {
++        OMX_INDEXTYPE index;
++        err = mOMXNode->getExtensionIndex(
++                    "OMX.sprd.index.ThumbnailMode", &index);
++
++        if (err == OK) {
++            OMX_BOOL enable = OMX_TRUE;
++            err = mOMXNode->setConfig(index, &enable, sizeof(enable));
++        }
++
++        if (err != OK) {
++            ALOGI("[%s] setConfig(OMX.sprd.index.ThumbnailMode') invalid 0x%08x",
++                    mComponentName.c_str(), err);
++        }
++
++        err = OK; // ignore errors
++    }
++
+     if (err == OK) {
+         err = setVendorParameters(msg);
+         if (err != OK) {
+@@ -2868,6 +2892,49 @@ status_t ACodec::setupEAC3Codec(
+             (OMX_INDEXTYPE)OMX_IndexParamAudioAndroidEac3, &def, sizeof(def));
+ }
+ 
++status_t ACodec::setIMAADPCMFormat(int32_t numChannels, int32_t sampleRate, int32_t blockAlign) {
++    CHECK(!mIsEncoder);
++
++    // port definition
++    OMX_PARAM_PORTDEFINITIONTYPE def;
++    InitOMXParams(&def);
++    def.nPortIndex = kPortIndexInput;
++    status_t err = mOMXNode->getParameter(
++            (OMX_INDEXTYPE)OMX_IndexParamPortDefinition, &def, sizeof(def));
++
++    if (err != OK) {
++        return err;
++    }
++
++    def.format.audio.eEncoding = OMX_AUDIO_CodingIMAADPCM;
++    err = mOMXNode->setParameter(
++            (OMX_INDEXTYPE)OMX_IndexParamPortDefinition, &def, sizeof(def));
++
++    if (err != OK) {
++        return err;
++    }
++
++    // pcm param
++    OMX_AUDIO_PARAM_IMAADPCMTYPE imaadpcmParams;
++    InitOMXParams(&imaadpcmParams);
++    imaadpcmParams.nPortIndex = kPortIndexInput;
++
++    err = mOMXNode->getParameter(
++            (OMX_INDEXTYPE)OMX_IndexParamAudioImaAdpcm, &imaadpcmParams, sizeof(imaadpcmParams));
++
++    if (err != OK) {
++        return err;
++    }
++
++    imaadpcmParams.nChannels = numChannels;
++    imaadpcmParams.nBitsPerSample = 4;
++    imaadpcmParams.nSampleRate = sampleRate;
++    imaadpcmParams.nBlockAlign = blockAlign;
++
++    return mOMXNode->setParameter(
++            (OMX_INDEXTYPE)OMX_IndexParamAudioImaAdpcm, &imaadpcmParams, sizeof(imaadpcmParams));
++}
++
+ static OMX_AUDIO_AMRBANDMODETYPE pickModeFromBitRate(
+         bool isAMRWB, int32_t bps) {
+     if (isAMRWB) {
+@@ -3218,6 +3285,7 @@ static const struct VideoCodingMapEntry {
+     { MEDIA_MIMETYPE_VIDEO_MPEG2, OMX_VIDEO_CodingMPEG2 },
+     { MEDIA_MIMETYPE_VIDEO_VP8, OMX_VIDEO_CodingVP8 },
+     { MEDIA_MIMETYPE_VIDEO_VP9, OMX_VIDEO_CodingVP9 },
++    { MEDIA_MIMETYPE_VIDEO_MJPG, OMX_VIDEO_CodingMJPEG },
+     { MEDIA_MIMETYPE_VIDEO_DOLBY_VISION, OMX_VIDEO_CodingDolbyVision },
+ };
+ 
+@@ -3322,6 +3390,17 @@ status_t ACodec::setupVideoDecoder(
+                   mComponentName.c_str(), colorFormat);
+             err = setSupportedOutputFormat(!haveNativeWindow /* getLegacyFlexibleFormat */);
          }
 +    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_IMAADPCM)) {
 +        int32_t numChannels;
@@ -347,105 +235,9 @@ index 92e2847..2b856b8 100644
 +            err = setIMAADPCMFormat(numChannels, sampleRate, blockAlign);
 +        }
      } else {
-         err = setupCustomCodec(err, mime, msg);
+         err = setSupportedOutputFormat(!haveNativeWindow /* getLegacyFlexibleFormat */);
      }
-@@ -2391,6 +2406,10 @@ status_t ACodec::configureCodec(
-     int32_t maxInputSize;
-     if (msg->findInt32("max-input-size", &maxInputSize)) {
-         err = setMinBufferSize(kPortIndexInput, (size_t)maxInputSize);
-+        //sprd added. inputPort must be identical to output for raw decoder.
-+        if ((err == OK) && !strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_RAW) ) {
-+            err = setMinBufferSize(kPortIndexOutput, (size_t)maxInputSize);
-+        }
-     } else if (!strcmp("OMX.Nvidia.aac.decoder", mComponentName.c_str())) {
-         err = setMinBufferSize(kPortIndexInput, 8192);  // XXX
-     }
-@@ -2410,6 +2429,28 @@ status_t ACodec::configureCodec(
-         err = setOperatingRate(rateFloat, video);
-     }
- 
-+    //check thumbnail mode
-+    int32_t thumbnail;
-+    if (msg->findInt32("thumbnail", &thumbnail)) {
-+        OMX_INDEXTYPE index;
-+
-+        status_t err =
-+            mOMX->getExtensionIndex(
-+                    mNode,
-+                    "OMX.sprd.index.ThumbnailMode",
-+                    &index);
-+
-+        if (err == OK) {
-+            OMX_BOOL enable = OMX_TRUE;
-+            err = mOMX->setConfig(mNode, index, &enable, sizeof(enable));
-+        }
-+
-+        if (err != OK) {
-+            ALOGI("[%s] setConfig(OMX.sprd.index.ThumbnailMode') invalid 0x%08x",
-+                    mComponentName.c_str(), err);
-+        }
-+    }
-+
-     // NOTE: both mBaseOutputFormat and mOutputFormat are outputFormat to signal first frame.
-     mBaseOutputFormat = outputFormat;
-     // trigger a kWhatOutputFormatChanged msg on first buffer
-@@ -2985,6 +3026,47 @@ status_t ACodec::setupEAC3Codec(
-             sizeof(def));
- }
- 
-+status_t ACodec::setIMAADPCMFormat(int32_t numChannels, int32_t sampleRate, int32_t blockAlign) {
-+    CHECK(!mIsEncoder);
-+
-+    // port definition
-+    OMX_PARAM_PORTDEFINITIONTYPE def;
-+    InitOMXParams(&def);
-+    def.nPortIndex = kPortIndexInput;
-+    status_t err = mOMX->getParameter(
-+            mNode, OMX_IndexParamPortDefinition, &def, sizeof(def));
-+    if (err != OK) {
-+        return err;
-+    }
-+
-+    def.format.audio.eEncoding = OMX_AUDIO_CodingIMAADPCM;
-+    err = mOMX->setParameter(mNode, OMX_IndexParamPortDefinition,
-+            &def, sizeof(def));
-+    if (err != OK) {
-+        return err;
-+    }
-+
-+    // pcm param
-+    OMX_AUDIO_PARAM_IMAADPCMTYPE imaadpcmParams;
-+    InitOMXParams(&imaadpcmParams);
-+    imaadpcmParams.nPortIndex = kPortIndexInput;
-+
-+    err = mOMX->getParameter(
-+            mNode, OMX_IndexParamAudioImaAdpcm, &imaadpcmParams, sizeof(imaadpcmParams));
-+
-+    if (err != OK) {
-+        return err;
-+    }
-+
-+    imaadpcmParams.nChannels = numChannels;
-+    imaadpcmParams.nBitsPerSample = 4;
-+    imaadpcmParams.nSampleRate = sampleRate;
-+    imaadpcmParams.nBlockAlign = blockAlign;
-+
-+    return mOMX->setParameter(
-+            mNode, OMX_IndexParamAudioImaAdpcm, &imaadpcmParams, sizeof(imaadpcmParams));
-+}
-+
- static OMX_AUDIO_AMRBANDMODETYPE pickModeFromBitRate(
-         bool isAMRWB, int32_t bps) {
-     if (isAMRWB) {
-@@ -3343,6 +3425,7 @@ static const struct VideoCodingMapEntry {
-     { MEDIA_MIMETYPE_VIDEO_MPEG2, OMX_VIDEO_CodingMPEG2 },
-     { MEDIA_MIMETYPE_VIDEO_VP8, OMX_VIDEO_CodingVP8 },
-     { MEDIA_MIMETYPE_VIDEO_VP9, OMX_VIDEO_CodingVP9 },
-+    { MEDIA_MIMETYPE_VIDEO_MJPG, OMX_VIDEO_CodingMJPEG },
-     { MEDIA_MIMETYPE_VIDEO_DOLBY_VISION, OMX_VIDEO_CodingDolbyVision },
- };
- 
-@@ -5214,6 +5297,24 @@ status_t ACodec::getPortFormat(OMX_U32 portIndex, sp<AMessage> &notify) {
+@@ -4915,6 +4994,23 @@ status_t ACodec::getPortFormat(OMX_U32 portIndex, sp<AMessage> &notify) {
                      // Fall through to set up mime.
                  }
  
@@ -455,8 +247,7 @@ index 92e2847..2b856b8 100644
 +                    InitOMXParams(&params);
 +                    params.nPortIndex = portIndex;
 +
-+                    CHECK_EQ((status_t)OK, mOMX->getParameter(
-+                            mNode,
++                    CHECK_EQ((status_t)OK, mOMXNode->getParameter(
 +                            (OMX_INDEXTYPE)OMX_IndexParamAudioImaAdpcm,
 +                            &params,
 +                            sizeof(params)));
@@ -469,42 +260,39 @@ index 92e2847..2b856b8 100644
 +
                  default:
                  {
-                     if (!mIsEncoder && !strncmp(mComponentName.c_str(), "OMX.ffmpeg.", 11)) {
-@@ -7842,6 +7943,34 @@ status_t ACodec::setParameters(const sp<AMessage> &params) {
-             err = OK;
+                     if (mIsEncoder ^ (portIndex == kPortIndexOutput)) {
+@@ -7327,6 +7423,31 @@ status_t ACodec::setParameters(const sp<AMessage> &params) {
          }
      }
-+
+ 
 +    AString mode;
-+    if (params->findString("scene-mode", &mode)){
++    if (params->findString("scene-mode", &mode)) {
 +        OMX_VIDEO_CONFIG_ENCODERSCENEMODE configParams;
 +        InitOMXParams(&configParams);
 +        configParams.nPortIndex = kPortIndexOutput;
++
 +        if (mode==AString("Volte")) {
 +            configParams.nMode = 1;
-+        }
-+        else  if (mode==AString("Wfd")) {
++        } else  if (mode==AString("Wfd")) {
 +            configParams.nMode = 2;
-+        }
-+        else {
++        } else {
 +            configParams.nMode = 0;
 +        }
 +
-+        status_t err = mOMX->setConfig(
-+                mNode,
-+                OMX_IndexConfigEncSceneMode,
-+                &configParams,
++        status_t err = mOMXNode->setConfig(
++                OMX_IndexConfigEncSceneMode, 
++                &configParams, 
 +                sizeof(configParams));
 +
 +        if (err != OK) {
-+            ALOGE("setConfig(OMX_IndexConfigEncSceneMode) failed w/ err %d",
-+                    err);
-+            return err;
++            ALOGE("setConfig(OMX_IndexConfigEncSceneMode) failed w/ err %d", err);
++            err = OK;
 +        }
 +    }
- #ifdef DOLBY_ENABLE
-     return setDolbyParameterOnProcessedAudio(params);
- #endif // DOLBY_END
++
+     status_t err = configureTemporalLayers(params, false /* inConfigure */, mOutputFormat);
+     if (err != OK) {
+         err = OK; // ignore failure
 diff --git a/media/libstagefright/AMRExtractor.cpp b/media/libstagefright/AMRExtractor.cpp
 index 2892520..43b1118 100644
 --- a/media/libstagefright/AMRExtractor.cpp
@@ -1625,71 +1413,37 @@ index 5a6211e..a29ba20 100644
  
          return true;
      }
-diff --git a/media/libstagefright/Android.mk b/media/libstagefright/Android.mk
-index e708f68..2a52d04 100644
---- a/media/libstagefright/Android.mk
-+++ b/media/libstagefright/Android.mk
-@@ -78,6 +78,10 @@ LOCAL_SRC_FILES:=                         \
-         XINGSeeker.cpp                    \
-         avc_utils.cpp                     \
-         FFMPEGSoftCodec.cpp               \
-+        AVIExtractor.cpp                  \
-+        FLVExtractor.cpp                  \
-+        FileCache.cpp                     \
-+        MP3FileSource.cpp                 \
+diff --git a/media/libstagefright/Android.bp b/media/libstagefright/Android.bp
+index c8d4e4a..a360766 100644
+--- a/media/libstagefright/Android.bp
++++ b/media/libstagefright/Android.bp
+@@ -68,6 +68,10 @@ cc_library_shared {
+         "WAVExtractor.cpp",
+         "XINGSeeker.cpp",
+         "avc_utils.cpp",
++        "AVIExtractor.cpp",
++        "FLVExtractor.cpp",
++        "FileCache.cpp",
++        "MP3FileSource.cpp"
+     ],
  
- LOCAL_C_INCLUDES:= \
-         $(TOP)/frameworks/av/include/media/ \
-@@ -202,6 +206,10 @@ LOCAL_C_INCLUDES += \
- 	$(TOP)/hardware/samsung/exynos4/include
- endif
- 
-+ifeq ($(BOARD_USE_SPRD_COLORFORMAT), true)
-+LOCAL_CFLAGS += -DUSE_SPRD_COLORFORMAT
-+endif
-+
- LOCAL_MODULE:= libstagefright
- 
- LOCAL_MODULE_TAGS := optional
+     shared_libs: [
 diff --git a/media/libstagefright/CameraSource.cpp b/media/libstagefright/CameraSource.cpp
-index 8707d96..68fd66b 100644
+index 36a2d3f..f998033 100644
 --- a/media/libstagefright/CameraSource.cpp
 +++ b/media/libstagefright/CameraSource.cpp
-@@ -130,6 +130,8 @@ static int32_t getColorFormat(const char* colorFormat) {
- #ifdef USE_SAMSUNG_COLORFORMAT
-         static const int OMX_SEC_COLOR_FormatNV12LPhysicalAddress = 0x7F000002;
-         return OMX_SEC_COLOR_FormatNV12LPhysicalAddress;
-+#elif USE_SPRD_COLORFORMAT
-+        return OMX_SPRD_COLOR_FormatYVU420SemiPlanar;
- #else
-         return OMX_COLOR_FormatYUV420SemiPlanar;
- #endif
-diff --git a/media/libstagefright/DataSource.cpp b/media/libstagefright/DataSource.cpp
-index 485aefa..0c804e1 100644
---- a/media/libstagefright/DataSource.cpp
-+++ b/media/libstagefright/DataSource.cpp
-@@ -33,8 +33,11 @@
- #include "include/WAVExtractor.h"
- #include "include/WVMExtractor.h"
- 
-+#include "include/AVIExtractor.h"
-+#include "include/FLVExtractor.h"
- #include "matroska/MatroskaExtractor.h"
- 
-+#include "include/PSXSTRExtractor.h"
- #include <media/IMediaHTTPConnection.h>
- #include <media/IMediaHTTPService.h>
- #include <media/stagefright/foundation/ADebug.h>
-@@ -196,6 +199,9 @@ void DataSource::RegisterDefaultSniffers() {
-         RegisterSniffer_l(SniffWVM);
+@@ -143,7 +143,11 @@ static int32_t getColorFormat(const char* colorFormat) {
      }
-     RegisterSniffer_l(SniffMidi);
-+    RegisterSniffer_l(SniffAVI);
-+    RegisterSniffer_l(SniffPSXSTR);
-+    RegisterSniffer_l(SniffFLV);
-     RegisterSniffer_l(AVUtils::get()->getExtendedSniffer());
-     RegisterSniffer_l(FFMPEGSoftCodec::getSniffer());
  
+     if (!strcmp(colorFormat, CameraParameters::PIXEL_FORMAT_YUV420SP)) {
++#ifdef USE_SPRD_COLORFORMAT
++        return OMX_SPRD_COLOR_FormatYVU420SemiPlanar;
++#else
+         return OMX_COLOR_FormatYUV420SemiPlanar;
++#endif
+     }
+ 
+     if (!strcmp(colorFormat, CameraParameters::PIXEL_FORMAT_YUV422I)) {
 diff --git a/media/libstagefright/FLVExtractor.cpp b/media/libstagefright/FLVExtractor.cpp
 new file mode 100644
 index 0000000..868b873
@@ -3090,7 +2844,7 @@ index 0000000..868b873
 +
 diff --git a/media/libstagefright/FileCache.cpp b/media/libstagefright/FileCache.cpp
 new file mode 100644
-index 0000000..25efb02
+index 0000000..db5e693
 --- /dev/null
 +++ b/media/libstagefright/FileCache.cpp
 @@ -0,0 +1,562 @@
@@ -3098,7 +2852,7 @@ index 0000000..25efb02
 +#define LOG_TAG "FileCache"
 +#define LOG_DEBUG 0
 +
-+#include <media/stagefright/FileCache.h>
++#include <include/FileCache.h>
 +
 +#if LOG_DEBUG>=1
 +#define ALOGD(...)  printf("FileCache: " __VA_ARGS__), printf("  \n")
@@ -3657,7 +3411,7 @@ index 0000000..25efb02
 +
 +
 diff --git a/media/libstagefright/MP3Extractor.cpp b/media/libstagefright/MP3Extractor.cpp
-index 82e7a26..c0dd6ad 100644
+index 22df522..6a96684 100644
 --- a/media/libstagefright/MP3Extractor.cpp
 +++ b/media/libstagefright/MP3Extractor.cpp
 @@ -214,7 +214,7 @@ public:
@@ -3845,7 +3599,7 @@ index 82e7a26..c0dd6ad 100644
              }
 diff --git a/media/libstagefright/MP3FileSource.cpp b/media/libstagefright/MP3FileSource.cpp
 new file mode 100644
-index 0000000..6a8e79d
+index 0000000..3975cf0
 --- /dev/null
 +++ b/media/libstagefright/MP3FileSource.cpp
 @@ -0,0 +1,118 @@
@@ -3868,13 +3622,13 @@ index 0000000..6a8e79d
 +#define LOG_TAG "MP3FileSource"
 +
 +#include <media/stagefright/foundation/ADebug.h>
-+#include <media/stagefright/MP3FileSource.h>
++#include <include/MP3FileSource.h>
 +#include <sys/types.h>
 +#include <unistd.h>
 +#include <sys/types.h>
 +#include <sys/stat.h>
 +#include <fcntl.h>
-+#include <media/stagefright/FileCache.h>
++#include <include/FileCache.h>
 +
 +#define CACHE_SIZE 1024*320
 +#define PRE_SIZE 1024*4
@@ -3968,10 +3722,10 @@ index 0000000..6a8e79d
 +}  // namespace android
 +
 diff --git a/media/libstagefright/MPEG4Extractor.cpp b/media/libstagefright/MPEG4Extractor.cpp
-index ed4447b..5a960d6 100644
+index 9c777b3..4ec6d21 100644
 --- a/media/libstagefright/MPEG4Extractor.cpp
 +++ b/media/libstagefright/MPEG4Extractor.cpp
-@@ -375,6 +375,10 @@ static const char *FourCC2MIME(uint32_t fourcc) {
+@@ -316,6 +316,11 @@ static const char *FourCC2MIME(uint32_t fourcc) {
          case FOURCC('h', 'v', 'c', '1'):
          case FOURCC('h', 'e', 'v', '1'):
              return MEDIA_MIMETYPE_VIDEO_HEVC;
@@ -3979,10 +3733,11 @@ index ed4447b..5a960d6 100644
 +        case FOURCC('j', 'p', 'e', 'g'):
 +        case FOURCC('M', 'J', 'P', 'G'):
 +            return MEDIA_MIMETYPE_VIDEO_MJPG;
- #ifdef DOLBY_ENABLE
-         case FOURCC('a', 'c', '-', '3'):
-             ALOGV("@DDP Track FOURCC = 'ac-3'");
-@@ -535,7 +539,7 @@ sp<MetaData> MPEG4Extractor::getTrackMetaData(
++
+         default:
+             CHECK(!"should not be here.");
+             return NULL;
+@@ -473,7 +478,7 @@ sp<MetaData> MPEG4Extractor::getTrackMetaData(
                  }
              } else {
                  uint32_t sampleIndex;
@@ -3991,15 +3746,15 @@ index ed4447b..5a960d6 100644
                  if (track->timescale != 0 &&
                          track->sampleTable->findThumbnailSample(&sampleIndex) == OK
                          && track->sampleTable->getMetaDataForSample(
-@@ -1443,6 +1447,7 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
+@@ -1427,6 +1432,7 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
          case FOURCC('e', 'n', 'c', 'a'):
          case FOURCC('s', 'a', 'm', 'r'):
          case FOURCC('s', 'a', 'w', 'b'):
 +        case FOURCC('.', 'm', 'p', '3'):
- #ifdef DOLBY_ENABLE
-         case FOURCC('a', 'c', '-', '3'):
-         case FOURCC('e', 'c', '-', '3'):
-@@ -1652,6 +1657,8 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
+         {
+             if (mIsQT && chunk_type == FOURCC('m', 'p', '4', 'a')
+                     && depth >= 1 && mPath[depth - 1] == FOURCC('w', 'a', 'v', 'e')) {
+@@ -1523,6 +1529,8 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
          case FOURCC('a', 'v', 'c', '1'):
          case FOURCC('h', 'v', 'c', '1'):
          case FOURCC('h', 'e', 'v', '1'):
@@ -4008,7 +3763,7 @@ index ed4447b..5a960d6 100644
          {
              uint8_t buffer[78];
              if (chunk_data_size < (ssize_t)sizeof(buffer)) {
-@@ -1963,6 +1970,69 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
+@@ -1853,6 +1861,69 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
              mLastTrack->meta->setData(
                      kKeyESDS, kTypeESDS, &buffer[4], chunk_data_size - 4);
  
@@ -4078,7 +3833,7 @@ index ed4447b..5a960d6 100644
              if (mPath.size() >= 2
                      && mPath[mPath.size() - 2] == FOURCC('m', 'p', '4', 'a')) {
                  // Information from the ESDS must be relied on for proper
-@@ -2105,7 +2175,7 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
+@@ -1995,7 +2066,7 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
          case FOURCC('m', 'e', 't', 'a'):
          {
              off64_t stop_offset = *offset + chunk_size;
@@ -4087,7 +3842,7 @@ index ed4447b..5a960d6 100644
              bool isParsingMetaKeys = underQTMetaPath(mPath, 2);
              if (!isParsingMetaKeys) {
                  uint8_t buffer[4];
-@@ -2130,7 +2200,9 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
+@@ -2020,7 +2091,9 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
                      *offset = stop_offset;
                      return OK;
                  }
@@ -4098,36 +3853,27 @@ index ed4447b..5a960d6 100644
              }
  
              while (*offset < stop_offset) {
-@@ -4567,7 +4639,7 @@ status_t MPEG4Source::read(
-                     sampleIndex, &syncSampleIndex, findFlags);
-         }
+@@ -4617,7 +4690,7 @@ status_t MPEG4Source::read(
+                         sampleIndex, &syncSampleIndex, findFlags);
+             }
  
--        uint32_t sampleTime;
-+        uint64_t sampleTime;
-         if (err == OK) {
-             err = mSampleTable->getMetaDataForSample(
-                     sampleIndex, NULL, NULL, &sampleTime);
-@@ -4591,7 +4663,7 @@ status_t MPEG4Source::read(
-         }
+-            uint32_t sampleTime;
++            uint64_t sampleTime;
+             if (err == OK) {
+                 err = mSampleTable->getMetaDataForSample(
+                         sampleIndex, NULL, NULL, &sampleTime);
+@@ -4665,7 +4738,8 @@ status_t MPEG4Source::read(
  
- #if 0
--        uint32_t syncSampleTime;
-+        uint64_t syncSampleTime;
-         CHECK_EQ(OK, mSampleTable->getMetaDataForSample(
-                     syncSampleIndex, NULL, NULL, &syncSampleTime));
- 
-@@ -4613,7 +4685,8 @@ status_t MPEG4Source::read(
- 
-     off64_t offset;
-     size_t size;
+     off64_t offset = 0;
+     size_t size = 0;
 -    uint32_t cts, stts;
 +    uint64_t cts;
 +    uint32_t stts;
      bool isSyncSample;
      bool newBuffer = false;
      if (mBuffer == NULL) {
-@@ -4624,6 +4697,9 @@ status_t MPEG4Source::read(
-                     mCurrentSampleIndex, &offset, &size, &cts, &isSyncSample, &stts);
+@@ -4686,6 +4760,9 @@ status_t MPEG4Source::read(
+         }
  
          if (err != OK) {
 +            if (err == ERROR_OUT_OF_RANGE) {
@@ -4136,7 +3882,7 @@ index ed4447b..5a960d6 100644
              return err;
          }
  
-@@ -4752,6 +4828,14 @@ status_t MPEG4Source::read(
+@@ -4816,6 +4893,14 @@ status_t MPEG4Source::read(
                      nalLength = parseNALSize(&mSrcBuffer[srcOffset]);
                      srcOffset += mNALLengthSize;
                      isMalFormed = !isInRange((size_t)0u, size, srcOffset, nalLength);
@@ -4151,19 +3897,19 @@ index ed4447b..5a960d6 100644
                  }
  
                  if (isMalFormed) {
-@@ -5197,6 +5281,7 @@ static bool isCompatibleBrand(uint32_t fourcc) {
-         FOURCC('3', 'g', 'p', '4'),
+@@ -5280,6 +5365,7 @@ static bool isCompatibleBrand(uint32_t fourcc) {
          FOURCC('m', 'p', '4', '1'),
          FOURCC('m', 'p', '4', '2'),
+         FOURCC('d', 'a', 's', 'h'),
 +        FOURCC('w', 'm', 'f', ' '),
  
          // Won't promise that the following file types can be played.
          // Just give these file types a chance.
 diff --git a/media/libstagefright/MediaCodec.cpp b/media/libstagefright/MediaCodec.cpp
-index a8e801f..1f26494 100644
+index 759e42d..8ff593d 100644
 --- a/media/libstagefright/MediaCodec.cpp
 +++ b/media/libstagefright/MediaCodec.cpp
-@@ -1770,6 +1770,10 @@ void MediaCodec::onMessageReceived(const sp<AMessage> &msg) {
+@@ -2086,6 +2086,10 @@ void MediaCodec::onMessageReceived(const sp<AMessage> &msg) {
                  mFlags |= kFlagIsEncoder;
              }
  
@@ -4174,98 +3920,38 @@ index a8e801f..1f26494 100644
              extractCSD(format);
  
              mCodec->initiateConfigureComponent(format);
-diff --git a/media/libstagefright/MediaDefs.cpp b/media/libstagefright/MediaDefs.cpp
-index fd6a84c..41f3765 100644
---- a/media/libstagefright/MediaDefs.cpp
-+++ b/media/libstagefright/MediaDefs.cpp
-@@ -47,14 +47,21 @@ const char *MEDIA_MIMETYPE_VIDEO_MPEG4 = "video/mp4v-es";
- const char *MEDIA_MIMETYPE_VIDEO_H263 = "video/3gpp";
- const char *MEDIA_MIMETYPE_VIDEO_MPEG2 = "video/mpeg2";
- const char *MEDIA_MIMETYPE_VIDEO_RAW = "video/raw";
-+const char *MEDIA_MIMETYPE_VIDEO_MJPG = "video/mjpg";
- const char *MEDIA_MIMETYPE_VIDEO_DOLBY_VISION = "video/dolby-vision";
- 
-+const char *MEDIA_MIMETYPE_AUDIO_AMR = "audio/amr";
- const char *MEDIA_MIMETYPE_AUDIO_AMR_NB = "audio/3gpp";
- const char *MEDIA_MIMETYPE_AUDIO_AMR_WB = "audio/amr-wb";
- const char *MEDIA_MIMETYPE_AUDIO_MPEG = "audio/mpeg";
-+const char *MEDIA_MIMETYPE_AUDIO_MP3 = "audio/mp3";
-+const char *MEDIA_MIMETYPE_AUDIO_MPG3 = "audio/mpg3";
-+const char *MEDIA_MIMETYPE_AUDIO_BP3 = "audio/bp3";
-+
- const char *MEDIA_MIMETYPE_AUDIO_MPEG_LAYER_I = "audio/mpeg-L1";
- const char *MEDIA_MIMETYPE_AUDIO_MPEG_LAYER_II = "audio/mpeg-L2";
- const char *MEDIA_MIMETYPE_AUDIO_MIDI = "audio/midi";
-+const char *MEDIA_MIMETYPE_AUDIO_MIDI1= "audio/sp-midi";
- const char *MEDIA_MIMETYPE_AUDIO_AAC = "audio/mp4a-latm";
- const char *MEDIA_MIMETYPE_AUDIO_QCELP = "audio/qcelp";
- const char *MEDIA_MIMETYPE_AUDIO_VORBIS = "audio/vorbis";
-@@ -62,7 +69,10 @@ const char *MEDIA_MIMETYPE_AUDIO_OPUS = "audio/opus";
- const char *MEDIA_MIMETYPE_AUDIO_G711_ALAW = "audio/g711-alaw";
- const char *MEDIA_MIMETYPE_AUDIO_G711_MLAW = "audio/g711-mlaw";
- const char *MEDIA_MIMETYPE_AUDIO_RAW = "audio/raw";
-+const char *MEDIA_MIMETYPE_AUDIO_IMAADPCM = "audio/ima-adpcm";
- const char *MEDIA_MIMETYPE_AUDIO_FLAC = "audio/flac";
-+const char *MEDIA_MIMETYPE_AUDIO_AAC2 = "audio/x-aac";
-+const char *MEDIA_MIMETYPE_AUDIO_AAC3 = "audio/aac";
- const char *MEDIA_MIMETYPE_AUDIO_AAC_ADTS = "audio/aac-adts";
- const char *MEDIA_MIMETYPE_AUDIO_MSGSM = "audio/gsm";
- const char *MEDIA_MIMETYPE_AUDIO_AC3 = "audio/ac3";
-@@ -73,10 +83,13 @@ const char *MEDIA_MIMETYPE_AUDIO_EAC3_JOC = "audio/eac3-joc";
- 
- const char *MEDIA_MIMETYPE_CONTAINER_MPEG4 = "video/mp4";
- const char *MEDIA_MIMETYPE_CONTAINER_WAV = "audio/x-wav";
-+const char *MEDIA_MIMETYPE_CONTAINER_WAV2 = "audio/wav";
- const char *MEDIA_MIMETYPE_CONTAINER_OGG = "application/ogg";
-+const char *MEDIA_MIMETYPE_CONTAINER_OGG2 = "audio/ogg";
- const char *MEDIA_MIMETYPE_CONTAINER_MATROSKA = "video/x-matroska";
- const char *MEDIA_MIMETYPE_CONTAINER_MPEG2TS = "video/mp2ts";
- const char *MEDIA_MIMETYPE_CONTAINER_AVI = "video/avi";
-+const char *MEDIA_MIMETYPE_CONTAINER_MSVIDEO = "video/x-msvideo";
- const char *MEDIA_MIMETYPE_CONTAINER_MPEG2PS = "video/mp2p";
- 
- const char *MEDIA_MIMETYPE_CONTAINER_WVM = "video/wvm";
 diff --git a/media/libstagefright/MediaExtractor.cpp b/media/libstagefright/MediaExtractor.cpp
-index 31476e5..98a1afa 100644
+index c91c82b..3d887d9 100644
 --- a/media/libstagefright/MediaExtractor.cpp
 +++ b/media/libstagefright/MediaExtractor.cpp
-@@ -32,6 +32,8 @@
+@@ -30,6 +30,9 @@
  #include "include/FLACExtractor.h"
  #include "include/AACExtractor.h"
  #include "include/MidiExtractor.h"
 +#include "include/AVIExtractor.h"
 +#include "include/FLVExtractor.h"
++#include "include/PSXSTRExtractor.h"
  
  #include "matroska/MatroskaExtractor.h"
  
-@@ -48,6 +50,7 @@
+@@ -47,6 +50,7 @@
  #include <cutils/properties.h>
  #include <utils/String8.h>
  #include <private/android_filesystem_config.h>
-+#include <media/stagefright/MP3FileSource.h>
++#include <include/MP3FileSource.h>
  
- #include <media/stagefright/FFMPEGSoftCodec.h>
- #include <stagefright/AVExtensions.h>
-@@ -241,29 +244,53 @@ sp<MediaExtractor> MediaExtractor::CreateFromService(
-     } else if (!strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_MPEG4)
+ // still doing some on/off toggling here.
+ #define MEDIA_LOG       1
+@@ -172,26 +176,41 @@ sp<MediaExtractor> MediaExtractor::CreateFromService(
+     if (!strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_MPEG4)
              || !strcasecmp(mime, "audio/mp4")) {
          ret = new MPEG4Extractor(source);
 -    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_MPEG)) {
--        ret = new MP3Extractor(source, meta);
 +    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_MPEG) ||
 +            !strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_BP3) ||
 +            !strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_MP3) ||
 +            !strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_MPG3)) {
-+        int fd = 0;
-+        int64_t offset = 0;
-+        int64_t length = 0;
-+        source->getFd(&fd,&offset);
-+        source->getSize(&length);
-+        //ALOGD("fd:%d,length:%lld,offset:%lld",fd,(long long)length,(long long)offset);
-+        if(fd > 0 && !isDrm)
-+            ret = new MP3Extractor(new MP3FileSource(fd, offset, length), meta);
-+        else
-+            ret = new MP3Extractor(source, meta);
+         ret = new MP3Extractor(source, meta);
      } else if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_AMR_NB)
 -            || !strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_AMR_WB)) {
 +            || !strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_AMR_WB)
@@ -4287,13 +3973,10 @@ index 31476e5..98a1afa 100644
          ret = new MatroskaExtractor(source);
      } else if (!strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_MPEG2TS)) {
          ret = new MPEG2TSExtractor(source);
+-    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_AAC_ADTS)) {
 +    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_AVI) ||
 +                    !strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_MSVIDEO)) {
 +        ret = new AVIExtractor(source);
-     } else if (!strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_WVM) && getuid() == AID_MEDIA) {
-         // Return now.  WVExtractor should not have the DrmFlag set in the block below.
-         return new WVMExtractor(source);
--    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_AAC_ADTS)) {
 +    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_CONTAINER_FLV)) {
 +        ret = new FLVExtractor(source);
 +    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_AAC_ADTS) ||
@@ -4306,10 +3989,20 @@ index 31476e5..98a1afa 100644
 +    } else if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_MIDI) ||
 +                   !strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_MIDI1)) {
          ret = new MidiExtractor(source);
-     } else if (!isDrm) {
-         ret = FFMPEGSoftCodec::createExtractor(source, mime, meta);
+     }
+ 
+@@ -287,6 +306,9 @@ void MediaExtractor::RegisterDefaultSniffers() {
+     RegisterSniffer_l(SniffAAC);
+     RegisterSniffer_l(SniffMPEG2PS);
+     RegisterSniffer_l(SniffMidi);
++    RegisterSniffer_l(SniffAVI);
++    RegisterSniffer_l(SniffPSXSTR);
++    RegisterSniffer_l(SniffFLV);
+ 
+     gSniffersRegistered = true;
+ }
 diff --git a/media/libstagefright/SampleIterator.cpp b/media/libstagefright/SampleIterator.cpp
-index 54c9fa3..05bdcd4 100644
+index 4f31c5f..f411439 100644
 --- a/media/libstagefright/SampleIterator.cpp
 +++ b/media/libstagefright/SampleIterator.cpp
 @@ -108,6 +108,10 @@ status_t SampleIterator::seekTo(uint32_t sampleIndex) {
@@ -4332,7 +4025,7 @@ index 54c9fa3..05bdcd4 100644
      if (sampleIndex >= mTable->mNumSampleSizes) {
          return ERROR_OUT_OF_RANGE;
      }
-@@ -325,7 +329,7 @@ status_t SampleIterator::findSampleTimeAndDuration(
+@@ -333,7 +337,7 @@ status_t SampleIterator::findSampleTimeAndDuration(
      if ((offset < 0 && *time < (offset == INT32_MIN ?
              INT32_MAX : uint32_t(-offset))) ||
              (offset > 0 && *time > UINT32_MAX - offset)) {
@@ -4342,7 +4035,7 @@ index 54c9fa3..05bdcd4 100644
      }
      if (offset > 0) {
 diff --git a/media/libstagefright/SampleTable.cpp b/media/libstagefright/SampleTable.cpp
-index 47eee3e..6a17dbd 100644
+index 1d2a931..3e3ad2a 100644
 --- a/media/libstagefright/SampleTable.cpp
 +++ b/media/libstagefright/SampleTable.cpp
 @@ -614,7 +614,7 @@ status_t SampleTable::getMaxSampleSize(size_t *max_size) {
@@ -4372,7 +4065,16 @@ index 47eee3e..6a17dbd 100644
                              sampleTime, compTimeDelta);
                      if (compTimeDelta < 0) {
                          sampleTime = 0;
-@@ -856,19 +856,19 @@ status_t SampleTable::findSyncSampleNear(
+@@ -702,7 +702,7 @@ void SampleTable::buildSampleEntriesTable() {
+ 
+             ++sampleIndex;
+             if (sampleTime > UINT32_MAX - delta) {
+-                ALOGE("%u + %u would overflow, clamping",
++                ALOGE("%llu + %u would overflow, clamping",
+                     sampleTime, delta);
+                 sampleTime = UINT32_MAX;
+             } else {
+@@ -862,19 +862,19 @@ status_t SampleTable::findSyncSampleNear(
              if (err != OK) {
                  return err;
              }
@@ -4395,7 +4097,7 @@ index 47eee3e..6a17dbd 100644
  
              // use abs_difference for safety
              if (abs_difference(upper_time, sample_time) >
-@@ -936,7 +936,7 @@ status_t SampleTable::getMetaDataForSample(
+@@ -942,7 +942,7 @@ status_t SampleTable::getMetaDataForSample(
          uint32_t sampleIndex,
          off64_t *offset,
          size_t *size,
@@ -4405,15 +4107,15 @@ index 47eee3e..6a17dbd 100644
          uint32_t *sampleDuration) {
      Mutex::Autolock autoLock(mLock);
 diff --git a/media/libstagefright/StagefrightMetadataRetriever.cpp b/media/libstagefright/StagefrightMetadataRetriever.cpp
-index f00b8b7..9b7285a 100644
+index 103da95..4330a84 100644
 --- a/media/libstagefright/StagefrightMetadataRetriever.cpp
 +++ b/media/libstagefright/StagefrightMetadataRetriever.cpp
-@@ -168,10 +168,10 @@ static VideoFrame *extractVideoFrame(
-     // input and output ports, if seeking to a sync frame. NOTE: This request may
+@@ -323,10 +323,10 @@ static VideoFrame *extractVideoFrame(
      // fail if component requires more than that for decoding.
      bool isSeekingClosest = (seekMode == MediaSource::ReadOptions::SEEK_CLOSEST);
--    if (!isSeekingClosest) {
-+    /*if (!isSeekingClosest) {
+     bool decodeSingleFrame = !isSeekingClosest && (numTiles == 1);
+-    if (decodeSingleFrame) {
++    /*if (decodeSingleFrame) {
          videoFormat->setInt32("android._num-input-buffers", 1);
          videoFormat->setInt32("android._num-output-buffers", 1);
 -    }
@@ -4421,7 +4123,7 @@ index f00b8b7..9b7285a 100644
  
      status_t err;
      sp<ALooper> looper = new ALooper;
-@@ -184,7 +184,8 @@ static VideoFrame *extractVideoFrame(
+@@ -339,7 +339,8 @@ static VideoFrame *extractVideoFrame(
          return NULL;
      }
  
@@ -4432,10 +4134,10 @@ index f00b8b7..9b7285a 100644
          ALOGW("configure returned error %d (%s)", err, asString(err));
          decoder->release();
 diff --git a/media/libstagefright/codecs/mp3dec/SoftMP3.cpp b/media/libstagefright/codecs/mp3dec/SoftMP3.cpp
-index a059a24..9f55f5c 100644
+index 2364684..7c73b39 100644
 --- a/media/libstagefright/codecs/mp3dec/SoftMP3.cpp
 +++ b/media/libstagefright/codecs/mp3dec/SoftMP3.cpp
-@@ -351,7 +351,9 @@ void SoftMP3::onQueueFilled(OMX_U32 /* portIndex */) {
+@@ -383,7 +383,9 @@ void SoftMP3::onQueueFilled(OMX_U32 /* portIndex */) {
              }
          } else if (mConfig->samplingRate != mSamplingRate
                  || mConfig->num_channels != mNumChannels) {
@@ -4446,7 +4148,7 @@ index a059a24..9f55f5c 100644
              mNumChannels = mConfig->num_channels;
  
              notify(OMX_EventPortSettingsChanged, 1, 0, NULL);
-@@ -374,6 +376,10 @@ void SoftMP3::onQueueFilled(OMX_U32 /* portIndex */) {
+@@ -406,6 +408,10 @@ void SoftMP3::onQueueFilled(OMX_U32 /* portIndex */) {
              outHeader->nFilledLen = mConfig->outputFrameSize * sizeof(int16_t);
          }
  
@@ -4456,12 +4158,509 @@ index a059a24..9f55f5c 100644
 +
          outHeader->nTimeStamp =
              mAnchorTimeUs + (mNumFramesOutput * 1000000ll) / mSamplingRate;
-         tmpTime = outHeader->nTimeStamp;
+ 
+diff --git a/media/libstagefright/codecs/mp3dec/SoftMP3.cpp.orig b/media/libstagefright/codecs/mp3dec/SoftMP3.cpp.orig
+new file mode 100644
+index 0000000..2364684
+--- /dev/null
++++ b/media/libstagefright/codecs/mp3dec/SoftMP3.cpp.orig
+@@ -0,0 +1,491 @@
++/*
++ * Copyright (C) 2011 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++//#define LOG_NDEBUG 0
++#define LOG_TAG "SoftMP3"
++#include <utils/Log.h>
++
++#include "SoftMP3.h"
++
++#include <media/stagefright/foundation/ADebug.h>
++#include <media/stagefright/MediaDefs.h>
++
++#include "include/pvmp3decoder_api.h"
++
++namespace android {
++
++template<class T>
++static void InitOMXParams(T *params) {
++    params->nSize = sizeof(T);
++    params->nVersion.s.nVersionMajor = 1;
++    params->nVersion.s.nVersionMinor = 0;
++    params->nVersion.s.nRevision = 0;
++    params->nVersion.s.nStep = 0;
++}
++
++SoftMP3::SoftMP3(
++        const char *name,
++        const OMX_CALLBACKTYPE *callbacks,
++        OMX_PTR appData,
++        OMX_COMPONENTTYPE **component)
++    : SimpleSoftOMXComponent(name, callbacks, appData, component),
++      mConfig(new tPVMP3DecoderExternal),
++      mDecoderBuf(NULL),
++      mAnchorTimeUs(0),
++      mNumFramesOutput(0),
++      mNumChannels(2),
++      mSamplingRate(44100),
++      mSignalledError(false),
++      mSawInputEos(false),
++      mSignalledOutputEos(false),
++      mOutputPortSettingsChange(NONE) {
++    initPorts();
++    initDecoder();
++}
++
++SoftMP3::~SoftMP3() {
++    if (mDecoderBuf != NULL) {
++        free(mDecoderBuf);
++        mDecoderBuf = NULL;
++    }
++
++    delete mConfig;
++    mConfig = NULL;
++}
++
++void SoftMP3::initPorts() {
++    OMX_PARAM_PORTDEFINITIONTYPE def;
++    InitOMXParams(&def);
++
++    def.nPortIndex = 0;
++    def.eDir = OMX_DirInput;
++    def.nBufferCountMin = kNumBuffers;
++    def.nBufferCountActual = def.nBufferCountMin;
++    def.nBufferSize = 8192;
++    def.bEnabled = OMX_TRUE;
++    def.bPopulated = OMX_FALSE;
++    def.eDomain = OMX_PortDomainAudio;
++    def.bBuffersContiguous = OMX_FALSE;
++    def.nBufferAlignment = 1;
++
++    def.format.audio.cMIMEType =
++        const_cast<char *>(MEDIA_MIMETYPE_AUDIO_MPEG);
++
++    def.format.audio.pNativeRender = NULL;
++    def.format.audio.bFlagErrorConcealment = OMX_FALSE;
++    def.format.audio.eEncoding = OMX_AUDIO_CodingMP3;
++
++    addPort(def);
++
++    def.nPortIndex = 1;
++    def.eDir = OMX_DirOutput;
++    def.nBufferCountMin = kNumBuffers;
++    def.nBufferCountActual = def.nBufferCountMin;
++    def.nBufferSize = kOutputBufferSize;
++    def.bEnabled = OMX_TRUE;
++    def.bPopulated = OMX_FALSE;
++    def.eDomain = OMX_PortDomainAudio;
++    def.bBuffersContiguous = OMX_FALSE;
++    def.nBufferAlignment = 2;
++
++    def.format.audio.cMIMEType = const_cast<char *>("audio/raw");
++    def.format.audio.pNativeRender = NULL;
++    def.format.audio.bFlagErrorConcealment = OMX_FALSE;
++    def.format.audio.eEncoding = OMX_AUDIO_CodingPCM;
++
++    addPort(def);
++}
++
++void SoftMP3::initDecoder() {
++    mConfig->equalizerType = flat;
++    mConfig->crcEnabled = false;
++
++    uint32_t memRequirements = pvmp3_decoderMemRequirements();
++    mDecoderBuf = malloc(memRequirements);
++
++    pvmp3_InitDecoder(mConfig, mDecoderBuf);
++    mIsFirst = true;
++}
++
++void *SoftMP3::memsetSafe(OMX_BUFFERHEADERTYPE *outHeader, int c, size_t len) {
++    if (len > outHeader->nAllocLen) {
++        ALOGE("memset buffer too small: got %u, expected %zu", outHeader->nAllocLen, len);
++        android_errorWriteLog(0x534e4554, "29422022");
++        notify(OMX_EventError, OMX_ErrorUndefined, OUTPUT_BUFFER_TOO_SMALL, NULL);
++        mSignalledError = true;
++        return NULL;
++    }
++    return memset(outHeader->pBuffer, c, len);
++}
++
++OMX_ERRORTYPE SoftMP3::internalGetParameter(
++        OMX_INDEXTYPE index, OMX_PTR params) {
++    switch (index) {
++        case OMX_IndexParamAudioPortFormat:
++        {
++            OMX_AUDIO_PARAM_PORTFORMATTYPE *formatParams =
++                (OMX_AUDIO_PARAM_PORTFORMATTYPE *)params;
++
++            if (!isValidOMXParam(formatParams)) {
++                return OMX_ErrorBadParameter;
++            }
++
++            if (formatParams->nPortIndex > 1) {
++                return OMX_ErrorUndefined;
++            }
++
++            if (formatParams->nIndex > 0) {
++                return OMX_ErrorNoMore;
++            }
++
++            formatParams->eEncoding =
++                (formatParams->nPortIndex == 0)
++                    ? OMX_AUDIO_CodingMP3 : OMX_AUDIO_CodingPCM;
++
++            return OMX_ErrorNone;
++        }
++
++        case OMX_IndexParamAudioPcm:
++        {
++            OMX_AUDIO_PARAM_PCMMODETYPE *pcmParams =
++                (OMX_AUDIO_PARAM_PCMMODETYPE *)params;
++
++            if (!isValidOMXParam(pcmParams)) {
++                return OMX_ErrorBadParameter;
++            }
++
++            if (pcmParams->nPortIndex > 1) {
++                return OMX_ErrorUndefined;
++            }
++
++            pcmParams->eNumData = OMX_NumericalDataSigned;
++            pcmParams->eEndian = OMX_EndianBig;
++            pcmParams->bInterleaved = OMX_TRUE;
++            pcmParams->nBitPerSample = 16;
++            pcmParams->ePCMMode = OMX_AUDIO_PCMModeLinear;
++            pcmParams->eChannelMapping[0] = OMX_AUDIO_ChannelLF;
++            pcmParams->eChannelMapping[1] = OMX_AUDIO_ChannelRF;
++
++            pcmParams->nChannels = mNumChannels;
++            pcmParams->nSamplingRate = mSamplingRate;
++
++            return OMX_ErrorNone;
++        }
++
++        case OMX_IndexParamAudioMp3:
++        {
++            OMX_AUDIO_PARAM_MP3TYPE *mp3Params =
++                (OMX_AUDIO_PARAM_MP3TYPE *)params;
++
++            if (!isValidOMXParam(mp3Params)) {
++                return OMX_ErrorBadParameter;
++            }
++
++            if (mp3Params->nPortIndex > 1) {
++                return OMX_ErrorUndefined;
++            }
++
++            mp3Params->nChannels = mNumChannels;
++            mp3Params->nBitRate = 0 /* unknown */;
++            mp3Params->nSampleRate = mSamplingRate;
++            // other fields are encoder-only
++
++            return OMX_ErrorNone;
++        }
++
++        default:
++            return SimpleSoftOMXComponent::internalGetParameter(index, params);
++    }
++}
++
++OMX_ERRORTYPE SoftMP3::internalSetParameter(
++        OMX_INDEXTYPE index, const OMX_PTR params) {
++    switch (index) {
++        case OMX_IndexParamStandardComponentRole:
++        {
++            const OMX_PARAM_COMPONENTROLETYPE *roleParams =
++                (const OMX_PARAM_COMPONENTROLETYPE *)params;
++
++            if (!isValidOMXParam(roleParams)) {
++                return OMX_ErrorBadParameter;
++            }
++
++            if (strncmp((const char *)roleParams->cRole,
++                        "audio_decoder.mp3",
++                        OMX_MAX_STRINGNAME_SIZE - 1)) {
++                return OMX_ErrorUndefined;
++            }
++
++            return OMX_ErrorNone;
++        }
++
++        case OMX_IndexParamAudioPortFormat:
++        {
++            const OMX_AUDIO_PARAM_PORTFORMATTYPE *formatParams =
++                (const OMX_AUDIO_PARAM_PORTFORMATTYPE *)params;
++
++            if (!isValidOMXParam(formatParams)) {
++                return OMX_ErrorBadParameter;
++            }
++
++            if (formatParams->nPortIndex > 1) {
++                return OMX_ErrorUndefined;
++            }
++
++            if ((formatParams->nPortIndex == 0
++                        && formatParams->eEncoding != OMX_AUDIO_CodingMP3)
++                || (formatParams->nPortIndex == 1
++                        && formatParams->eEncoding != OMX_AUDIO_CodingPCM)) {
++                return OMX_ErrorUndefined;
++            }
++
++            return OMX_ErrorNone;
++        }
++
++        case OMX_IndexParamAudioPcm:
++        {
++            const OMX_AUDIO_PARAM_PCMMODETYPE *pcmParams =
++                (const OMX_AUDIO_PARAM_PCMMODETYPE *)params;
++
++            if (!isValidOMXParam(pcmParams)) {
++                return OMX_ErrorBadParameter;
++            }
++
++            if (pcmParams->nPortIndex != 1) {
++                return OMX_ErrorUndefined;
++            }
++
++            mNumChannels = pcmParams->nChannels;
++            mSamplingRate = pcmParams->nSamplingRate;
++
++            return OMX_ErrorNone;
++        }
++
++        default:
++            return SimpleSoftOMXComponent::internalSetParameter(index, params);
++    }
++}
++
++void SoftMP3::onQueueFilled(OMX_U32 /* portIndex */) {
++    if (mSignalledError || mOutputPortSettingsChange != NONE) {
++        return;
++    }
++
++    List<BufferInfo *> &inQueue = getPortQueue(0);
++    List<BufferInfo *> &outQueue = getPortQueue(1);
++
++    while ((!inQueue.empty() || (mSawInputEos && !mSignalledOutputEos)) && !outQueue.empty()) {
++        BufferInfo *inInfo = NULL;
++        OMX_BUFFERHEADERTYPE *inHeader = NULL;
++        if (!inQueue.empty()) {
++            inInfo = *inQueue.begin();
++            inHeader = inInfo->mHeader;
++        }
++
++        BufferInfo *outInfo = *outQueue.begin();
++        OMX_BUFFERHEADERTYPE *outHeader = outInfo->mHeader;
++        outHeader->nFlags = 0;
++
++        if (inHeader) {
++            if (inHeader->nOffset == 0 && inHeader->nFilledLen) {
++                mAnchorTimeUs = inHeader->nTimeStamp;
++                mNumFramesOutput = 0;
++            }
++
++            if (inHeader->nFlags & OMX_BUFFERFLAG_EOS) {
++                mSawInputEos = true;
++            }
++
++            mConfig->pInputBuffer =
++                inHeader->pBuffer + inHeader->nOffset;
++
++            mConfig->inputBufferCurrentLength = inHeader->nFilledLen;
++        } else {
++            mConfig->pInputBuffer = NULL;
++            mConfig->inputBufferCurrentLength = 0;
++        }
++        mConfig->inputBufferMaxLength = 0;
++        mConfig->inputBufferUsedLength = 0;
++
++        mConfig->outputFrameSize = kOutputBufferSize / sizeof(int16_t);
++        if ((int32_t)outHeader->nAllocLen < mConfig->outputFrameSize) {
++            ALOGE("input buffer too small: got %u, expected %u",
++                outHeader->nAllocLen, mConfig->outputFrameSize);
++            android_errorWriteLog(0x534e4554, "27793371");
++            notify(OMX_EventError, OMX_ErrorUndefined, OUTPUT_BUFFER_TOO_SMALL, NULL);
++            mSignalledError = true;
++            return;
++        }
++
++        mConfig->pOutputBuffer =
++            reinterpret_cast<int16_t *>(outHeader->pBuffer);
++
++        ERROR_CODE decoderErr;
++        if ((decoderErr = pvmp3_framedecoder(mConfig, mDecoderBuf))
++                != NO_DECODING_ERROR) {
++            ALOGV("mp3 decoder returned error %d", decoderErr);
++
++            if (decoderErr != NO_ENOUGH_MAIN_DATA_ERROR
++                        && decoderErr != SIDE_INFO_ERROR) {
++                ALOGE("mp3 decoder returned error %d", decoderErr);
++
++                notify(OMX_EventError, OMX_ErrorUndefined, decoderErr, NULL);
++                mSignalledError = true;
++                return;
++            }
++
++            if (mConfig->outputFrameSize == 0) {
++                mConfig->outputFrameSize = kOutputBufferSize / sizeof(int16_t);
++            }
++
++            if (decoderErr == NO_ENOUGH_MAIN_DATA_ERROR && mSawInputEos) {
++                if (!mIsFirst) {
++                    // pad the end of the stream with 529 samples, since that many samples
++                    // were trimmed off the beginning when decoding started
++                    outHeader->nOffset = 0;
++                    outHeader->nFilledLen = kPVMP3DecoderDelay * mNumChannels * sizeof(int16_t);
++
++                    if (!memsetSafe(outHeader, 0, outHeader->nFilledLen)) {
++                        return;
++                    }
++
++                }
++                outHeader->nFlags = OMX_BUFFERFLAG_EOS;
++                mSignalledOutputEos = true;
++            } else {
++                // This is recoverable, just ignore the current frame and
++                // play silence instead.
++
++                // TODO: should we skip silence (and consume input data)
++                // if mIsFirst is true as we may not have a valid
++                // mConfig->samplingRate and mConfig->num_channels?
++                ALOGV_IF(mIsFirst, "insufficient data for first frame, sending silence");
++                if (!memsetSafe(outHeader, 0, mConfig->outputFrameSize * sizeof(int16_t))) {
++                    return;
++                }
++
++                if (inHeader) {
++                    mConfig->inputBufferUsedLength = inHeader->nFilledLen;
++                }
++            }
++        } else if (mConfig->samplingRate != mSamplingRate
++                || mConfig->num_channels != mNumChannels) {
++            mSamplingRate = mConfig->samplingRate;
++            mNumChannels = mConfig->num_channels;
++
++            notify(OMX_EventPortSettingsChanged, 1, 0, NULL);
++            mOutputPortSettingsChange = AWAITING_DISABLED;
++            return;
++        }
++
++        if (mIsFirst) {
++            mIsFirst = false;
++            // The decoder delay is 529 samples, so trim that many samples off
++            // the start of the first output buffer. This essentially makes this
++            // decoder have zero delay, which the rest of the pipeline assumes.
++            outHeader->nOffset =
++                kPVMP3DecoderDelay * mNumChannels * sizeof(int16_t);
++
++            outHeader->nFilledLen =
++                mConfig->outputFrameSize * sizeof(int16_t) - outHeader->nOffset;
++        } else if (!mSignalledOutputEos) {
++            outHeader->nOffset = 0;
++            outHeader->nFilledLen = mConfig->outputFrameSize * sizeof(int16_t);
++        }
++
++        outHeader->nTimeStamp =
++            mAnchorTimeUs + (mNumFramesOutput * 1000000ll) / mSamplingRate;
++
++        if (inHeader) {
++            CHECK_GE((int32_t)inHeader->nFilledLen, mConfig->inputBufferUsedLength);
++
++            inHeader->nOffset += mConfig->inputBufferUsedLength;
++            inHeader->nFilledLen -= mConfig->inputBufferUsedLength;
++
++
++            if (inHeader->nFilledLen == 0) {
++                inInfo->mOwnedByUs = false;
++                inQueue.erase(inQueue.begin());
++                inInfo = NULL;
++                notifyEmptyBufferDone(inHeader);
++                inHeader = NULL;
++            }
++        }
++
++        mNumFramesOutput += mConfig->outputFrameSize / mNumChannels;
++
++        outInfo->mOwnedByUs = false;
++        outQueue.erase(outQueue.begin());
++        outInfo = NULL;
++        notifyFillBufferDone(outHeader);
++        outHeader = NULL;
++    }
++}
++
++void SoftMP3::onPortFlushCompleted(OMX_U32 portIndex) {
++    if (portIndex == 0) {
++        // Make sure that the next buffer output does not still
++        // depend on fragments from the last one decoded.
++        pvmp3_InitDecoder(mConfig, mDecoderBuf);
++        mIsFirst = true;
++        mSignalledError = false;
++        mSawInputEos = false;
++        mSignalledOutputEos = false;
++    }
++}
++
++void SoftMP3::onPortEnableCompleted(OMX_U32 portIndex, bool enabled) {
++    if (portIndex != 1) {
++        return;
++    }
++
++    switch (mOutputPortSettingsChange) {
++        case NONE:
++            break;
++
++        case AWAITING_DISABLED:
++        {
++            CHECK(!enabled);
++            mOutputPortSettingsChange = AWAITING_ENABLED;
++            break;
++        }
++
++        default:
++        {
++            CHECK_EQ((int)mOutputPortSettingsChange, (int)AWAITING_ENABLED);
++            CHECK(enabled);
++            mOutputPortSettingsChange = NONE;
++            break;
++        }
++    }
++}
++
++void SoftMP3::onReset() {
++    pvmp3_InitDecoder(mConfig, mDecoderBuf);
++    mIsFirst = true;
++    mSignalledError = false;
++    mSawInputEos = false;
++    mSignalledOutputEos = false;
++    mOutputPortSettingsChange = NONE;
++}
++
++}  // namespace android
++
++android::SoftOMXComponent *createSoftOMXComponent(
++        const char *name, const OMX_CALLBACKTYPE *callbacks,
++        OMX_PTR appData, OMX_COMPONENTTYPE **component) {
++    return new android::SoftMP3(name, callbacks, appData, component);
++}
 diff --git a/media/libstagefright/codecs/vorbis/dec/SoftVorbis.cpp b/media/libstagefright/codecs/vorbis/dec/SoftVorbis.cpp
-index be04e08..c154b8e 100644
+index 8912f8a..587f2ca 100644
 --- a/media/libstagefright/codecs/vorbis/dec/SoftVorbis.cpp
 +++ b/media/libstagefright/codecs/vorbis/dec/SoftVorbis.cpp
-@@ -401,6 +401,7 @@ void SoftVorbis::onQueueFilled(OMX_U32 portIndex) {
+@@ -492,6 +492,7 @@ void SoftVorbis::onQueueFilled(OMX_U32 /* portIndex */) {
  #else
              ALOGW("vorbis_dsp_synthesis returned %d", err);
  #endif
@@ -4816,6 +5015,149 @@ index 0000000..a379fa2
 +
 +#endif  // FLV_EXTRACTOR_H_
 +
+diff --git a/media/libstagefright/include/FileCache.h b/media/libstagefright/include/FileCache.h
+new file mode 100644
+index 0000000..413cde0
+--- /dev/null
++++ b/media/libstagefright/include/FileCache.h
+@@ -0,0 +1,137 @@
++
++#ifndef FMHALSOURCE_H
++#define FMHALSOURCE_H
++
++
++#include <stdint.h>
++#include <sys/types.h>
++#include <limits.h>
++
++#include <utils/Atomic.h>
++#include <utils/Errors.h>
++#include <utils/threads.h>
++
++#include <utils/SortedVector.h>
++#include <utils/Vector.h>
++#include <utils/KeyedVector.h>
++#include <utils/RefBase.h>
++
++
++namespace android {
++
++class RingBuffer
++{
++
++public:
++
++    struct Buffer {
++        void *mData;
++        size_t mSize;
++    };
++
++    RingBuffer(size_t size);
++    ~RingBuffer();
++
++    int32_t init();
++
++    int getBuf( Buffer * buf, uint32_t wait);
++
++    void putData(Buffer *buf,int wake);
++
++    int getData(Buffer * buf ,uint32_t wait);
++
++    void putBuf(Buffer *buf, int wake);
++
++    size_t dataCount();
++
++    void reset();
++
++    size_t dataRelease(size_t size);
++
++    int dataCopy(uint32_t offset, Buffer *buf, int wait);
++
++    void wakeUpForGetBuf();
++    void  wakeUpForDataCopy();
++    void  wakeUpForGetData();
++    void  cleanNoMoreData();
++    void  wakeUpAndSetNoMoreData();
++private:
++    bool isFull();
++    bool isEmpty();
++
++    uint8_t * buf_addr;
++    size_t rd_index;
++    size_t wr_index;
++    size_t  mSize;
++    int getbuf_wakeup;
++    int getdata_wakeup;
++    int no_more_data;
++    int datacopy_wakeup;
++    mutable     Mutex                   mLock;
++    mutable     Mutex                   mLock_rd;
++    mutable     Mutex                   mLock_wr;
++    Mutex mDataLock;
++    Condition mDataCond;
++    Mutex mBufLock;
++    Condition mBufCond;
++
++
++};
++
++
++class FileCache : public Thread
++{
++public:
++    enum type_t {
++        NOP,
++        READ,
++        SEEK,
++        STOP
++    };
++
++    enum state_t {
++        OK = 0 ,
++        SEEK_ERROR = -1
++    };
++
++    FileCache(int mFd , int64_t length, size_t cacheSize, size_t maxPerRead,size_t preCahceSize);
++     ~FileCache();
++    int32_t    init();
++    virtual status_t    readyToRun() { return NO_ERROR; }
++    virtual bool        threadLoop();
++    void  wakeUpForThreadLoop();
++    void      exit();
++
++    ssize_t readAt(off64_t offset, void *data, size_t size);
++
++private:
++    void commandProcess();
++    void seekTo(off64_t offset);
++    int mFd;
++    int64_t mOffset;
++    int64_t mLength;
++
++    size_t mCacheSize;
++    size_t mPreCacheSize;
++
++    int mCommand;
++    int mState;
++    int errorCount;
++    bool mThreadLoop_wakeup;
++
++    mutable     Mutex       mLock;
++    Condition               mWaitCond;
++
++    mutable     Mutex       mLock_thread;
++    Condition               mCond_thread;
++
++    uint32_t                mMaxPerRead;
++    int  count;
++    static int mcount;
++    class RingBuffer *      mRingBuffer;
++};
++
++}
++#endif
++
++
 diff --git a/media/libstagefright/include/MP3Extractor.h b/media/libstagefright/include/MP3Extractor.h
 index 2fd04f2..059109e 100644
 --- a/media/libstagefright/include/MP3Extractor.h
@@ -4836,6 +5178,75 @@ index 2fd04f2..059109e 100644
  
      MP3Extractor(const MP3Extractor &);
      MP3Extractor &operator=(const MP3Extractor &);
+diff --git a/media/libstagefright/include/MP3FileSource.h b/media/libstagefright/include/MP3FileSource.h
+new file mode 100644
+index 0000000..0b518b7
+--- /dev/null
++++ b/media/libstagefright/include/MP3FileSource.h
+@@ -0,0 +1,63 @@
++/*
++ * Copyright (C) 2009 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++#ifndef MP3_FILE_SOURCE_H_
++
++#define MP3_FILE_SOURCE_H_
++
++#include <stdio.h>
++
++#include <media/stagefright/DataSource.h>
++#include <media/stagefright/MediaErrors.h>
++#include <utils/threads.h>
++#include <drm/DrmManagerClient.h>
++#include <include/FileCache.h>
++
++namespace android {
++
++class MP3FileSource : public DataSource {
++public:
++    MP3FileSource(int fd, int64_t offset, int64_t length);
++
++    virtual status_t initCheck() const;
++
++    virtual ssize_t readAt(off64_t offset, void *data, size_t size);
++
++    virtual status_t getSize(off64_t *size);
++
++
++
++protected:
++    virtual ~MP3FileSource();
++
++private:
++    int mFd;
++    int64_t mOffset;
++    int64_t mLength;
++    int32_t mFileCache_flag;
++    Mutex mLock;
++
++    sp<FileCache> mFilecache;
++
++
++    MP3FileSource(const MP3FileSource &);
++    MP3FileSource &operator=(const MP3FileSource &);
++};
++
++}  // namespace android
++
++#endif  // FILE_SOURCE_H_
++
 diff --git a/media/libstagefright/include/PSXSTRExtractor.h b/media/libstagefright/include/PSXSTRExtractor.h
 new file mode 100644
 index 0000000..6cc5ac0
@@ -4888,7 +5299,7 @@ index 0000000..6cc5ac0
 +
 +#endif
 diff --git a/media/libstagefright/include/SampleIterator.h b/media/libstagefright/include/SampleIterator.h
-index 2ef41ae..b478a3e 100644
+index 6a3fd3b..5012b72 100644
 --- a/media/libstagefright/include/SampleIterator.h
 +++ b/media/libstagefright/include/SampleIterator.h
 @@ -33,7 +33,7 @@ struct SampleIterator {
@@ -4925,7 +5336,7 @@ index 2ef41ae..b478a3e 100644
      SampleIterator(const SampleIterator &);
      SampleIterator &operator=(const SampleIterator &);
 diff --git a/media/libstagefright/include/SampleTable.h b/media/libstagefright/include/SampleTable.h
-index 2100ca6..4df228f 100644
+index eb1a674..1c77e91 100644
 --- a/media/libstagefright/include/SampleTable.h
 +++ b/media/libstagefright/include/SampleTable.h
 @@ -65,7 +65,7 @@ public:
@@ -4946,11 +5357,78 @@ index 2100ca6..4df228f 100644
      };
      SampleTimeEntry *mSampleTimeEntries;
  
+diff --git a/media/libstagefright/include/media/stagefright/ACodec.h b/media/libstagefright/include/media/stagefright/ACodec.h
+index 424246d..11e0309 100644
+--- a/media/libstagefright/include/media/stagefright/ACodec.h
++++ b/media/libstagefright/include/media/stagefright/ACodec.h
+@@ -464,6 +464,8 @@ private:
+ 
+     status_t setupEAC3Codec(bool encoder, int32_t numChannels, int32_t sampleRate);
+ 
++    status_t setIMAADPCMFormat(int32_t numChannels, int32_t sampleRate, int32_t blockAlign);
++
+     status_t selectAudioPortFormat(
+             OMX_U32 portIndex, OMX_AUDIO_CODINGTYPE desiredFormat);
+ 
+diff --git a/media/libstagefright/include/media/stagefright/DataSource.h b/media/libstagefright/include/media/stagefright/DataSource.h
+index bd863ba..8c348ac 100644
+--- a/media/libstagefright/include/media/stagefright/DataSource.h
++++ b/media/libstagefright/include/media/stagefright/DataSource.h
+@@ -47,6 +47,11 @@ public:
+         kIsLocalFileSource     = 16,
+     };
+ 
++    virtual void getFd(int *fd, int64_t *offset) {
++        *fd = -1;
++        *offset = 0;
++    }
++
+     static sp<DataSource> CreateFromURI(
+             const sp<IMediaHTTPService> &httpService,
+             const char *uri,
+diff --git a/media/libstagefright/include/media/stagefright/MPEG4Writer.h b/media/libstagefright/include/media/stagefright/MPEG4Writer.h
+index 1c7b4a6..b8dc46a 100644
+--- a/media/libstagefright/include/media/stagefright/MPEG4Writer.h
++++ b/media/libstagefright/include/media/stagefright/MPEG4Writer.h
+@@ -133,6 +133,8 @@ private:
+     status_t startTracks(MetaData *params);
+     size_t numTracks();
+     int64_t estimateMoovBoxSize(int32_t bitRate);
++    size_t getNumTracksWithData();
++    void incNumTracksWithData();
+ 
+     struct Chunk {
+         Track               *mTrack;        // Owner
+diff --git a/media/libstagefright/include/media/stagefright/MediaCodec.h b/media/libstagefright/include/media/stagefright/MediaCodec.h
+index 1030407..02ddcdb 100644
+--- a/media/libstagefright/include/media/stagefright/MediaCodec.h
++++ b/media/libstagefright/include/media/stagefright/MediaCodec.h
+@@ -58,6 +58,7 @@ using hardware::cas::native::V1_0::IDescrambler;
+ struct MediaCodec : public AHandler {
+     enum ConfigureFlags {
+         CONFIGURE_FLAG_ENCODE   = 1,
++        CONFIGURE_FLAG_THUMBNAIL   = 2,
+     };
+ 
+     enum BufferFlags {
+diff --git a/media/libstagefright/include/media/stagefright/MetaData.h b/media/libstagefright/include/media/stagefright/MetaData.h
+index 6cfde9c..383c01c 100644
+--- a/media/libstagefright/include/media/stagefright/MetaData.h
++++ b/media/libstagefright/include/media/stagefright/MetaData.h
+@@ -140,6 +140,8 @@ enum {
+ 
+     kKeyIsUnreadable      = 'unre',  // bool (int32_t)
+ 
++    kKeyBlockAlign        = 'ablk',  // int32_t , should be different from kKeyWMABlockAlign
++
+     // An indication that a video buffer has been rendered.
+     kKeyRendered          = 'rend',  // bool (int32_t)
+ 
 diff --git a/media/libstagefright/omx/OMXMaster.cpp b/media/libstagefright/omx/OMXMaster.cpp
-index 2d2d500..4e8b971 100644
+index fd97fdc..5bf845f 100644
 --- a/media/libstagefright/omx/OMXMaster.cpp
 +++ b/media/libstagefright/omx/OMXMaster.cpp
-@@ -64,6 +64,7 @@ OMXMaster::~OMXMaster() {
+@@ -63,6 +63,7 @@ OMXMaster::~OMXMaster() {
  }
  
  void OMXMaster::addVendorPlugin() {
@@ -4958,40 +5436,444 @@ index 2d2d500..4e8b971 100644
      addPlugin("libstagefrighthw.so");
  }
  
+diff --git a/media/libstagefright/omx/OMXUtils.cpp b/media/libstagefright/omx/OMXUtils.cpp
+index 5894837..33b436c 100644
+--- a/media/libstagefright/omx/OMXUtils.cpp
++++ b/media/libstagefright/omx/OMXUtils.cpp
+@@ -161,8 +161,12 @@ const char *GetComponentRole(bool isEncoder, const char *mime) {
+             "video_decoder.mpeg2", "video_encoder.mpeg2" },
+         { MEDIA_MIMETYPE_AUDIO_AC3,
+             "audio_decoder.ac3", "audio_encoder.ac3" },
++        { MEDIA_MIMETYPE_AUDIO_IMAADPCM,
++            "audio_decoder.imaadpcm", "audio_encoder.imaadpcm" },
+         { MEDIA_MIMETYPE_AUDIO_EAC3,
+             "audio_decoder.eac3", "audio_encoder.eac3" },
++        { MEDIA_MIMETYPE_VIDEO_MJPG,
++            "video_decoder.mjpg", "video_encoder.mjpg" },
+     };
+ 
+     static const size_t kNumMimeToRole =
+diff --git a/media/libstagefright/omx/OMXUtils.cpp.orig b/media/libstagefright/omx/OMXUtils.cpp.orig
+new file mode 100644
+index 0000000..5894837
+--- /dev/null
++++ b/media/libstagefright/omx/OMXUtils.cpp.orig
+@@ -0,0 +1,381 @@
++/*
++ * Copyright (C) 2016 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++//#define LOG_NDEBUG 0
++#define LOG_TAG "OMXUtils"
++
++#include <string.h>
++
++#include <media/stagefright/omx/OMXUtils.h>
++#include <media/stagefright/foundation/ADebug.h>
++#include <media/stagefright/foundation/AUtils.h>
++#include <media/stagefright/MediaErrors.h>
++#include <media/hardware/HardwareAPI.h>
++#include <media/MediaDefs.h>
++#include <system/graphics-base.h>
++
++namespace android {
++
++status_t StatusFromOMXError(OMX_ERRORTYPE err) {
++    switch (err) {
++        case OMX_ErrorNone:
++            return OK;
++        case OMX_ErrorNoMore:
++            return NOT_ENOUGH_DATA;
++        case OMX_ErrorUnsupportedSetting:
++        case OMX_ErrorUnsupportedIndex:
++            return ERROR_UNSUPPORTED; // this is a media specific error
++        case OMX_ErrorBadParameter:
++            return BAD_VALUE;
++        case OMX_ErrorInsufficientResources:
++            return NO_MEMORY;
++        case OMX_ErrorInvalidComponentName:
++        case OMX_ErrorComponentNotFound:
++            return NAME_NOT_FOUND;
++        default:
++            return UNKNOWN_ERROR;
++    }
++}
++
++/**************************************************************************************************/
++
++DescribeColorFormatParams::DescribeColorFormatParams(const DescribeColorFormat2Params &params) {
++    InitOMXParams(this);
++
++    eColorFormat = params.eColorFormat;
++    nFrameWidth = params.nFrameWidth;
++    nFrameHeight = params.nFrameHeight;
++    nStride = params.nStride;
++    nSliceHeight = params.nSliceHeight;
++    bUsingNativeBuffers = params.bUsingNativeBuffers;
++    // we don't copy media images as this conversion is only used pre-query
++};
++
++void DescribeColorFormat2Params::initFromV1(const DescribeColorFormatParams &params) {
++    InitOMXParams(this);
++
++    eColorFormat = params.eColorFormat;
++    nFrameWidth = params.nFrameWidth;
++    nFrameHeight = params.nFrameHeight;
++    nStride = params.nStride;
++    nSliceHeight = params.nSliceHeight;
++    bUsingNativeBuffers = params.bUsingNativeBuffers;
++    sMediaImage.initFromV1(params.sMediaImage);
++};
++
++void MediaImage2::initFromV1(const MediaImage &image) {
++    memset(this, 0, sizeof(*this));
++
++    if (image.mType != MediaImage::MEDIA_IMAGE_TYPE_YUV) {
++        mType = MediaImage2::MEDIA_IMAGE_TYPE_UNKNOWN;
++        return;
++    }
++
++    for (size_t ix = 0; ix < image.mNumPlanes; ++ix) {
++        if (image.mPlane[ix].mHorizSubsampling > INT32_MAX
++                || image.mPlane[ix].mVertSubsampling > INT32_MAX) {
++            mType = MediaImage2::MEDIA_IMAGE_TYPE_UNKNOWN;
++            return;
++        }
++    }
++
++    mType = (MediaImage2::Type)image.mType;
++    mNumPlanes = image.mNumPlanes;
++    mWidth = image.mWidth;
++    mHeight = image.mHeight;
++    mBitDepth = image.mBitDepth;
++    mBitDepthAllocated = 8;
++    for (size_t ix = 0; ix < image.mNumPlanes; ++ix) {
++        mPlane[ix].mOffset = image.mPlane[ix].mOffset;
++        mPlane[ix].mColInc = image.mPlane[ix].mColInc;
++        mPlane[ix].mRowInc = image.mPlane[ix].mRowInc;
++        mPlane[ix].mHorizSubsampling = (int32_t)image.mPlane[ix].mHorizSubsampling;
++        mPlane[ix].mVertSubsampling = (int32_t)image.mPlane[ix].mVertSubsampling;
++    }
++}
++
++/**************************************************************************************************/
++
++const char *GetComponentRole(bool isEncoder, const char *mime) {
++    struct MimeToRole {
++        const char *mime;
++        const char *decoderRole;
++        const char *encoderRole;
++    };
++
++    static const MimeToRole kMimeToRole[] = {
++        { MEDIA_MIMETYPE_AUDIO_MPEG,
++            "audio_decoder.mp3", "audio_encoder.mp3" },
++        { MEDIA_MIMETYPE_AUDIO_MPEG_LAYER_I,
++            "audio_decoder.mp1", "audio_encoder.mp1" },
++        { MEDIA_MIMETYPE_AUDIO_MPEG_LAYER_II,
++            "audio_decoder.mp2", "audio_encoder.mp2" },
++        { MEDIA_MIMETYPE_AUDIO_AMR_NB,
++            "audio_decoder.amrnb", "audio_encoder.amrnb" },
++        { MEDIA_MIMETYPE_AUDIO_AMR_WB,
++            "audio_decoder.amrwb", "audio_encoder.amrwb" },
++        { MEDIA_MIMETYPE_AUDIO_AAC,
++            "audio_decoder.aac", "audio_encoder.aac" },
++        { MEDIA_MIMETYPE_AUDIO_VORBIS,
++            "audio_decoder.vorbis", "audio_encoder.vorbis" },
++        { MEDIA_MIMETYPE_AUDIO_OPUS,
++            "audio_decoder.opus", "audio_encoder.opus" },
++        { MEDIA_MIMETYPE_AUDIO_G711_MLAW,
++            "audio_decoder.g711mlaw", "audio_encoder.g711mlaw" },
++        { MEDIA_MIMETYPE_AUDIO_G711_ALAW,
++            "audio_decoder.g711alaw", "audio_encoder.g711alaw" },
++        { MEDIA_MIMETYPE_VIDEO_AVC,
++            "video_decoder.avc", "video_encoder.avc" },
++        { MEDIA_MIMETYPE_VIDEO_HEVC,
++            "video_decoder.hevc", "video_encoder.hevc" },
++        { MEDIA_MIMETYPE_VIDEO_MPEG4,
++            "video_decoder.mpeg4", "video_encoder.mpeg4" },
++        { MEDIA_MIMETYPE_VIDEO_H263,
++            "video_decoder.h263", "video_encoder.h263" },
++        { MEDIA_MIMETYPE_VIDEO_VP8,
++            "video_decoder.vp8", "video_encoder.vp8" },
++        { MEDIA_MIMETYPE_VIDEO_VP9,
++            "video_decoder.vp9", "video_encoder.vp9" },
++        { MEDIA_MIMETYPE_AUDIO_RAW,
++            "audio_decoder.raw", "audio_encoder.raw" },
++        { MEDIA_MIMETYPE_VIDEO_DOLBY_VISION,
++            "video_decoder.dolby-vision", "video_encoder.dolby-vision" },
++        { MEDIA_MIMETYPE_AUDIO_FLAC,
++            "audio_decoder.flac", "audio_encoder.flac" },
++        { MEDIA_MIMETYPE_AUDIO_MSGSM,
++            "audio_decoder.gsm", "audio_encoder.gsm" },
++        { MEDIA_MIMETYPE_VIDEO_MPEG2,
++            "video_decoder.mpeg2", "video_encoder.mpeg2" },
++        { MEDIA_MIMETYPE_AUDIO_AC3,
++            "audio_decoder.ac3", "audio_encoder.ac3" },
++        { MEDIA_MIMETYPE_AUDIO_EAC3,
++            "audio_decoder.eac3", "audio_encoder.eac3" },
++    };
++
++    static const size_t kNumMimeToRole =
++        sizeof(kMimeToRole) / sizeof(kMimeToRole[0]);
++
++    size_t i;
++    for (i = 0; i < kNumMimeToRole; ++i) {
++        if (!strcasecmp(mime, kMimeToRole[i].mime)) {
++            break;
++        }
++    }
++
++    if (i == kNumMimeToRole) {
++        return NULL;
++    }
++
++    return isEncoder ? kMimeToRole[i].encoderRole
++                  : kMimeToRole[i].decoderRole;
++}
++
++status_t SetComponentRole(const sp<IOMXNode> &omxNode, const char *role) {
++    OMX_PARAM_COMPONENTROLETYPE roleParams;
++    InitOMXParams(&roleParams);
++
++    strncpy((char *)roleParams.cRole,
++            role, OMX_MAX_STRINGNAME_SIZE - 1);
++
++    roleParams.cRole[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
++
++    return omxNode->setParameter(
++            OMX_IndexParamStandardComponentRole,
++            &roleParams, sizeof(roleParams));
++}
++
++bool DescribeDefaultColorFormat(DescribeColorFormat2Params &params) {
++    MediaImage2 &image = params.sMediaImage;
++    memset(&image, 0, sizeof(image));
++
++    image.mType = MediaImage2::MEDIA_IMAGE_TYPE_UNKNOWN;
++    image.mNumPlanes = 0;
++
++    const OMX_COLOR_FORMATTYPE fmt = params.eColorFormat;
++    image.mWidth = params.nFrameWidth;
++    image.mHeight = params.nFrameHeight;
++
++    // only supporting YUV420
++    if (fmt != OMX_COLOR_FormatYUV420Planar &&
++        fmt != OMX_COLOR_FormatYUV420PackedPlanar &&
++        fmt != OMX_COLOR_FormatYUV420SemiPlanar &&
++        fmt != OMX_COLOR_FormatYUV420PackedSemiPlanar &&
++        fmt != (OMX_COLOR_FORMATTYPE)HAL_PIXEL_FORMAT_YV12) {
++        ALOGW("do not know color format 0x%x = %d", fmt, fmt);
++        return false;
++    }
++
++    // TEMPORARY FIX for some vendors that advertise sliceHeight as 0
++    if (params.nStride != 0 && params.nSliceHeight == 0) {
++        ALOGW("using sliceHeight=%u instead of what codec advertised (=0)",
++                params.nFrameHeight);
++        params.nSliceHeight = params.nFrameHeight;
++    }
++
++    // we need stride and slice-height to be non-zero and sensible. These values were chosen to
++    // prevent integer overflows further down the line, and do not indicate support for
++    // 32kx32k video.
++    if (params.nStride == 0 || params.nSliceHeight == 0
++            || params.nStride > 32768 || params.nSliceHeight > 32768) {
++        ALOGW("cannot describe color format 0x%x = %d with stride=%u and sliceHeight=%u",
++                fmt, fmt, params.nStride, params.nSliceHeight);
++        return false;
++    }
++
++    // set-up YUV format
++    image.mType = MediaImage2::MEDIA_IMAGE_TYPE_YUV;
++    image.mNumPlanes = 3;
++    image.mBitDepth = 8;
++    image.mBitDepthAllocated = 8;
++    image.mPlane[image.Y].mOffset = 0;
++    image.mPlane[image.Y].mColInc = 1;
++    image.mPlane[image.Y].mRowInc = params.nStride;
++    image.mPlane[image.Y].mHorizSubsampling = 1;
++    image.mPlane[image.Y].mVertSubsampling = 1;
++
++    switch ((int)fmt) {
++        case HAL_PIXEL_FORMAT_YV12:
++            if (params.bUsingNativeBuffers) {
++                size_t ystride = align(params.nStride, 16);
++                size_t cstride = align(params.nStride / 2, 16);
++                image.mPlane[image.Y].mRowInc = ystride;
++
++                image.mPlane[image.V].mOffset = ystride * params.nSliceHeight;
++                image.mPlane[image.V].mColInc = 1;
++                image.mPlane[image.V].mRowInc = cstride;
++                image.mPlane[image.V].mHorizSubsampling = 2;
++                image.mPlane[image.V].mVertSubsampling = 2;
++
++                image.mPlane[image.U].mOffset = image.mPlane[image.V].mOffset
++                        + (cstride * params.nSliceHeight / 2);
++                image.mPlane[image.U].mColInc = 1;
++                image.mPlane[image.U].mRowInc = cstride;
++                image.mPlane[image.U].mHorizSubsampling = 2;
++                image.mPlane[image.U].mVertSubsampling = 2;
++                break;
++            } else {
++                // fall through as YV12 is used for YUV420Planar by some codecs
++            }
++
++        case OMX_COLOR_FormatYUV420Planar:
++        case OMX_COLOR_FormatYUV420PackedPlanar:
++            image.mPlane[image.U].mOffset = params.nStride * params.nSliceHeight;
++            image.mPlane[image.U].mColInc = 1;
++            image.mPlane[image.U].mRowInc = params.nStride / 2;
++            image.mPlane[image.U].mHorizSubsampling = 2;
++            image.mPlane[image.U].mVertSubsampling = 2;
++
++            image.mPlane[image.V].mOffset = image.mPlane[image.U].mOffset
++                    + (params.nStride * params.nSliceHeight / 4);
++            image.mPlane[image.V].mColInc = 1;
++            image.mPlane[image.V].mRowInc = params.nStride / 2;
++            image.mPlane[image.V].mHorizSubsampling = 2;
++            image.mPlane[image.V].mVertSubsampling = 2;
++            break;
++
++        case OMX_COLOR_FormatYUV420SemiPlanar:
++            // FIXME: NV21 for sw-encoder, NV12 for decoder and hw-encoder
++        case OMX_COLOR_FormatYUV420PackedSemiPlanar:
++            // NV12
++            image.mPlane[image.U].mOffset = params.nStride * params.nSliceHeight;
++            image.mPlane[image.U].mColInc = 2;
++            image.mPlane[image.U].mRowInc = params.nStride;
++            image.mPlane[image.U].mHorizSubsampling = 2;
++            image.mPlane[image.U].mVertSubsampling = 2;
++
++            image.mPlane[image.V].mOffset = image.mPlane[image.U].mOffset + 1;
++            image.mPlane[image.V].mColInc = 2;
++            image.mPlane[image.V].mRowInc = params.nStride;
++            image.mPlane[image.V].mHorizSubsampling = 2;
++            image.mPlane[image.V].mVertSubsampling = 2;
++            break;
++
++        default:
++            TRESPASS();
++    }
++    return true;
++}
++
++bool DescribeColorFormat(
++        const sp<IOMXNode> &omxNode,
++        DescribeColorFormat2Params &describeParams)
++{
++    OMX_INDEXTYPE describeColorFormatIndex;
++    if (omxNode->getExtensionIndex(
++            "OMX.google.android.index.describeColorFormat",
++            &describeColorFormatIndex) == OK) {
++        DescribeColorFormatParams describeParamsV1(describeParams);
++        if (omxNode->getParameter(
++                describeColorFormatIndex,
++                &describeParamsV1, sizeof(describeParamsV1)) == OK) {
++            describeParams.initFromV1(describeParamsV1);
++            return describeParams.sMediaImage.mType != MediaImage2::MEDIA_IMAGE_TYPE_UNKNOWN;
++        }
++    } else if (omxNode->getExtensionIndex(
++            "OMX.google.android.index.describeColorFormat2", &describeColorFormatIndex) == OK
++               && omxNode->getParameter(
++                       describeColorFormatIndex, &describeParams, sizeof(describeParams)) == OK) {
++        return describeParams.sMediaImage.mType != MediaImage2::MEDIA_IMAGE_TYPE_UNKNOWN;
++    }
++
++    return DescribeDefaultColorFormat(describeParams);
++}
++
++// static
++bool IsFlexibleColorFormat(
++         const sp<IOMXNode> &omxNode,
++         uint32_t colorFormat, bool usingNativeBuffers, OMX_U32 *flexibleEquivalent) {
++    DescribeColorFormat2Params describeParams;
++    InitOMXParams(&describeParams);
++    describeParams.eColorFormat = (OMX_COLOR_FORMATTYPE)colorFormat;
++    // reasonable dummy values
++    describeParams.nFrameWidth = 128;
++    describeParams.nFrameHeight = 128;
++    describeParams.nStride = 128;
++    describeParams.nSliceHeight = 128;
++    describeParams.bUsingNativeBuffers = (OMX_BOOL)usingNativeBuffers;
++
++    CHECK(flexibleEquivalent != NULL);
++
++    if (!DescribeColorFormat(omxNode, describeParams)) {
++        return false;
++    }
++
++    const MediaImage2 &img = describeParams.sMediaImage;
++    if (img.mType == MediaImage2::MEDIA_IMAGE_TYPE_YUV) {
++        if (img.mNumPlanes != 3
++                || img.mPlane[img.Y].mHorizSubsampling != 1
++                || img.mPlane[img.Y].mVertSubsampling != 1) {
++            return false;
++        }
++
++        // YUV 420
++        if (img.mPlane[img.U].mHorizSubsampling == 2
++                && img.mPlane[img.U].mVertSubsampling == 2
++                && img.mPlane[img.V].mHorizSubsampling == 2
++                && img.mPlane[img.V].mVertSubsampling == 2) {
++            // possible flexible YUV420 format
++            if (img.mBitDepth <= 8) {
++               *flexibleEquivalent = OMX_COLOR_FormatYUV420Flexible;
++               return true;
++            }
++        }
++    }
++    return false;
++}
++
++}  // namespace android
++
 diff --git a/media/libstagefright/omx/SoftOMXPlugin.cpp b/media/libstagefright/omx/SoftOMXPlugin.cpp
-index adb7370..ab13885 100644
+index 4946ada..960978a 100644
 --- a/media/libstagefright/omx/SoftOMXPlugin.cpp
 +++ b/media/libstagefright/omx/SoftOMXPlugin.cpp
-@@ -78,6 +78,9 @@ static const struct {
-     { "OMX.google.raw.decoder", "rawdec", "audio_decoder.raw" },
+@@ -61,6 +61,9 @@ static const struct {
+     { "OMX.google.flac.decoder", "flacdec", "audio_decoder.flac" },
      { "OMX.google.flac.encoder", "flacenc", "audio_encoder.flac" },
      { "OMX.google.gsm.decoder", "gsmdec", "audio_decoder.gsm" },
 +//sprd added
 +    { "OMX.google.imaadpcm.decoder", "imaadpcmdec", "audio_decoder.imaadpcm" },
 +    { "OMX.google.mjpg.decoder", "mjpgdec", "video_decoder.mjpg" },
- #ifdef QTI_FLAC_DECODER
-     { "OMX.qti.audio.decoder.flac", "flacdec", "audio_decoder.flac" },
- #endif
+ };
+ 
+ static const size_t kNumComponents =
 diff --git a/media/mtp/MtpDataPacket.cpp b/media/mtp/MtpDataPacket.cpp
-index 0e9bc34..a6f721f 100644
+index d1c71d7..f5e4b74 100644
 --- a/media/mtp/MtpDataPacket.cpp
 +++ b/media/mtp/MtpDataPacket.cpp
-@@ -440,7 +440,9 @@ void MtpDataPacket::putString(const uint16_t* string) {
+@@ -441,7 +441,9 @@ void MtpDataPacket::putString(const uint16_t* string) {
  
- #ifdef MTP_DEVICE 
- int MtpDataPacket::read(int fd) {
--    int ret = ::read(fd, mBuffer, MTP_BUFFER_SIZE);
+ #ifdef MTP_DEVICE
+ int MtpDataPacket::read(IMtpHandle *h) {
+-    int ret = h->read(mBuffer, MTP_BUFFER_SIZE);
 +    /* SPRD: modify code for bug 492017. @{ */
-+    int ret = ::read(fd, mBuffer, 512);
++    int ret = h->read(mBuffer, 512);
 +    /* @} */
      if (ret < MTP_CONTAINER_HEADER_SIZE)
          return -1;
      mPacketSize = ret;
 diff --git a/media/mtp/MtpServer.cpp b/media/mtp/MtpServer.cpp
-index e184d48..6584e62 100644
+index 89823c4..2df1805 100644
 --- a/media/mtp/MtpServer.cpp
 +++ b/media/mtp/MtpServer.cpp
-@@ -442,8 +442,10 @@ bool MtpServer::handleRequest() {
+@@ -454,8 +454,10 @@ bool MtpServer::handleRequest() {
              break;
      }
  
@@ -5004,31 +5886,3 @@ index e184d48..6584e62 100644
      mResponse.setResponseCode(response);
      return true;
  }
-diff --git a/services/audioflinger/Threads.cpp b/services/audioflinger/Threads.cpp
-index e8c80c1..2417ddb 100644
---- a/services/audioflinger/Threads.cpp
-+++ b/services/audioflinger/Threads.cpp
-@@ -488,6 +488,9 @@ String8 devicesToString(audio_devices_t devices)
-         {AUDIO_DEVICE_OUT_HDMI_ARC,         "HDMI_ARC"},
-         {AUDIO_DEVICE_OUT_SPDIF,            "SPDIF"},
-         {AUDIO_DEVICE_OUT_FM,               "FM"},
-+        {AUDIO_DEVICE_OUT_FM_HEADSET,       "FM Headset Out"},
-+        {AUDIO_DEVICE_OUT_FM_SPEAKER,       "FM Speaker Out"},
-+        {AUDIO_DEVICE_OUT_ALL_FM,           ""},
-         {AUDIO_DEVICE_OUT_AUX_LINE,         "AUX_LINE"},
-         {AUDIO_DEVICE_OUT_SPEAKER_SAFE,     "SPEAKER_SAFE"},
-         {AUDIO_DEVICE_OUT_IP,               "IP"},
-diff --git a/services/audiopolicy/common/managerdefinitions/src/TypeConverter.cpp b/services/audiopolicy/common/managerdefinitions/src/TypeConverter.cpp
-index b731e2b..d68b46e 100644
---- a/services/audiopolicy/common/managerdefinitions/src/TypeConverter.cpp
-+++ b/services/audiopolicy/common/managerdefinitions/src/TypeConverter.cpp
-@@ -48,6 +48,9 @@ const DeviceConverter::Table DeviceConverter::mTable[] = {
-         MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_HDMI_ARC),
-         MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_SPDIF),
-         MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_FM),
-+        MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_FM_HEADSET),
-+        MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_FM_SPEAKER),
-+        MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_ALL_FM),
-         MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_AUX_LINE),
-         MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_IP),
-         MAKE_STRING_FROM_ENUM(AUDIO_DEVICE_OUT_BUS),

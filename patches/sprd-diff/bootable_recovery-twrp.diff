@@ -1,37 +1,899 @@
+diff --git a/crypto/scrypt/lib/crypto/crypto_scrypt-neon.c b/crypto/scrypt/lib/crypto/crypto_scrypt-neon.c
+index a3bf052..da8de1e 100644
+--- a/crypto/scrypt/lib/crypto/crypto_scrypt-neon.c
++++ b/crypto/scrypt/lib/crypto/crypto_scrypt-neon.c
+@@ -28,7 +28,7 @@
+  */
+ #include "scrypt_platform.h"
+ 
+-#include <machine/cpu-features.h>
++//#include <machine/cpu-features.h>
+ #include <arm_neon.h>
+ 
+ #include <errno.h>
 diff --git a/minui/Android.mk b/minui/Android.mk
-index 249feeb..4bb201d 100644
+index cb56b73..dbe8ab7 100644
 --- a/minui/Android.mk
 +++ b/minui/Android.mk
-@@ -59,6 +59,10 @@ ifeq ($(subst ",,$(TARGET_RECOVERY_PIXEL_FORMAT)),BGRA_8888)
+@@ -90,6 +90,10 @@ ifeq ($(subst ",,$(TARGET_RECOVERY_PIXEL_FORMAT)),BGRA_8888)
    LOCAL_CFLAGS += -DRECOVERY_BGRA
  endif
  
 +ifeq ($(RECOVERY_GRAPHICS_FORCE_SINGLE_BUFFER), true)
-+LOCAL_CFLAGS += -DRECOVERY_GRAPHICS_FORCE_SINGLE_BUFFER
++  LOCAL_CFLAGS += -DRECOVERY_GRAPHICS_FORCE_SINGLE_BUFFER
 +endif
 +
  ifneq ($(TARGET_RECOVERY_OVERSCAN_PERCENT),)
    LOCAL_CFLAGS += -DOVERSCAN_PERCENT=$(TARGET_RECOVERY_OVERSCAN_PERCENT)
  else
 diff --git a/minui/graphics_fbdev.cpp b/minui/graphics_fbdev.cpp
-index 5f64e1e..d3ef5d7 100644
+index bb91a57..592f2cb 100644
 --- a/minui/graphics_fbdev.cpp
 +++ b/minui/graphics_fbdev.cpp
-@@ -151,6 +151,7 @@ static GRSurface* fbdev_init(minui_backend* backend) {
-     memset(gr_framebuffer[0].data, 0, gr_framebuffer[0].height * gr_framebuffer[0].row_bytes);
+@@ -121,6 +121,7 @@ GRSurface* MinuiBackendFbdev::Init() {
+   memset(gr_framebuffer[0].data, 0, gr_framebuffer[0].height * gr_framebuffer[0].row_bytes);
  
-     /* check if we can use double buffering */
+   /* check if we can use double buffering */
 +#ifndef RECOVERY_GRAPHICS_FORCE_SINGLE_BUFFER
-     if (vi.yres * fi.line_length * 2 <= fi.smem_len) {
-         double_buffered = true;
+   if (vi.yres * fi.line_length * 2 <= fi.smem_len) {
+     double_buffered = true;
  
-@@ -161,6 +162,9 @@ static GRSurface* fbdev_init(minui_backend* backend) {
-         gr_draw = gr_framebuffer+1;
+@@ -131,6 +132,9 @@ GRSurface* MinuiBackendFbdev::Init() {
+     gr_draw = gr_framebuffer + 1;
  
-     } else {
+   } else {
 +#else
-+    {
++  {
 +#endif
-         double_buffered = false;
+     double_buffered = false;
  
-         // Without double-buffering, we allocate RAM for a buffer to
+     // Without double-buffering, we allocate RAM for a buffer to
+diff --git a/otautil/Android.bp b/otautil/Android.bp
+index a2eaa04..0b23143 100644
+--- a/otautil/Android.bp
++++ b/otautil/Android.bp
+@@ -18,6 +18,7 @@ cc_library_static {
+     srcs: [
+         "SysUtil.cpp",
+         "DirUtil.cpp",
++        "ZipUtil.cpp",
+         "ThermalUtil.cpp",
+     ],
+ 
+diff --git a/otautil/ZipUtil.cpp b/otautil/ZipUtil.cpp
+index 714c956..9cc97e4 100644
+--- a/otautil/ZipUtil.cpp
++++ b/otautil/ZipUtil.cpp
+@@ -74,7 +74,6 @@ bool ExtractPackageRecursive(ZipArchiveHandle zip, const std::string& zip_path,
+         if (path.back() == '/') {
+             continue;
+         }
+-        //TODO(b/31917448) handle the symlink.
+ 
+         if (dirCreateHierarchy(path.c_str(), UNZIP_DIRMODE, timestamp, true, sehnd) != 0) {
+             LOG(ERROR) << "failed to create dir for " << path;
+diff --git a/tests/Android.mk b/tests/Android.mk
+index ff8f3a3..e85dd82 100644
+--- a/tests/Android.mk
++++ b/tests/Android.mk
+@@ -45,6 +45,7 @@ LOCAL_SRC_FILES := \
+     unit/rangeset_test.cpp \
+     unit/sysutil_test.cpp \
+     unit/zip_test.cpp \
++    unit/ziputil_test.cpp
+ 
+ LOCAL_C_INCLUDES := $(RECOVERY_PATH)
+ LOCAL_SHARED_LIBRARIES := liblog
+diff --git a/tests/component/updater_test.cpp b/tests/component/updater_test.cpp
+index aa2321d..374a99c 100644
+--- a/tests/component/updater_test.cpp
++++ b/tests/component/updater_test.cpp
+@@ -227,6 +227,119 @@ TEST_F(UpdaterTest, file_getprop) {
+     expect("", script6.c_str(), kNoCause);
+ }
+ 
++TEST_F(UpdaterTest, delete) {
++    // Delete none.
++    expect("0", "delete()", kNoCause);
++    expect("0", "delete(\"/doesntexist\")", kNoCause);
++    expect("0", "delete(\"/doesntexist1\", \"/doesntexist2\")", kNoCause);
++    expect("0", "delete(\"/doesntexist1\", \"/doesntexist2\", \"/doesntexist3\")", kNoCause);
++
++    // Delete one file.
++    TemporaryFile temp_file1;
++    ASSERT_TRUE(android::base::WriteStringToFile("abc", temp_file1.path));
++    std::string script1("delete(\"" + std::string(temp_file1.path) + "\")");
++    expect("1", script1.c_str(), kNoCause);
++
++    // Delete two files.
++    TemporaryFile temp_file2;
++    ASSERT_TRUE(android::base::WriteStringToFile("abc", temp_file2.path));
++    TemporaryFile temp_file3;
++    ASSERT_TRUE(android::base::WriteStringToFile("abc", temp_file3.path));
++    std::string script2("delete(\"" + std::string(temp_file2.path) + "\", \"" +
++                        std::string(temp_file3.path) + "\")");
++    expect("2", script2.c_str(), kNoCause);
++
++    // Delete already deleted files.
++    expect("0", script2.c_str(), kNoCause);
++
++    // Delete one out of three.
++    TemporaryFile temp_file4;
++    ASSERT_TRUE(android::base::WriteStringToFile("abc", temp_file4.path));
++    std::string script3("delete(\"/doesntexist1\", \"" + std::string(temp_file4.path) +
++                        "\", \"/doesntexist2\")");
++    expect("1", script3.c_str(), kNoCause);
++}
++
++TEST_F(UpdaterTest, rename) {
++    // rename() expects two arguments.
++    expect(nullptr, "rename()", kArgsParsingFailure);
++    expect(nullptr, "rename(\"arg1\")", kArgsParsingFailure);
++    expect(nullptr, "rename(\"arg1\", \"arg2\", \"arg3\")", kArgsParsingFailure);
++
++    // src_name or dst_name cannot be empty.
++    expect(nullptr, "rename(\"\", \"arg2\")", kArgsParsingFailure);
++    expect(nullptr, "rename(\"arg1\", \"\")", kArgsParsingFailure);
++
++    // File doesn't exist (both of src and dst).
++    expect(nullptr, "rename(\"/doesntexist\", \"/doesntexisteither\")" , kFileRenameFailure);
++
++    // Can't create parent directory.
++    TemporaryFile temp_file1;
++    ASSERT_TRUE(android::base::WriteStringToFile("abc", temp_file1.path));
++    std::string script1("rename(\"" + std::string(temp_file1.path) + "\", \"/proc/0/file1\")");
++    expect(nullptr, script1.c_str(), kFileRenameFailure);
++
++    // Rename.
++    TemporaryFile temp_file2;
++    std::string script2("rename(\"" + std::string(temp_file1.path) + "\", \"" +
++                        std::string(temp_file2.path) + "\")");
++    expect(temp_file2.path, script2.c_str(), kNoCause);
++
++    // Already renamed.
++    expect(temp_file2.path, script2.c_str(), kNoCause);
++
++    // Parents create successfully.
++    TemporaryFile temp_file3;
++    TemporaryDir td;
++    std::string temp_dir(td.path);
++    std::string dst_file = temp_dir + "/aaa/bbb/a.txt";
++    std::string script3("rename(\"" + std::string(temp_file3.path) + "\", \"" + dst_file + "\")");
++    expect(dst_file.c_str(), script3.c_str(), kNoCause);
++
++    // Clean up the temp files under td.
++    ASSERT_EQ(0, unlink(dst_file.c_str()));
++    ASSERT_EQ(0, rmdir((temp_dir + "/aaa/bbb").c_str()));
++    ASSERT_EQ(0, rmdir((temp_dir + "/aaa").c_str()));
++}
++
++TEST_F(UpdaterTest, symlink) {
++    // symlink expects 1+ argument.
++    expect(nullptr, "symlink()", kArgsParsingFailure);
++
++    // symlink should fail if src is an empty string.
++    TemporaryFile temp_file1;
++    std::string script1("symlink(\"" + std::string(temp_file1.path) + "\", \"\")");
++    expect(nullptr, script1.c_str(), kSymlinkFailure);
++
++    std::string script2("symlink(\"" + std::string(temp_file1.path) + "\", \"src1\", \"\")");
++    expect(nullptr, script2.c_str(), kSymlinkFailure);
++
++    // symlink failed to remove old src.
++    std::string script3("symlink(\"" + std::string(temp_file1.path) + "\", \"/proc\")");
++    expect(nullptr, script3.c_str(), kSymlinkFailure);
++
++    // symlink can create symlinks.
++    TemporaryFile temp_file;
++    std::string content = "magicvalue";
++    ASSERT_TRUE(android::base::WriteStringToFile(content, temp_file.path));
++
++    TemporaryDir td;
++    std::string src1 = std::string(td.path) + "/symlink1";
++    std::string src2 = std::string(td.path) + "/symlink2";
++    std::string script4("symlink(\"" + std::string(temp_file.path) + "\", \"" +
++                        src1 + "\", \"" + src2 + "\")");
++    expect("t", script4.c_str(), kNoCause);
++
++    // Verify the created symlinks.
++    struct stat sb;
++    ASSERT_TRUE(lstat(src1.c_str(), &sb) == 0 && S_ISLNK(sb.st_mode));
++    ASSERT_TRUE(lstat(src2.c_str(), &sb) == 0 && S_ISLNK(sb.st_mode));
++
++    // Clean up the leftovers.
++    ASSERT_EQ(0, unlink(src1.c_str()));
++    ASSERT_EQ(0, unlink(src2.c_str()));
++}
++
+ TEST_F(UpdaterTest, package_extract_dir) {
+   // package_extract_dir expects 2 arguments.
+   expect(nullptr, "package_extract_dir()", kArgsParsingFailure);
+diff --git a/tests/unit/zip_test.cpp b/tests/unit/zip_test.cpp
+index 8276685..df4e38c 100644
+--- a/tests/unit/zip_test.cpp
++++ b/tests/unit/zip_test.cpp
+@@ -24,10 +24,47 @@
+ #include <android-base/test_utils.h>
+ #include <gtest/gtest.h>
+ #include <otautil/SysUtil.h>
++#include <otautil/ZipUtil.h>
+ #include <ziparchive/zip_archive.h>
+ 
+ #include "common/test_constants.h"
+ 
++TEST(ZipTest, ExtractPackageRecursive) {
++  std::string zip_path = from_testdata_base("ziptest_valid.zip");
++  ZipArchiveHandle handle;
++  ASSERT_EQ(0, OpenArchive(zip_path.c_str(), &handle));
++
++  // Extract the whole package into a temp directory.
++  TemporaryDir td;
++  ASSERT_NE(nullptr, td.path);
++  ExtractPackageRecursive(handle, "", td.path, nullptr, nullptr);
++
++  // Make sure all the files are extracted correctly.
++  std::string path(td.path);
++  ASSERT_EQ(0, access((path + "/a.txt").c_str(), F_OK));
++  ASSERT_EQ(0, access((path + "/b.txt").c_str(), F_OK));
++  ASSERT_EQ(0, access((path + "/b/c.txt").c_str(), F_OK));
++  ASSERT_EQ(0, access((path + "/b/d.txt").c_str(), F_OK));
++
++  // The content of the file is the same as expected.
++  std::string content1;
++  ASSERT_TRUE(android::base::ReadFileToString(path + "/a.txt", &content1));
++  ASSERT_EQ(kATxtContents, content1);
++
++  std::string content2;
++  ASSERT_TRUE(android::base::ReadFileToString(path + "/b/d.txt", &content2));
++  ASSERT_EQ(kDTxtContents, content2);
++
++  CloseArchive(handle);
++
++  // Clean up.
++  ASSERT_EQ(0, unlink((path + "/a.txt").c_str()));
++  ASSERT_EQ(0, unlink((path + "/b.txt").c_str()));
++  ASSERT_EQ(0, unlink((path + "/b/c.txt").c_str()));
++  ASSERT_EQ(0, unlink((path + "/b/d.txt").c_str()));
++  ASSERT_EQ(0, rmdir((path + "/b").c_str()));
++}
++
+ TEST(ZipTest, OpenFromMemory) {
+   std::string zip_path = from_testdata_base("ziptest_dummy-update.zip");
+   MemMapping map;
+diff --git a/tests/unit/ziputil_test.cpp b/tests/unit/ziputil_test.cpp
+new file mode 100644
+index 0000000..14e5416
+--- /dev/null
++++ b/tests/unit/ziputil_test.cpp
+@@ -0,0 +1,191 @@
++/*
++ * Copyright 2016 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++#include <errno.h>
++#include <sys/stat.h>
++#include <unistd.h>
++
++#include <string>
++
++#include <android-base/file.h>
++#include <android-base/test_utils.h>
++#include <gtest/gtest.h>
++#include <otautil/ZipUtil.h>
++#include <ziparchive/zip_archive.h>
++
++#include "common/test_constants.h"
++
++TEST(ZipUtilTest, invalid_args) {
++  std::string zip_path = from_testdata_base("ziptest_valid.zip");
++  ZipArchiveHandle handle;
++  ASSERT_EQ(0, OpenArchive(zip_path.c_str(), &handle));
++
++  // zip_path must be a relative path.
++  ASSERT_FALSE(ExtractPackageRecursive(handle, "/a/b", "/tmp", nullptr, nullptr));
++
++  // dest_path must be an absolute path.
++  ASSERT_FALSE(ExtractPackageRecursive(handle, "a/b", "tmp", nullptr, nullptr));
++  ASSERT_FALSE(ExtractPackageRecursive(handle, "a/b", "", nullptr, nullptr));
++
++  CloseArchive(handle);
++}
++
++TEST(ZipUtilTest, extract_all) {
++  std::string zip_path = from_testdata_base("ziptest_valid.zip");
++  ZipArchiveHandle handle;
++  ASSERT_EQ(0, OpenArchive(zip_path.c_str(), &handle));
++
++  // Extract the whole package into a temp directory.
++  TemporaryDir td;
++  ExtractPackageRecursive(handle, "", td.path, nullptr, nullptr);
++
++  // Make sure all the files are extracted correctly.
++  std::string path(td.path);
++  ASSERT_EQ(0, access((path + "/a.txt").c_str(), F_OK));
++  ASSERT_EQ(0, access((path + "/b.txt").c_str(), F_OK));
++  ASSERT_EQ(0, access((path + "/b/c.txt").c_str(), F_OK));
++  ASSERT_EQ(0, access((path + "/b/d.txt").c_str(), F_OK));
++
++  // The content of the file is the same as expected.
++  std::string content1;
++  ASSERT_TRUE(android::base::ReadFileToString(path + "/a.txt", &content1));
++  ASSERT_EQ(kATxtContents, content1);
++
++  std::string content2;
++  ASSERT_TRUE(android::base::ReadFileToString(path + "/b/d.txt", &content2));
++  ASSERT_EQ(kDTxtContents, content2);
++
++  // Clean up the temp files under td.
++  ASSERT_EQ(0, unlink((path + "/a.txt").c_str()));
++  ASSERT_EQ(0, unlink((path + "/b.txt").c_str()));
++  ASSERT_EQ(0, unlink((path + "/b/c.txt").c_str()));
++  ASSERT_EQ(0, unlink((path + "/b/d.txt").c_str()));
++  ASSERT_EQ(0, rmdir((path + "/b").c_str()));
++
++  CloseArchive(handle);
++}
++
++TEST(ZipUtilTest, extract_prefix_with_slash) {
++  std::string zip_path = from_testdata_base("ziptest_valid.zip");
++  ZipArchiveHandle handle;
++  ASSERT_EQ(0, OpenArchive(zip_path.c_str(), &handle));
++
++  // Extract all the entries starting with "b/".
++  TemporaryDir td;
++  ExtractPackageRecursive(handle, "b/", td.path, nullptr, nullptr);
++
++  // Make sure all the files with "b/" prefix are extracted correctly.
++  std::string path(td.path);
++  ASSERT_EQ(0, access((path + "/c.txt").c_str(), F_OK));
++  ASSERT_EQ(0, access((path + "/d.txt").c_str(), F_OK));
++
++  // And the rest are not extracted.
++  ASSERT_EQ(-1, access((path + "/a.txt").c_str(), F_OK));
++  ASSERT_EQ(ENOENT, errno);
++  ASSERT_EQ(-1, access((path + "/b.txt").c_str(), F_OK));
++  ASSERT_EQ(ENOENT, errno);
++
++  // The content of the file is the same as expected.
++  std::string content1;
++  ASSERT_TRUE(android::base::ReadFileToString(path + "/c.txt", &content1));
++  ASSERT_EQ(kCTxtContents, content1);
++
++  std::string content2;
++  ASSERT_TRUE(android::base::ReadFileToString(path + "/d.txt", &content2));
++  ASSERT_EQ(kDTxtContents, content2);
++
++  // Clean up the temp files under td.
++  ASSERT_EQ(0, unlink((path + "/c.txt").c_str()));
++  ASSERT_EQ(0, unlink((path + "/d.txt").c_str()));
++
++  CloseArchive(handle);
++}
++
++TEST(ZipUtilTest, extract_prefix_without_slash) {
++  std::string zip_path = from_testdata_base("ziptest_valid.zip");
++  ZipArchiveHandle handle;
++  ASSERT_EQ(0, OpenArchive(zip_path.c_str(), &handle));
++
++  // Extract all the file entries starting with "b/".
++  TemporaryDir td;
++  ExtractPackageRecursive(handle, "b", td.path, nullptr, nullptr);
++
++  // Make sure all the files with "b/" prefix are extracted correctly.
++  std::string path(td.path);
++  ASSERT_EQ(0, access((path + "/c.txt").c_str(), F_OK));
++  ASSERT_EQ(0, access((path + "/d.txt").c_str(), F_OK));
++
++  // And the rest are not extracted.
++  ASSERT_EQ(-1, access((path + "/a.txt").c_str(), F_OK));
++  ASSERT_EQ(ENOENT, errno);
++  ASSERT_EQ(-1, access((path + "/b.txt").c_str(), F_OK));
++  ASSERT_EQ(ENOENT, errno);
++
++  // The content of the file is the same as expected.
++  std::string content1;
++  ASSERT_TRUE(android::base::ReadFileToString(path + "/c.txt", &content1));
++  ASSERT_EQ(kCTxtContents, content1);
++
++  std::string content2;
++  ASSERT_TRUE(android::base::ReadFileToString(path + "/d.txt", &content2));
++  ASSERT_EQ(kDTxtContents, content2);
++
++  // Clean up the temp files under td.
++  ASSERT_EQ(0, unlink((path + "/c.txt").c_str()));
++  ASSERT_EQ(0, unlink((path + "/d.txt").c_str()));
++
++  CloseArchive(handle);
++}
++
++TEST(ZipUtilTest, set_timestamp) {
++  std::string zip_path = from_testdata_base("ziptest_valid.zip");
++  ZipArchiveHandle handle;
++  ASSERT_EQ(0, OpenArchive(zip_path.c_str(), &handle));
++
++  // Set the timestamp to 8/1/2008.
++  constexpr struct utimbuf timestamp = { 1217592000, 1217592000 };
++
++  // Extract all the entries starting with "b/".
++  TemporaryDir td;
++  ExtractPackageRecursive(handle, "b", td.path, &timestamp, nullptr);
++
++  // Make sure all the files with "b/" prefix are extracted correctly.
++  std::string path(td.path);
++  std::string file_c = path + "/c.txt";
++  std::string file_d = path + "/d.txt";
++  ASSERT_EQ(0, access(file_c.c_str(), F_OK));
++  ASSERT_EQ(0, access(file_d.c_str(), F_OK));
++
++  // Verify the timestamp.
++  timespec time;
++  time.tv_sec = 1217592000;
++  time.tv_nsec = 0;
++
++  struct stat sb;
++  ASSERT_EQ(0, stat(file_c.c_str(), &sb)) << strerror(errno);
++  ASSERT_EQ(time.tv_sec, static_cast<long>(sb.st_atime));
++  ASSERT_EQ(time.tv_sec, static_cast<long>(sb.st_mtime));
++
++  ASSERT_EQ(0, stat(file_d.c_str(), &sb)) << strerror(errno);
++  ASSERT_EQ(time.tv_sec, static_cast<long>(sb.st_atime));
++  ASSERT_EQ(time.tv_sec, static_cast<long>(sb.st_mtime));
++
++  // Clean up the temp files under td.
++  ASSERT_EQ(0, unlink(file_c.c_str()));
++  ASSERT_EQ(0, unlink(file_d.c_str()));
++
++  CloseArchive(handle);
++}
+diff --git a/updater/install.cpp b/updater/install.cpp
+index 0d473fc..a8ee4bf 100644
+--- a/updater/install.cpp
++++ b/updater/install.cpp
+@@ -74,6 +74,7 @@
+ #endif
+ 
+ #include "otautil/DirUtil.h"
++#include "otautil/ZipUtil.h"
+ #include "print_sha1.h"
+ #include "tune2fs.h"
+ #include "updater/updater.h"
+@@ -369,6 +370,67 @@ Value* FormatFn(const char* name, State* state, const std::vector<std::unique_pt
+   return nullptr;
+ }
+ 
++// rename(src_name, dst_name)
++//   Renames src_name to dst_name. It automatically creates the necessary directories for dst_name.
++//   Example: rename("system/app/Hangouts/Hangouts.apk", "system/priv-app/Hangouts/Hangouts.apk")
++Value* RenameFn(const char* name, State* state, const std::vector<std::unique_ptr<Expr>>& argv) {
++  if (argv.size() != 2) {
++    return ErrorAbort(state, kArgsParsingFailure, "%s() expects 2 args, got %zu", name,
++                      argv.size());
++  }
++
++  std::vector<std::string> args;
++  if (!ReadArgs(state, argv, &args)) {
++    return ErrorAbort(state, kArgsParsingFailure, "%s() Failed to parse the argument(s)", name);
++  }
++  const std::string& src_name = args[0];
++  const std::string& dst_name = args[1];
++
++  if (src_name.empty()) {
++    return ErrorAbort(state, kArgsParsingFailure, "src_name argument to %s() can't be empty", name);
++  }
++  if (dst_name.empty()) {
++    return ErrorAbort(state, kArgsParsingFailure, "dst_name argument to %s() can't be empty", name);
++  }
++  if (!make_parents(dst_name)) {
++    return ErrorAbort(state, kFileRenameFailure, "Creating parent of %s failed, error %s",
++                      dst_name.c_str(), strerror(errno));
++  } else if (access(dst_name.c_str(), F_OK) == 0 && access(src_name.c_str(), F_OK) != 0) {
++    // File was already moved
++    return StringValue(dst_name);
++  } else if (rename(src_name.c_str(), dst_name.c_str()) != 0) {
++    return ErrorAbort(state, kFileRenameFailure, "Rename of %s to %s failed, error %s",
++                      src_name.c_str(), dst_name.c_str(), strerror(errno));
++  }
++
++  return StringValue(dst_name);
++}
++
++// delete([filename, ...])
++//   Deletes all the filenames listed. Returns the number of files successfully deleted.
++//
++// delete_recursive([dirname, ...])
++//   Recursively deletes dirnames and all their contents. Returns the number of directories
++//   successfully deleted.
++Value* DeleteFn(const char* name, State* state, const std::vector<std::unique_ptr<Expr>>& argv) {
++  std::vector<std::string> paths;
++  if (!ReadArgs(state, argv, &paths)) {
++    return nullptr;
++  }
++
++  bool recursive = (strcmp(name, "delete_recursive") == 0);
++
++  int success = 0;
++  for (const auto& path : paths) {
++    if ((recursive ? dirUnlinkHierarchy(path.c_str()) : unlink(path.c_str())) == 0) {
++      ++success;
++    }
++  }
++
++  return StringValue(std::to_string(success));
++}
++
++
+ Value* ShowProgressFn(const char* name, State* state,
+                       const std::vector<std::unique_ptr<Expr>>& argv) {
+   if (argv.size() != 2) {
+@@ -423,6 +485,36 @@ Value* SetProgressFn(const char* name, State* state, const std::vector<std::uniq
+   return StringValue(frac_str);
+ }
+ 
++// package_extract_dir(package_dir, dest_dir)
++//   Extracts all files from the package underneath package_dir and writes them to the
++//   corresponding tree beneath dest_dir. Any existing files are overwritten.
++//   Example: package_extract_dir("system", "/system")
++//
++//   Note: package_dir needs to be a relative path; dest_dir needs to be an absolute path.
++Value* PackageExtractDirFn(const char* name, State* state,
++                           const std::vector<std::unique_ptr<Expr>>&argv) {
++  if (argv.size() != 2) {
++    return ErrorAbort(state, kArgsParsingFailure, "%s() expects 2 args, got %zu", name,
++                      argv.size());
++  }
++
++  std::vector<std::string> args;
++  if (!ReadArgs(state, argv, &args)) {
++    return ErrorAbort(state, kArgsParsingFailure, "%s() Failed to parse the argument(s)", name);
++  }
++  const std::string& zip_path = args[0];
++  const std::string& dest_path = args[1];
++
++  ZipArchiveHandle za = static_cast<UpdaterInfo*>(state->cookie)->package_zip;
++
++  // To create a consistent system image, never use the clock for timestamps.
++  constexpr struct utimbuf timestamp = { 1217592000, 1217592000 };  // 8/1/2008 default
++
++  bool success = ExtractPackageRecursive(za, zip_path, dest_path, &timestamp, sehandle);
++
++  return StringValue(success ? "t" : "");
++}
++
+ // package_extract_file(package_file[, dest_file])
+ //   Extracts a single package_file from the update package and writes it to dest_file,
+ //   overwriting existing files if necessary. Without the dest_file argument, returns the
+@@ -510,6 +602,288 @@ Value* PackageExtractFileFn(const char* name, State* state,
+   }
+ }
+ 
++// symlink(target, [src1, src2, ...])
++//   Creates all sources as symlinks to target. It unlinks any previously existing src1, src2, etc
++//   before creating symlinks.
++Value* SymlinkFn(const char* name, State* state, const std::vector<std::unique_ptr<Expr>>& argv) {
++  if (argv.size() == 0) {
++    return ErrorAbort(state, kArgsParsingFailure, "%s() expects 1+ args, got %zu", name, argv.size());
++  }
++  std::string target;
++  if (!Evaluate(state, argv[0], &target)) {
++    return nullptr;
++  }
++
++  std::vector<std::string> srcs;
++  if (!ReadArgs(state, argv, &srcs, 1, argv.size())) {
++    return ErrorAbort(state, kArgsParsingFailure, "%s(): Failed to parse the argument(s)", name);
++  }
++
++  size_t bad = 0;
++  for (const auto& src : srcs) {
++    if (unlink(src.c_str()) == -1 && errno != ENOENT) {
++      PLOG(ERROR) << name << ": failed to remove " << src;
++      ++bad;
++    } else if (!make_parents(src)) {
++      LOG(ERROR) << name << ": failed to symlink " << src << " to " << target
++                 << ": making parents failed";
++      ++bad;
++    } else if (symlink(target.c_str(), src.c_str()) == -1) {
++      PLOG(ERROR) << name << ": failed to symlink " << src << " to " << target;
++      ++bad;
++    }
++  }
++  if (bad != 0) {
++    return ErrorAbort(state, kSymlinkFailure, "%s: Failed to create %zu symlink(s)", name, bad);
++  }
++  return StringValue("t");
++}
++
++struct perm_parsed_args {
++  bool has_uid;
++  uid_t uid;
++  bool has_gid;
++  gid_t gid;
++  bool has_mode;
++  mode_t mode;
++  bool has_fmode;
++  mode_t fmode;
++  bool has_dmode;
++  mode_t dmode;
++  bool has_selabel;
++  const char* selabel;
++  bool has_capabilities;
++  uint64_t capabilities;
++};
++
++static struct perm_parsed_args ParsePermArgs(State * state,
++                                             const std::vector<std::string>& args) {
++  struct perm_parsed_args parsed;
++  int bad = 0;
++  static int max_warnings = 20;
++
++  memset(&parsed, 0, sizeof(parsed));
++
++  for (size_t i = 1; i < args.size(); i += 2) {
++    if (args[i] == "uid") {
++      int64_t uid;
++      if (sscanf(args[i + 1].c_str(), "%" SCNd64, &uid) == 1) {
++        parsed.uid = uid;
++        parsed.has_uid = true;
++      } else {
++        uiPrintf(state, "ParsePermArgs: invalid UID \"%s\"\n", args[i + 1].c_str());
++        bad++;
++      }
++      continue;
++    }
++    if (args[i] == "gid") {
++      int64_t gid;
++      if (sscanf(args[i + 1].c_str(), "%" SCNd64, &gid) == 1) {
++        parsed.gid = gid;
++        parsed.has_gid = true;
++      } else {
++        uiPrintf(state, "ParsePermArgs: invalid GID \"%s\"\n", args[i + 1].c_str());
++        bad++;
++      }
++      continue;
++    }
++    if (args[i] == "mode") {
++      int32_t mode;
++      if (sscanf(args[i + 1].c_str(), "%" SCNi32, &mode) == 1) {
++        parsed.mode = mode;
++        parsed.has_mode = true;
++      } else {
++        uiPrintf(state, "ParsePermArgs: invalid mode \"%s\"\n", args[i + 1].c_str());
++        bad++;
++      }
++      continue;
++    }
++    if (args[i] == "dmode") {
++      int32_t mode;
++      if (sscanf(args[i + 1].c_str(), "%" SCNi32, &mode) == 1) {
++        parsed.dmode = mode;
++        parsed.has_dmode = true;
++      } else {
++        uiPrintf(state, "ParsePermArgs: invalid dmode \"%s\"\n", args[i + 1].c_str());
++        bad++;
++      }
++      continue;
++    }
++    if (args[i] == "fmode") {
++      int32_t mode;
++      if (sscanf(args[i + 1].c_str(), "%" SCNi32, &mode) == 1) {
++        parsed.fmode = mode;
++        parsed.has_fmode = true;
++      } else {
++        uiPrintf(state, "ParsePermArgs: invalid fmode \"%s\"\n", args[i + 1].c_str());
++        bad++;
++      }
++      continue;
++    }
++    if (args[i] == "capabilities") {
++      int64_t capabilities;
++      if (sscanf(args[i + 1].c_str(), "%" SCNi64, &capabilities) == 1) {
++        parsed.capabilities = capabilities;
++        parsed.has_capabilities = true;
++      } else {
++        uiPrintf(state, "ParsePermArgs: invalid capabilities \"%s\"\n", args[i + 1].c_str());
++        bad++;
++      }
++      continue;
++    }
++    if (args[i] == "selabel") {
++      if (!args[i + 1].empty()) {
++        parsed.selabel = args[i + 1].c_str();
++        parsed.has_selabel = true;
++      } else {
++        uiPrintf(state, "ParsePermArgs: invalid selabel \"%s\"\n", args[i + 1].c_str());
++        bad++;
++      }
++      continue;
++    }
++    if (max_warnings != 0) {
++      printf("ParsedPermArgs: unknown key \"%s\", ignoring\n", args[i].c_str());
++      max_warnings--;
++      if (max_warnings == 0) {
++        LOG(INFO) << "ParsedPermArgs: suppressing further warnings";
++      }
++    }
++  }
++  return parsed;
++}
++
++static int ApplyParsedPerms(State* state, const char* filename, const struct stat* statptr,
++                            struct perm_parsed_args parsed) {
++  int bad = 0;
++
++  if (parsed.has_selabel) {
++    if (lsetfilecon(filename, parsed.selabel) != 0) {
++      uiPrintf(state, "ApplyParsedPerms: lsetfilecon of %s to %s failed: %s\n", filename,
++               parsed.selabel, strerror(errno));
++      bad++;
++    }
++  }
++
++  /* ignore symlinks */
++  if (S_ISLNK(statptr->st_mode)) {
++    return bad;
++  }
++
++  if (parsed.has_uid) {
++    if (chown(filename, parsed.uid, -1) < 0) {
++      uiPrintf(state, "ApplyParsedPerms: chown of %s to %d failed: %s\n", filename, parsed.uid,
++               strerror(errno));
++      bad++;
++    }
++  }
++
++  if (parsed.has_gid) {
++    if (chown(filename, -1, parsed.gid) < 0) {
++      uiPrintf(state, "ApplyParsedPerms: chgrp of %s to %d failed: %s\n", filename, parsed.gid,
++               strerror(errno));
++      bad++;
++    }
++  }
++
++  if (parsed.has_mode) {
++    if (chmod(filename, parsed.mode) < 0) {
++      uiPrintf(state, "ApplyParsedPerms: chmod of %s to %d failed: %s\n", filename, parsed.mode,
++               strerror(errno));
++      bad++;
++    }
++  }
++
++  if (parsed.has_dmode && S_ISDIR(statptr->st_mode)) {
++    if (chmod(filename, parsed.dmode) < 0) {
++      uiPrintf(state, "ApplyParsedPerms: chmod of %s to %d failed: %s\n", filename, parsed.dmode,
++               strerror(errno));
++      bad++;
++    }
++  }
++
++  if (parsed.has_fmode && S_ISREG(statptr->st_mode)) {
++    if (chmod(filename, parsed.fmode) < 0) {
++      uiPrintf(state, "ApplyParsedPerms: chmod of %s to %d failed: %s\n", filename, parsed.fmode,
++               strerror(errno));
++      bad++;
++    }
++  }
++
++  if (parsed.has_capabilities && S_ISREG(statptr->st_mode)) {
++    if (parsed.capabilities == 0) {
++      if ((removexattr(filename, XATTR_NAME_CAPS) == -1) && (errno != ENODATA)) {
++        // Report failure unless it's ENODATA (attribute not set)
++        uiPrintf(state, "ApplyParsedPerms: removexattr of %s to %" PRIx64 " failed: %s\n", filename,
++                 parsed.capabilities, strerror(errno));
++        bad++;
++      }
++    } else {
++      struct vfs_cap_data cap_data;
++      memset(&cap_data, 0, sizeof(cap_data));
++      cap_data.magic_etc = VFS_CAP_REVISION | VFS_CAP_FLAGS_EFFECTIVE;
++      cap_data.data[0].permitted = (uint32_t)(parsed.capabilities & 0xffffffff);
++      cap_data.data[0].inheritable = 0;
++      cap_data.data[1].permitted = (uint32_t)(parsed.capabilities >> 32);
++      cap_data.data[1].inheritable = 0;
++      if (setxattr(filename, XATTR_NAME_CAPS, &cap_data, sizeof(cap_data), 0) < 0) {
++        uiPrintf(state, "ApplyParsedPerms: setcap of %s to %" PRIx64 " failed: %s\n", filename,
++                 parsed.capabilities, strerror(errno));
++        bad++;
++      }
++    }
++  }
++
++  return bad;
++}
++
++// nftw doesn't allow us to pass along context, so we need to use
++// global variables.  *sigh*
++static struct perm_parsed_args recursive_parsed_args;
++static State* recursive_state;
++
++static int do_SetMetadataRecursive(const char* filename, const struct stat* statptr, int fileflags,
++                                   struct FTW* pfwt) {
++  return ApplyParsedPerms(recursive_state, filename, statptr, recursive_parsed_args);
++}
++
++static Value* SetMetadataFn(const char* name, State* state, const std::vector<std::unique_ptr<Expr>>& argv) {
++  if ((argv.size() % 2) != 1) {
++    return ErrorAbort(state, kArgsParsingFailure, "%s() expects an odd number of arguments, got %zu",
++                      name, argv.size());
++  }
++
++  std::vector<std::string> args;
++  if (!ReadArgs(state, argv, &args)) {
++    return ErrorAbort(state, kArgsParsingFailure, "%s() Failed to parse the argument(s)", name);
++  }
++
++  struct stat sb;
++  if (lstat(args[0].c_str(), &sb) == -1) {
++    return ErrorAbort(state, kSetMetadataFailure, "%s: Error on lstat of \"%s\": %s", name,
++                      args[0].c_str(), strerror(errno));
++  }
++
++  struct perm_parsed_args parsed = ParsePermArgs(state, args);
++  int bad = 0;
++  bool recursive = (strcmp(name, "set_metadata_recursive") == 0);
++
++  if (recursive) {
++    recursive_parsed_args = parsed;
++    recursive_state = state;
++    bad += nftw(args[0].c_str(), do_SetMetadataRecursive, 30, FTW_CHDIR | FTW_DEPTH | FTW_PHYS);
++    memset(&recursive_parsed_args, 0, sizeof(recursive_parsed_args));
++    recursive_state = NULL;
++  } else {
++    bad += ApplyParsedPerms(state, args[0].c_str(), &sb, parsed);
++  }
++
++  if (bad > 0) {
++    return ErrorAbort(state, kSetMetadataFailure, "%s: some changes failed", name);
++  }
++
++  return StringValue("");
++}
++
+ Value* GetPropFn(const char* name, State* state, const std::vector<std::unique_ptr<Expr>>& argv) {
+   if (argv.size() != 1) {
+     return ErrorAbort(state, kArgsParsingFailure, "%s() expects 1 arg, got %zu", name, argv.size());
+@@ -1045,7 +1419,25 @@ void RegisterInstallFunctions() {
+   RegisterFunction("format", FormatFn);
+   RegisterFunction("show_progress", ShowProgressFn);
+   RegisterFunction("set_progress", SetProgressFn);
++  RegisterFunction("delete", DeleteFn);
++  RegisterFunction("delete_recursive", DeleteFn);
++  RegisterFunction("package_extract_dir", PackageExtractDirFn);
+   RegisterFunction("package_extract_file", PackageExtractFileFn);
++  RegisterFunction("symlink", SymlinkFn);
++
++  // Usage:
++  //   set_metadata("filename", "key1", "value1", "key2", "value2", ...)
++  // Example:
++  //   set_metadata("/system/bin/netcfg", "uid", 0, "gid", 3003, "mode", 02750, "selabel",
++  //                "u:object_r:system_file:s0", "capabilities", 0x0);
++  RegisterFunction("set_metadata", SetMetadataFn);
++
++  // Usage:
++  //   set_metadata_recursive("dirname", "key1", "value1", "key2", "value2", ...)
++  // Example:
++  //   set_metadata_recursive("/system", "uid", 0, "gid", 0, "fmode", 0644, "dmode", 0755,
++  //                          "selabel", "u:object_r:system_file:s0", "capabilities", 0x0);
++  RegisterFunction("set_metadata_recursive", SetMetadataFn);
+ 
+   RegisterFunction("getprop", GetPropFn);
+   RegisterFunction("file_getprop", FileGetPropFn);
+@@ -1058,6 +1450,7 @@ void RegisterInstallFunctions() {
+ 
+   RegisterFunction("read_file", ReadFileFn);
+   RegisterFunction("sha1_check", Sha1CheckFn);
++  RegisterFunction("rename", RenameFn);
+   RegisterFunction("write_value", WriteValueFn);
+ 
+   RegisterFunction("wipe_cache", WipeCacheFn);

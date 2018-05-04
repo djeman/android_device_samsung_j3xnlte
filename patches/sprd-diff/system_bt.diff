@@ -1,49 +1,65 @@
-diff --git a/Android.mk b/Android.mk
-index b370cc0..e158d07 100644
---- a/Android.mk
-+++ b/Android.mk
-@@ -21,6 +21,10 @@ ifeq ($(TARGET_BUILD_VARIANT),eng)
- bluetooth_CFLAGS += -DBLUEDROID_DEBUG
- endif
+diff --git a/device/src/controller.cc b/device/src/controller.cc
+index 0551cbb..f800ee5 100644
+--- a/device/src/controller.cc
++++ b/device/src/controller.cc
+@@ -45,6 +45,8 @@ const uint8_t SCO_HOST_BUFFER_SIZE = 0xff;
+ #define BLE_SUPPORTED_FEATURES_SIZE 8
+ #define MAX_LOCAL_SUPPORTED_CODECS_SIZE 8
  
-+ifeq ($(BOARD_SPRD_WCNBT_MARLIN),true)
-+  bluetooth_CFLAGS += -DSPRD_WCNBT_MARLIN
-+endif
++#define SPRD_WCNBT_MARLIN
 +
- bluetooth_CFLAGS += -DUSE_AUDIO_TRACK
- 
- bluetooth_CFLAGS += -DEXPORT_SYMBOL="__attribute__((visibility(\"default\")))"
-diff --git a/device/src/controller.c b/device/src/controller.c
-index 9433ff9..f3df170 100644
---- a/device/src/controller.c
-+++ b/device/src/controller.c
-@@ -212,11 +212,13 @@ static future_t *start_up(void) {
- 
+ static const hci_t* hci;
+ static const hci_packet_factory_t* packet_factory;
+ static const hci_packet_parser_t* packet_parser;
+@@ -171,6 +173,7 @@ static future_t* start_up(void) {
      page_number++;
    }
+ 
 +#ifndef SPRD_WCNBT_MARLIN
- #if (BLE_INCLUDED == TRUE)
    // read BLE offload features support from controller
    response = AWAIT_COMMAND(packet_factory->make_ble_read_offload_features_support());
    packet_parser->parse_ble_read_offload_features_response(response, &ble_offload_features_supported);
+@@ -186,6 +189,7 @@ static future_t* start_up(void) {
+     }
+   }
  #endif
 +#endif
- #if (SC_MODE_INCLUDED == TRUE)
-   if(ble_offload_features_supported) {
-     secure_connections_supported = HCI_SC_CTRLR_SUPPORTED(features_classic[2].as_array);
-@@ -286,6 +288,7 @@ static future_t *start_up(void) {
+ 
+   ble_supported = last_features_classic_page_index >= 1 &&
+                   HCI_LE_HOST_SUPPORTED(features_classic[1].as_array);
+@@ -255,6 +259,7 @@ static future_t* start_up(void) {
      packet_parser->parse_generic_command_complete(response);
    }
  
 +#ifndef SPRD_WCNBT_MARLIN
    // read local supported codecs
-   if(HCI_READ_LOCAL_CODECS_SUPPORTED(supported_commands)) {
-     response = AWAIT_COMMAND(packet_factory->make_read_local_supported_codecs());
-@@ -293,6 +296,7 @@ static future_t *start_up(void) {
-         response,
-         &number_of_local_supported_codecs, local_supported_codecs);
+   if (HCI_READ_LOCAL_CODECS_SUPPORTED(supported_commands)) {
+     response =
+@@ -262,6 +267,7 @@ static future_t* start_up(void) {
+     packet_parser->parse_read_local_supported_codecs_response(
+         response, &number_of_local_supported_codecs, local_supported_codecs);
    }
 +#endif
  
    readable = true;
    return future_new_immediate(FUTURE_SUCCESS);
+diff --git a/stack/include/btm_api_types.h b/stack/include/btm_api_types.h
+index 058aabc..c83266a 100644
+--- a/stack/include/btm_api_types.h
++++ b/stack/include/btm_api_types.h
+@@ -617,6 +617,7 @@ typedef struct /* contains the parameters passed to the inquiry functions */
+ #define BTM_INQ_RESULT_BR 0x01
+ #define BTM_INQ_RESULT_BLE 0x02
+ 
++#ifdef __cplusplus
+ constexpr uint8_t BLE_EVT_CONNECTABLE_BIT = 0;
+ constexpr uint8_t BLE_EVT_SCANNABLE_BIT = 1;
+ constexpr uint8_t BLE_EVT_DIRECTED_BIT = 2;
+@@ -630,6 +631,7 @@ constexpr uint8_t PHY_LE_CODED = 0x03;
+ 
+ constexpr uint8_t NO_ADI_PRESENT = 0xFF;
+ constexpr uint8_t TX_POWER_NOT_PRESENT = 0x7F;
++#endif
+ 
+ /* These are the fields returned in each device's response to the inquiry.  It
+  * is returned in the results callback if registered.
