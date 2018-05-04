@@ -32,6 +32,8 @@
 #include "log.h"
 #include "util.h"
 
+#include <android-base/logging.h>
+
 #define _REALLY_INCLUDE_SYS__SYSTEM_PROPERTIES_H_
 #include <sys/_system_properties.h>
 
@@ -57,7 +59,7 @@ static void import_kernel_hwrev(const std::string& key, const std::string& value
     if (key.empty()) return;
 
     if (key == "hw_revision") {
-        property_set("ro.revision", value.c_str());
+        android::init::property_set("ro.revision", value.c_str());
     }
 }
 
@@ -67,10 +69,10 @@ void vendor_load_properties()
     if (platform.empty() || platform != ANDROID_TARGET)
         return;
 
-    import_kernel_cmdline(false, import_kernel_hwrev);
+    android::init::import_kernel_cmdline(false, import_kernel_hwrev);
     std::string revision = property_get("ro.revision");
     if (revision.empty())
-        property_set("ro.revision", "0");
+        android::init::property_set("ro.revision", "0");
     
     char* simslot_count_path = (char *)"/proc/simslot_count";
     // Create a two byte array, so we can use it as a string
@@ -80,12 +82,12 @@ void vendor_load_properties()
     FILE* file = fopen(simslot_count_path, "r");
     if (file != NULL) {
         simslot_count[0] = fgetc(file);
-        property_set("ro.multisim.simslotcount", simslot_count);
-        property_set("ro.msms.phone_count", simslot_count);
-        property_set("ro.modem.w.count", simslot_count);
-        property_set("persist.msms.phone_count", simslot_count);
+        android::init::property_set("ro.multisim.simslotcount", simslot_count);
+        android::init::property_set("ro.msms.phone_count", simslot_count);
+        android::init::property_set("ro.modem.w.count", simslot_count);
+        android::init::property_set("persist.msms.phone_count", simslot_count);
         if (simslot_count[0] == '2')
-            property_set("persist.radio.multisim.config", "dsds");
+            android::init::property_set("persist.radio.multisim.config", "dsds");
 
         fclose(file);
     }
