@@ -13,7 +13,7 @@ on early-init
     start healthd
 
 on init
-    export PATH /sbin:/system/bin
+    export PATH /sbin:/system/bin:/vendor/bin
     export ANDROID_ROOT /system
     export ANDROID_DATA /data
     export EXTERNAL_STORAGE /sdcard
@@ -127,7 +127,7 @@ on property:sys.powerctl=*
    powerctl ${sys.powerctl}
 
 	
-service modem_control /system/bin/modem_control
+service modem_control /vendor/bin/modem_control
     class cali
     user system
     group root
@@ -180,14 +180,14 @@ on cali
     insmod /system/lib/modules/mali.ko
     insmod /system/lib/modules/trout_fm.ko
 
-service wcnd-cali /system/bin/wcnd
+service wcnd-cali /vendor/bin/wcnd
     class cali
     user root
     group root system shell wifi inet net_bt_stack
     seclabel u:r:wcnd:s0
 
 
-service wcnd_eng-cali /system/bin/wcnd -G
+service wcnd_eng-cali /vendor/bin/wcnd -G
     class cali
     user root
     group root system shell wifi inet net_bt_stack
@@ -201,39 +201,39 @@ service console /system/bin/sh
     user root
     group root
 
-service engpcclient /system/bin/engpc
+service engpcclient /vendor/bin/engpc
     class cali
     user root
     group root sdcard_rw
 
 #cp_diskserver
-service cp_diskserver_td /system/bin/cp_diskserver t 1
+service cp_diskserver_td /vendor/bin/cp_diskserver t 1
     class cali
     user root
     group root
     disabled
 
-service cp_diskserver_w /system/bin/cp_diskserver w 1
+service cp_diskserver_w /vendor/bin/cp_diskserver w 1
     class cali
     user root
     group root
     disabled
 
-service cp_diskserver_l /system/bin/cp_diskserver l 1
+service cp_diskserver_l /vendor/bin/cp_diskserver l 1
     class cali
     user root
     group system radio shell
     disabled
     oneshot
 
-service cp_diskserver_tl /system/bin/cp_diskserver tl 1
+service cp_diskserver_tl /vendor/bin/cp_diskserver tl 1
     class core
     user root
     group system radio shell
     disabled
     oneshot
 
-service cp_diskserver_lf /system/bin/cp_diskserver lf 1
+service cp_diskserver_lf /vendor/bin/cp_diskserver lf 1
     class cali
     user root
     group system radio shell

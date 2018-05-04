@@ -1,7 +1,7 @@
 import /init.wifi.rc
 
 on init
-    export LD_SHIM_LIBS /system/bin/gpsd|libgpsshim.so:/system/lib/libims_engine.so|libimsshim.so
+    export LD_SHIM_LIBS /vendor/lib/libims_engine.so|libimsshim.so
 
     # SEC_SELINUX
     # for audit message
@@ -130,11 +130,11 @@ on boot
     chown bluetooth system /proc/bluetooth/sleep/btwrite
     chown bluetooth system /sys/devices/70000000.uart/uart_conf
     chown bluetooth shell /productinfo/connectivity_configure.ini
-    chown bluetooth bluetooth /system/etc/connectivity_configure.ini
+    chown bluetooth bluetooth /vendor/etc/connectivity_configure.ini
 
 #for wifi
     chmod 666 /productinfo/connectivity_configure.ini
-    chmod 666 /system/etc/connectivity_configure.ini
+    chmod 666 /vendor/etc/connectivity_configure.ini
 
 # Broadcom GPS
     chown root system /dev/ttyS3

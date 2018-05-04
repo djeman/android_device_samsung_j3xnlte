@@ -42,7 +42,7 @@ for FILE in `egrep -v '(^#|^$)' proprietary-files.txt`; do
     if [ -n "$DEST" ]; then
       FILE=$DEST
     fi
-    echo "    $OUTDIR/proprietary/$FILE:system/$FILE$LINEEND" >> $MAKEFILE
+    echo "    $OUTDIR/proprietary/$FILE:$(TARGET_COPY_OUT_VENDOR)/$FILE$LINEEND" >> $MAKEFILE
   fi
 done
 

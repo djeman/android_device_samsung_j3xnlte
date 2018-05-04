@@ -27,11 +27,11 @@ AudioRecord::AudioRecord(
         audio_session_t,
         transfer_type,
         audio_input_flags_t,
-        int,
+        int64_t,
         pid_t,
         const audio_attributes_t*)
 */
-extern int _ZN7android11AudioRecordC1E14audio_source_tj14audio_format_tjRKNS_8String16EjPFviPvS6_ES6_j15audio_session_tNS0_13transfer_typeE19audio_input_flags_tiiPK18audio_attributes_t(
+extern int _ZN7android11AudioRecordC1E14audio_source_tj14audio_format_tjRKNS_8String16EjPFviPvS6_ES6_j15audio_session_tNS0_13transfer_typeE19audio_input_flags_tjiPK18audio_attributes_t(
 	uint32_t, 
 	uint32_t, 
 	uint32_t, 
@@ -44,7 +44,7 @@ extern int _ZN7android11AudioRecordC1E14audio_source_tj14audio_format_tjRKNS_8St
 	int, 
 	uint32_t, 
 	uint32_t, 
-	int, 
+	int64_t, 
 	pid_t, 
 	uint32_t);
 
@@ -65,13 +65,14 @@ AudioTrack::AudioTrack(
         audio_session_t,
         transfer_type,
         const audio_offload_info_t *,
-        int,
+        int64_t,
         pid_t,
         const audio_attributes_t*,
         bool,
         float)
 */
-extern int _ZN7android10AudioTrackC2E19audio_stream_type_tj14audio_format_tjj20audio_output_flags_tPFviPvS4_ES4_i15audio_session_tNS0_13transfer_typeEPK20audio_offload_info_tiiPK18audio_attributes_tbf(
+extern int
+_ZN7android10AudioTrackC2E19audio_stream_type_tj14audio_format_tjj20audio_output_flags_tPFviPvS4_ES4_i15audio_session_tNS0_13transfer_typeEPK20audio_offload_info_tjiPK18audio_attributes_tbf(
 	void *,
         uint32_t,
         void *,
@@ -84,15 +85,15 @@ extern int _ZN7android10AudioTrackC2E19audio_stream_type_tj14audio_format_tjj20a
         void *,
         int32_t,
         const void *,
-        int,
-        int,
+        int64_t,
+        pid_t,
         const void*,
         int,
         float);
 
 //MediaCodec::CreateByType(android::sp<android::ALooper> const&, android::AString const&, bool, int *, int)
-int _ZN7android10MediaCodec12CreateByTypeERKNS_2spINS_7ALooperEEERKNS_7AStringEbPii(
-		void*, void*, int, int*, pid_t);
+int _ZN7android10MediaCodec12CreateByTypeERKNS_2spINS_7ALooperEEERKNS_7AStringEbPiij(
+		void*, void*, int, int*, pid_t, int64_t);
 /*
 AudioRecord::set(
         audio_source_t inputSource,
@@ -107,11 +108,11 @@ AudioRecord::set(
         audio_session_t sessionId,
         transfer_type transferType,
         audio_input_flags_t flags,
-        int uid,
+        int64_t uid,
         pid_t pid,
         const audio_attributes_t* pAttributes)
 */
-int _ZN7android11AudioRecord3setE14audio_source_tj14audio_format_tjjPFviPvS3_ES3_jb15audio_session_tNS0_13transfer_typeE19audio_input_flags_tiiPK18audio_attributes_t(
+int _ZN7android11AudioRecord3setE14audio_source_tj14audio_format_tjjPFviPvS3_ES3_jb15audio_session_tNS0_13transfer_typeE19audio_input_flags_tjiPK18audio_attributes_t(
 	void*,
         uint32_t,
         void*,
@@ -124,7 +125,7 @@ int _ZN7android11AudioRecord3setE14audio_source_tj14audio_format_tjjPFviPvS3_ES3
         int,
         void*,
         void*,
-        int,
+        int64_t,
         pid_t,
         const void*);
 
@@ -144,13 +145,13 @@ AudioTrack::set(
         audio_session_t sessionId,
         transfer_type transferType,
         const audio_offload_info_t *offloadInfo,
-        int uid,
+        int64_t uid,
         pid_t pid,
         const audio_attributes_t* pAttributes,
         bool doNotReconnect,
         float maxRequiredSpeed)
 */
-int _ZN7android10AudioTrack3setE19audio_stream_type_tj14audio_format_tjj20audio_output_flags_tPFviPvS4_ES4_iRKNS_2spINS_7IMemoryEEEb15audio_session_tNS0_13transfer_typeEPK20audio_offload_info_tiiPK18audio_attributes_tbf(
+int _ZN7android10AudioTrack3setE19audio_stream_type_tj14audio_format_tjj20audio_output_flags_tPFviPvS4_ES4_iRKNS_2spINS_7IMemoryEEEb15audio_session_tNS0_13transfer_typeEPK20audio_offload_info_tjiPK18audio_attributes_tbf(
 	void*,
         uint32_t,
         void*,
@@ -165,7 +166,7 @@ int _ZN7android10AudioTrack3setE19audio_stream_type_tj14audio_format_tjj20audio_
         void*,
         void*,
         const void*,
-        int,
+        int64_t,
         pid_t,
         const void*,
         int,
@@ -202,7 +203,7 @@ int _ZN7android10AudioTrack3setE19audio_stream_type_tj14audio_format_tjj20audio_
         const void* pAttributes,
         int doNotReconnect)
 {
-	return _ZN7android10AudioTrack3setE19audio_stream_type_tj14audio_format_tjj20audio_output_flags_tPFviPvS4_ES4_iRKNS_2spINS_7IMemoryEEEb15audio_session_tNS0_13transfer_typeEPK20audio_offload_info_tiiPK18audio_attributes_tbf(
+	return _ZN7android10AudioTrack3setE19audio_stream_type_tj14audio_format_tjj20audio_output_flags_tPFviPvS4_ES4_iRKNS_2spINS_7IMemoryEEEb15audio_session_tNS0_13transfer_typeEPK20audio_offload_info_tjiPK18audio_attributes_tbf(
 	streamType,
         sampleRate,
         format,
@@ -241,7 +242,7 @@ int _ZN7android11AudioRecord3setE14audio_source_tj14audio_format_tjjPFviPvS3_ES3
         pid_t pid,
         const void* pAttributes)
 {
-	return _ZN7android11AudioRecord3setE14audio_source_tj14audio_format_tjjPFviPvS3_ES3_jb15audio_session_tNS0_13transfer_typeE19audio_input_flags_tiiPK18audio_attributes_t(
+	return _ZN7android11AudioRecord3setE14audio_source_tj14audio_format_tjjPFviPvS3_ES3_jb15audio_session_tNS0_13transfer_typeE19audio_input_flags_tjiPK18audio_attributes_t(
 	inputSource,
 	sampleRate,
         format,
@@ -262,8 +263,8 @@ int _ZN7android11AudioRecord3setE14audio_source_tj14audio_format_tjjPFviPvS3_ES3
 int _ZN7android10MediaCodec12CreateByTypeERKNS_2spINS_7ALooperEEEPKcbPii(
 		void *looper, void *mime, int encoder, int *err, pid_t pid)
 {
-	return _ZN7android10MediaCodec12CreateByTypeERKNS_2spINS_7ALooperEEERKNS_7AStringEbPii(
-			looper, mime, encoder, err, pid);
+	return _ZN7android10MediaCodec12CreateByTypeERKNS_2spINS_7ALooperEEERKNS_7AStringEbPiij(
+			looper, mime, encoder, err, pid, 1000);
 }
 
 int _ZN7android10AudioTrackC2E19audio_stream_type_tj14audio_format_tjj20audio_output_flags_tPFviPvS4_ES4_jiNS0_13transfer_typeEPK20audio_offload_info_tiiPK18audio_attributes_tb(
@@ -285,7 +286,7 @@ int _ZN7android10AudioTrackC2E19audio_stream_type_tj14audio_format_tjj20audio_ou
         const void* pAttributes,
 	int doNotReconnect)
 {
-	return _ZN7android10AudioTrackC2E19audio_stream_type_tj14audio_format_tjj20audio_output_flags_tPFviPvS4_ES4_i15audio_session_tNS0_13transfer_typeEPK20audio_offload_info_tiiPK18audio_attributes_tbf(
+	return _ZN7android10AudioTrackC2E19audio_stream_type_tj14audio_format_tjj20audio_output_flags_tPFviPvS4_ES4_i15audio_session_tNS0_13transfer_typeEPK20audio_offload_info_tjiPK18audio_attributes_tbf(
 	streamType,
 	sampleRate,
 	format,
@@ -332,7 +333,7 @@ int _ZN7android11AudioRecordC1E14audio_source_tj14audio_format_tjRKNS_8String16E
 	pid_t pid, 
 	uint32_t pAttributes)
 {
-	return _ZN7android11AudioRecordC1E14audio_source_tj14audio_format_tjRKNS_8String16EjPFviPvS6_ES6_j15audio_session_tNS0_13transfer_typeE19audio_input_flags_tiiPK18audio_attributes_t(
+	return _ZN7android11AudioRecordC1E14audio_source_tj14audio_format_tjRKNS_8String16EjPFviPvS6_ES6_j15audio_session_tNS0_13transfer_typeE19audio_input_flags_tjiPK18audio_attributes_t(
 	inputSource,
 	sampleRate,
 	format,

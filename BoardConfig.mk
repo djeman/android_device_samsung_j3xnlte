@@ -16,9 +16,6 @@ TARGET_CPU_SMP := true
 ARCH_ARM_HAVE_TLS_REGISTER := true
 WITH_SU := true
 
-# Remove "system.new.dat" format.System files are now in "system" folder of the ROM Package.(Easy for development purpose)
-BLOCK_BASED_OTA :=false
-
 BOARD_NEEDS_MEMORYHEAPION_SPRD := true
 BOARD_USE_EMMC := true
 
@@ -35,16 +32,19 @@ TARGET_SPECIFIC_HEADER_PATH := device/samsung/j3xnlte/include
 TARGET_KERNEL_SOURCE := kernel/samsung/j3xnlte
 #TARGET_KERNEL_CONFIG := j3xnlte_defconfig
 TARGET_KERNEL_CONFIG := j3xnlte_permissive_defconfig
+BOARD_KERNEL_IMAGE_NAME := zImage
 TARGET_KERNEL_HAVE_EXFAT := true
 TARGET_KERNEL_HAVE_NTFS := true
 NEED_KERNEL_MODULE_ROOT := true
 
+SPRD_MODULES_CCOMPILE := $(PWD)/prebuilts/gcc/$(HOST_PREBUILT_TAG)/arm/arm-eabi-4.8/bin/arm-eabi-
+
 SPRD_MODULES:
-	make -C vendor/sprd/modules/libgpu/gpu/utgard/ MALI_PLATFORM=sc8830 BUILD=debug KDIR=$(KERNEL_OUT) clean
-	make -C vendor/sprd/modules/libgpu/gpu/utgard/ MALI_PLATFORM=sc8830 BUILD=debug KDIR=$(KERNEL_OUT)
+	make -C vendor/sprd/modules/libgpu/gpu/utgard/ MALI_PLATFORM=sc8830 BUILD=debug KDIR=$(KERNEL_OUT) CROSS_COMPILE=$(SPRD_MODULES_CCOMPILE) clean
+	make -C vendor/sprd/modules/libgpu/gpu/utgard/ MALI_PLATFORM=sc8830 BUILD=debug KDIR=$(KERNEL_OUT) CROSS_COMPILE=$(SPRD_MODULES_CCOMPILE)
 	mv vendor/sprd/modules/libgpu/gpu/utgard/mali.ko $(KERNEL_MODULES_OUT)
-	make -C vendor/sprd/wcn/wifi/sc2331/6.0/ SPRDWL_PLATFORM=sc8830 USING_PP_CORE=2 BUILD=debug KDIR=$(KERNEL_OUT) clean
-	make -C vendor/sprd/wcn/wifi/sc2331/6.0/ SPRDWL_PLATFORM=sc8830 USING_PP_CORE=2 BUILD=debug KDIR=$(KERNEL_OUT)
+	make -C vendor/sprd/wcn/wifi/sc2331/6.0/ SPRDWL_PLATFORM=sc8830 USING_PP_CORE=2 BUILD=debug KDIR=$(KERNEL_OUT) CROSS_COMPILE=$(SPRD_MODULES_CCOMPILE) clean
+	make -C vendor/sprd/wcn/wifi/sc2331/6.0/ SPRDWL_PLATFORM=sc8830 USING_PP_CORE=2 BUILD=debug KDIR=$(KERNEL_OUT) CROSS_COMPILE=$(SPRD_MODULES_CCOMPILE)
 	mv vendor/sprd/wcn/wifi/sc2331/6.0/sprdwl.ko $(KERNEL_MODULES_OUT)
 	mkdir -p $(PRODUCT_OUT)/system/lib/modules
 	ln -sf /lib/modules/autotst.ko $(PRODUCT_OUT)/system/lib/modules/autotst.ko
@@ -60,6 +60,7 @@ BOARD_KERNEL_BASE := 0x00000000
 BOARD_KERNEL_PAGESIZE := 2048
 BOARD_MKBOOTIMG_ARGS := --kernel_offset 0x00008000 --ramdisk_offset 0x01000000 --tags_offset 0x00000100 --cmdline 'console=ttyS1,115200n8'
 
+BOARD_CUSTOM_BOOTIMG := true
 BOARD_CUSTOM_BOOTIMG_MK := device/samsung/j3xnlte/bootimg.mk
 BOARD_KERNEL_SEPARATED_DT := true
 
@@ -80,8 +81,8 @@ BOARD_SUPPRESS_SECURE_ERASE := true
 TARGET_USERIMAGES_USE_EXT4 := true
 TARGET_USERIMAGES_USE_F2FS := true
 
-# CMHW
-BOARD_HARDWARE_CLASS := hardware/samsung/cmhw/
+# lineagehw
+BOARD_HARDWARE_CLASS := hardware/samsung/lineagehw/
 
 # Bionic
 TARGET_NEEDS_PLATFORM_TEXT_RELOCATIONS := true
@@ -268,6 +269,10 @@ BOARD_SEPOLICY_DIRS += \
 
 # build.prop
 TARGET_SYSTEM_PROP := device/samsung/j3xnlte/system.prop
+
+# VINTF
+DEVICE_MANIFEST_FILE := device/samsung/j3xnlte/manifest.xml
+DEVICE_MATRIX_FILE := device/samsung/j3xnlte/compatibility_matrix.xml
 
 #######################################################
 # TWRP

@@ -19,8 +19,8 @@ on post-fs-data
     chown wifi root /dev/rfkill
     chmod 660 /dev/rfkill
 
-    chown wifi wifi /system/etc/connectivity_calibration.ini
-    chmod 660 /system/etc/connectivity_calibration.ini
+    chown wifi wifi /vendor/etc/connectivity_calibration.ini
+    chmod 660 /vendor/etc/connectivity_calibration.ini
 
     # for WIFI TRP/TIS
     chown system root /data/.psm.info
@@ -33,9 +33,9 @@ on post-fs-data
     chmod 0664 /data/.wifiver.info
 
 # permissions for wifi
-    chmod 644 /system/etc/firmware/sc2331_fdl.bin
-    chmod 644 /system/etc/firmware/sc2331_fw.bin
-    chmod 755 /system/bin/download
+    chmod 644 /vendor/etc/firmware/sc2331_fdl.bin
+    chmod 644 /vendor/etc/firmware/sc2331_fw.bin
+    chmod 755 /vendor/bin/download
 
 on boot
     setprop wifi.interface wlan0

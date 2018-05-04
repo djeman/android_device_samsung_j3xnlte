@@ -5,7 +5,7 @@ on cali
 #	start slog
 #	trigger adb_enable
 #
-#service slog /system/bin/slog -t
+#service slog /vendor/bin/slog -t
 #    class main
 #    user root
 
