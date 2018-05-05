@@ -27,6 +27,15 @@ LOCAL_PROPRIETARY_MODULE := true
 include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
+LOCAL_SRC_FILES := libprotobufshim.cpp
+LOCAL_SHARED_LIBRARIES := libprotobuf-cpp-full
+LOCAL_MODULE := libprotobufshim
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_CLASS := SHARED_LIBRARIES
+LOCAL_PROPRIETARY_MODULE := true
+include $(BUILD_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
 LOCAL_SRC_FILES := libimsshim.c
 LOCAL_SHARED_LIBRARIES := liblog libcutils libmedia libbinder libutils \
                           libstagefright libcamera_client libssl libaudioclient

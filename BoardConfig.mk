@@ -256,7 +256,9 @@ BOARD_WIDEVINE_OEMCRYPTO_LEVEL := 3
 
 # SHIMS
 TARGET_LD_SHIM_LIBS := \
-    /system/vendor/bin/gpsd|/system/vendor/lib/libgpsshim.so
+    /system/vendor/bin/gpsd|/system/vendor/lib/libgpsshim.so \
+    /system/vendor/lib/libsec-ril.so|/system/vendor/lib/libprotobufshim.so \
+    /system/vendor/lib/libsec-ril-dsds.so|/system/vendor/lib/libprotobufshim.so
 
 # Dex
 ifeq ($(HOST_OS),linux)

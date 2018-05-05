@@ -254,7 +254,8 @@ PRODUCT_PACKAGES += \
     charger_res_images
 
 PRODUCT_PACKAGES += \
-    libgpsshim
+    libgpsshim \
+    libprotobufshim
 
 PRODUCT_PACKAGES += \
     camera.sc8830 \
