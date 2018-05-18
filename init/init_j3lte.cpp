@@ -59,7 +59,7 @@ static void import_kernel_hwrev(const std::string& key, const std::string& value
     if (key.empty()) return;
 
     if (key == "hw_revision") {
-        android::init::property_set("ro.revision", value.c_str());
+        property_override("ro.revision", value.c_str());
     }
 }
 
