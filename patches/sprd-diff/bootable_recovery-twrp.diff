@@ -1,16 +1,3 @@
-diff --git a/crypto/scrypt/lib/crypto/crypto_scrypt-neon.c b/crypto/scrypt/lib/crypto/crypto_scrypt-neon.c
-index a3bf052..da8de1e 100644
---- a/crypto/scrypt/lib/crypto/crypto_scrypt-neon.c
-+++ b/crypto/scrypt/lib/crypto/crypto_scrypt-neon.c
-@@ -28,7 +28,7 @@
-  */
- #include "scrypt_platform.h"
- 
--#include <machine/cpu-features.h>
-+//#include <machine/cpu-features.h>
- #include <arm_neon.h>
- 
- #include <errno.h>
 diff --git a/minui/Android.mk b/minui/Android.mk
 index cb56b73..dbe8ab7 100644
 --- a/minui/Android.mk
@@ -73,16 +60,16 @@ index 714c956..9cc97e4 100644
          if (dirCreateHierarchy(path.c_str(), UNZIP_DIRMODE, timestamp, true, sehnd) != 0) {
              LOG(ERROR) << "failed to create dir for " << path;
 diff --git a/tests/Android.mk b/tests/Android.mk
-index ff8f3a3..e85dd82 100644
+index 097b633..fe4de31 100644
 --- a/tests/Android.mk
 +++ b/tests/Android.mk
-@@ -45,6 +45,7 @@ LOCAL_SRC_FILES := \
+@@ -39,6 +39,7 @@ LOCAL_SRC_FILES := \
      unit/rangeset_test.cpp \
      unit/sysutil_test.cpp \
      unit/zip_test.cpp \
 +    unit/ziputil_test.cpp
  
- LOCAL_C_INCLUDES := $(RECOVERY_PATH)
+ LOCAL_C_INCLUDES := $(commands_recovery_local_path)
  LOCAL_SHARED_LIBRARIES := liblog
 diff --git a/tests/component/updater_test.cpp b/tests/component/updater_test.cpp
 index aa2321d..374a99c 100644

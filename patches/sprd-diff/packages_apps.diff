@@ -1,24 +1,24 @@
 diff --git a/Jelly/app/src/main/java/org/lineageos/jelly/MainActivity.java b/app/src/main/java/org/lineageos/jelly/MainActivity.java
-index 724c83a..532d26a 100644
+index 71990dd..bc1e114 100644
 --- a/Jelly/app/src/main/java/org/lineageos/jelly/MainActivity.java
 +++ b/Jelly/app/src/main/java/org/lineageos/jelly/MainActivity.java
-@@ -66,6 +66,7 @@ import android.view.WindowManager;
+@@ -68,6 +68,7 @@ import android.view.WindowManager;
  import android.view.inputmethod.EditorInfo;
  import android.webkit.CookieManager;
  import android.webkit.URLUtil;
 +import android.webkit.ValueCallback;
  import android.webkit.WebChromeClient;
  import android.widget.AutoCompleteTextView;
- import android.widget.EditText;
-@@ -120,6 +121,7 @@ public class MainActivity extends WebViewExtActivity implements
+ import android.widget.FrameLayout;
+@@ -131,6 +132,7 @@ public class MainActivity extends WebViewExtActivity implements
          }
      };
  
 +    private ValueCallback<Uri[]> mPathCallback;
      private CoordinatorLayout mCoordinator;
-     private WebViewExt mWebView;
-     private ProgressBar mLoadingProgress;
-@@ -661,6 +663,8 @@ public class MainActivity extends WebViewExtActivity implements
+     private AppBarLayout mAppBar;
+     private FrameLayout mWebViewContainer;
+@@ -708,6 +710,8 @@ public class MainActivity extends WebViewExtActivity implements
          mFullScreenCallback.onCustomViewHidden();
          mFullScreenCallback = null;
          mCustomView = null;
@@ -27,7 +27,7 @@ index 724c83a..532d26a 100644
      }
  
      private void addShortcut() {
-@@ -737,4 +741,16 @@ public class MainActivity extends WebViewExtActivity implements
+@@ -839,4 +843,16 @@ public class MainActivity extends WebViewExtActivity implements
              }
          }
      }

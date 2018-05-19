@@ -108,30 +108,6 @@ index e832961..a92c74f 100644
      default:
          ALOGE("*** BAD COMMAND %d received from Binder driver\n", cmd);
          result = UNKNOWN_ERROR;
-diff --git a/libs/gui/include/gui/ISurfaceComposerClient.h b/libs/gui/include/gui/ISurfaceComposerClient.h
-index 2c613ea..a3ae37d 100644
---- a/libs/gui/include/gui/ISurfaceComposerClient.h
-+++ b/libs/gui/include/gui/ISurfaceComposerClient.h
-@@ -43,6 +43,7 @@ public:
-         eFXSurfaceNormal = 0x00000000,
-         eFXSurfaceDim = 0x00020000,
-         eFXSurfaceMask = 0x000F0000,
-+        eFXSurfaceHWAcc = 0x00100000,
-     };
- 
-     /*
-diff --git a/libs/ui/include/ui/GraphicBuffer.h b/libs/ui/include/ui/GraphicBuffer.h
-index 95c2d22..8091f10 100644
---- a/libs/ui/include/ui/GraphicBuffer.h
-+++ b/libs/ui/include/ui/GraphicBuffer.h
-@@ -70,6 +70,7 @@ public:
-         USAGE_HW_MASK           = GRALLOC_USAGE_HW_MASK,
- 
-         USAGE_CURSOR            = GRALLOC_USAGE_CURSOR,
-+	USAGE_HW_TILE_ALIGN     = GRALLOC_USAGE_HW_TILE_ALIGN,
-     };
- 
-     static sp<GraphicBuffer> from(ANativeWindowBuffer *);
 diff --git a/services/surfaceflinger/Android.mk b/services/surfaceflinger/Android.mk
 index fab3795..e1f1983 100644
 --- a/services/surfaceflinger/Android.mk
@@ -362,28 +338,6 @@ diff --git a/services/surfaceflinger/Layer.cpp b/services/surfaceflinger/Layer.c
 index 038ece2..c81f752 100755
 --- a/services/surfaceflinger/Layer.cpp
 +++ b/services/surfaceflinger/Layer.cpp
-@@ -336,6 +336,12 @@ const String8& Layer::getName() const {
- status_t Layer::setBuffers( uint32_t w, uint32_t h,
-                             PixelFormat format, uint32_t flags)
- {
-+    uint32_t usage = getEffectiveUsage(0);
-+    if (flags & ISurfaceComposerClient::eFXSurfaceHWAcc)
-+    {
-+        usage |= GraphicBuffer::USAGE_HW_TILE_ALIGN;
-+    }
-+
-     uint32_t const maxSurfaceDims = min(
-             mFlinger->getMaxTextureSize(), mFlinger->getMaxViewportDims());
- 
-@@ -354,7 +360,7 @@ status_t Layer::setBuffers( uint32_t w, uint32_t h,
- 
-     mSurfaceFlingerConsumer->setDefaultBufferSize(w, h);
-     mSurfaceFlingerConsumer->setDefaultBufferFormat(format);
--    mSurfaceFlingerConsumer->setConsumerUsageBits(getEffectiveUsage(0));
-+    mSurfaceFlingerConsumer->setConsumerUsageBits(usage);
- 
-     return NO_ERROR;
- }
 @@ -960,7 +966,7 @@ void Layer::setPerFrameData(const sp<const DisplayDevice>& hw,
      // after HWComposer::commit() -- every frame.
      // Apply this display's projection's viewport to the visible region
@@ -420,14 +374,6 @@ diff --git a/services/surfaceflinger/SurfaceFlinger.cpp b/services/surfaceflinge
 index 63f94c6..0537964 100644
 --- a/services/surfaceflinger/SurfaceFlinger.cpp
 +++ b/services/surfaceflinger/SurfaceFlinger.cpp
-@@ -582,6 +582,7 @@ void SurfaceFlinger::init() {
- 
-     ALOGI("Phase offest NS: %" PRId64 "", vsyncPhaseOffsetNs);
- 
-+    uint32_t builtInDisplayNum = DisplayDevice::NUM_BUILTIN_DISPLAY_TYPES;
-     Mutex::Autolock _l(mStateLock);
- 
-     // initialize EGL for the default display
 @@ -822,6 +823,20 @@ status_t SurfaceFlinger::getDisplayConfigs(const sp<IBinder>& display,
          } else {
              info.w = hwConfig->getWidth();

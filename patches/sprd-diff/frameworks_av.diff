@@ -4107,10 +4107,10 @@ index 1d2a931..3e3ad2a 100644
          uint32_t *sampleDuration) {
      Mutex::Autolock autoLock(mLock);
 diff --git a/media/libstagefright/StagefrightMetadataRetriever.cpp b/media/libstagefright/StagefrightMetadataRetriever.cpp
-index 103da95..4330a84 100644
+index e8c3dd3..40e1a6e 100644
 --- a/media/libstagefright/StagefrightMetadataRetriever.cpp
 +++ b/media/libstagefright/StagefrightMetadataRetriever.cpp
-@@ -323,10 +323,10 @@ static VideoFrame *extractVideoFrame(
+@@ -320,10 +320,10 @@ static VideoFrame *extractVideoFrame(
      // fail if component requires more than that for decoding.
      bool isSeekingClosest = (seekMode == MediaSource::ReadOptions::SEEK_CLOSEST);
      bool decodeSingleFrame = !isSeekingClosest && (numTiles == 1);
@@ -4123,7 +4123,7 @@ index 103da95..4330a84 100644
  
      status_t err;
      sp<ALooper> looper = new ALooper;
-@@ -339,7 +339,8 @@ static VideoFrame *extractVideoFrame(
+@@ -336,7 +336,8 @@ static VideoFrame *extractVideoFrame(
          return NULL;
      }
  
@@ -5412,7 +5412,7 @@ index 1030407..02ddcdb 100644
  
      enum BufferFlags {
 diff --git a/media/libstagefright/include/media/stagefright/MetaData.h b/media/libstagefright/include/media/stagefright/MetaData.h
-index 6cfde9c..383c01c 100644
+index f2113f4..8681f06 100644
 --- a/media/libstagefright/include/media/stagefright/MetaData.h
 +++ b/media/libstagefright/include/media/stagefright/MetaData.h
 @@ -140,6 +140,8 @@ enum {

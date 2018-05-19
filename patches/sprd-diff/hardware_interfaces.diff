@@ -11,15 +11,6 @@ index a476f51..cb6d5fd 100644
  2f907708d74d94b1e121ed27651c9c72af65952d347b58ff07dac5d5d7a7f678 android.hardware.gnss@1.0::IAGnssRilCallback
  5ac7edad06d76064b882be161f3f9d9692a997ec72e9f36addb7fe8918f49992 android.hardware.gnss@1.0::IGnss
  b05c983c87c3376e145223688c3b541b5e11b827f211e38d5a31af1ca3a2e222 android.hardware.gnss@1.0::IGnssBatching
-@@ -98,7 +98,7 @@ bd366b83d8d565d0e8bfabff3adfcab0259d75b4e2a9f8e1b91e11d1593a2ffb android.hardwar
- 17971eb8a482893dadcfc16e0583f492d42a034ef95d9b0b709417af30838396 android.hardware.graphics.allocator@2.0::IAllocator
- 60bf42a4898e4fb70dbd720b263aeafd7f35f5e1a5effeabb4d5d659878a5f18 android.hardware.graphics.bufferqueue@1.0::IGraphicBufferProducer
- b8a75617b9ec12bea641f3a73d4025a33e8b9a2f9169dd46094af56adf9249c5 android.hardware.graphics.bufferqueue@1.0::IProducerListener
--4f6dedbcdd21c309dfc650acea81a096d6b242493ffe49c8d61bd3c43aad354e android.hardware.graphics.common@1.0::types
-+987d5ede24c5f383aa4b627926dc940aed050b2ee1a01d2ec5e022d47308a4c3 android.hardware.graphics.common@1.0::types
- b3aac6c3817f039964fcd62268274b3039e17bd7d0d5b40b4d1d1c7b19a1f866 android.hardware.graphics.composer@2.1::IComposer
- b19d00eb8a8b3b0034a0321f22e8f32162bf4c2aebbce6da22c025f56e459ea2 android.hardware.graphics.composer@2.1::IComposerCallback
- 61ee43ffe6fb6dbe8b22dc17c51ff3d5ba703fc6029cba211f901f3d79c8a72d android.hardware.graphics.composer@2.1::IComposerClient
 diff --git a/gnss/1.0/IAGnssRil.hal b/gnss/1.0/IAGnssRil.hal
 index 12289f6..cc820f8 100644
 --- a/gnss/1.0/IAGnssRil.hal
@@ -57,28 +48,3 @@ index 1458327..d97a1be 100644
      };
  
      mAGnssRilIface->set_ref_location(&aGnssRefloc, sizeof(aGnssRefloc));
-diff --git a/graphics/common/1.0/types.hal b/graphics/common/1.0/types.hal
-index 3369fad..e156c45 100644
---- a/graphics/common/1.0/types.hal
-+++ b/graphics/common/1.0/types.hal
-@@ -417,6 +417,11 @@ enum PixelFormat : int32_t {
-      * interpretation is defined by the dataspace.
-      */
-     YV12               = 0x32315659, // YCrCb 4:2:0 Planar
-+
-+    YCbCr_420_P = 0x13,
-+    YCbCr_420_SP = 0x15, /*OMX_COLOR_FormatYUV420SemiPlanar*/
-+    YCrCb_422_SP = 0x1B,
-+    YCrCb_420_P = 0x1C,
- };
- 
- /**
-@@ -495,6 +500,8 @@ enum BufferUsage : uint64_t {
-     GPU_DATA_BUFFER   = 1ULL << 24,
- 
-     /** bits 25-27 must be zero and are reserved for future versions */
-+    HW_TILE_ALIGN     = 1ULL << 27,
-+
-     /** bits 28-31 are reserved for vendor extensions */
-     VENDOR_MASK       = 0xfULL << 28,
- 
