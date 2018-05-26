@@ -335,10 +335,10 @@ index 1de5e48..b6037bd 100644
      ConsumerBase::mName = String8::format("VDS: %s", mDisplayName.string());
      mConsumer->setConsumerName(ConsumerBase::mName);
 diff --git a/services/surfaceflinger/Layer.cpp b/services/surfaceflinger/Layer.cpp
-index 038ece2..c81f752 100755
+index 038ece2..f7c8fc7 100755
 --- a/services/surfaceflinger/Layer.cpp
 +++ b/services/surfaceflinger/Layer.cpp
-@@ -960,7 +966,7 @@ void Layer::setPerFrameData(const sp<const DisplayDevice>& hw,
+@@ -960,7 +960,7 @@ void Layer::setPerFrameData(const sp<const DisplayDevice>& hw,
      // after HWComposer::commit() -- every frame.
      // Apply this display's projection's viewport to the visible region
      // before giving it to the HWC HAL.
@@ -347,7 +347,7 @@ index 038ece2..c81f752 100755
      Region visible = tr.transform(visibleRegion.intersect(hw->getViewport()));
      layer.setVisibleRegionScreen(visible);
      layer.setSurfaceDamage(surfaceDamageRegion);
-@@ -1439,7 +1445,21 @@ void Layer::computeGeometry(const sp<const DisplayDevice>& hw, Mesh& mesh,
+@@ -1439,7 +1439,21 @@ void Layer::computeGeometry(const sp<const DisplayDevice>& hw, Mesh& mesh,
  {
      const Layer::State& s(getDrawingState());
      const Transform hwTransform(hw->getTransform());
@@ -371,10 +371,10 @@ index 038ece2..c81f752 100755
  
      vec2 lt = vec2(win.left, win.top);
 diff --git a/services/surfaceflinger/SurfaceFlinger.cpp b/services/surfaceflinger/SurfaceFlinger.cpp
-index 63f94c6..0537964 100644
+index 63f94c6..91fa5e8 100644
 --- a/services/surfaceflinger/SurfaceFlinger.cpp
 +++ b/services/surfaceflinger/SurfaceFlinger.cpp
-@@ -822,6 +823,20 @@ status_t SurfaceFlinger::getDisplayConfigs(const sp<IBinder>& display,
+@@ -822,6 +822,20 @@ status_t SurfaceFlinger::getDisplayConfigs(const sp<IBinder>& display,
          } else {
              info.w = hwConfig->getWidth();
              info.h = hwConfig->getHeight();
@@ -395,7 +395,7 @@ index 63f94c6..0537964 100644
              info.xdpi = xdpi;
              info.ydpi = ydpi;
          }
-@@ -1757,7 +1772,7 @@ void SurfaceFlinger::rebuildLayerStacks() {
+@@ -1757,7 +1771,7 @@ void SurfaceFlinger::rebuildLayerStacks() {
              Region dirtyRegion;
              Vector<sp<Layer>> layersSortedByZ;
              const sp<DisplayDevice>& displayDevice(mDisplays[dpy]);
@@ -404,7 +404,7 @@ index 63f94c6..0537964 100644
              const Rect bounds(displayDevice->getBounds());
              if (displayDevice->isDisplayOn()) {
                  computeVisibleRegions(displayDevice, dirtyRegion, opaqueRegion);
-@@ -2722,7 +2737,7 @@ bool SurfaceFlinger::doComposeSurfaces(
+@@ -2722,7 +2736,7 @@ bool SurfaceFlinger::doComposeSurfaces(
       */
  
      ALOGV("Rendering client layers");
