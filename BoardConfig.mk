@@ -108,7 +108,7 @@ BOARD_RIL_CLASS := ../../../device/samsung/j3xnlte/ril/java/
 TARGET_PROVIDES_LIBLIGHT := true
 
 # Graphics
-TARGET_BOARD_PLATFORM_GPU := utgard
+TARGET_GPU_PLATFORM := utgard
 TARGET_GPU_PP_CORE := 2
 BOARD_EGL_NEEDS_HANDLE_VALUE := true
 USE_SPRD_HWCOMPOSER := true
