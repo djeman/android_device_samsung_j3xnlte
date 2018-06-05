@@ -321,9 +321,8 @@ PRODUCT_PACKAGES += \
     libsecril-client \
     libreference-ril \
     rild \
-    libril
-#    engpc \
-#    audio_policy.sc8830 \
+    libril \
+    engpc
 
 # RIL
 PRODUCT_COPY_FILES += \
