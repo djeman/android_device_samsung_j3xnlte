@@ -14,10 +14,12 @@ TARGET_ARCH_VARIANT := armv7-a-neon
 TARGET_CPU_VARIANT := cortex-a7
 TARGET_CPU_SMP := true
 ARCH_ARM_HAVE_TLS_REGISTER := true
-WITH_SU := true
+WITH_SU := false
+PERMISSIVE_KERNEL := true
 
-# Remove "system.new.dat" format.System files are now in "system" folder of the ROM Package.(Easy for development purpose)
-BLOCK_BASED_OTA := false
+BLOCK_BASED_OTA := true
+
+USE_PREBUILT := false
 
 BOARD_NEEDS_MEMORYHEAPION_SPRD := true
 BOARD_USE_EMMC := true
@@ -29,12 +31,19 @@ TARGET_BOOTLOADER_BOARD_NAME := SC9830I
 # Include path
 TARGET_SPECIFIC_HEADER_PATH := device/samsung/j3xnlte/include
 
-#TARGET_PREBUILT_KERNEL := device/samsung/j3xnlte/kernel
-#TARGET_PREBUILT_DTB := device/samsung/j3xnlte/dt.img
+ifeq ($(USE_PREBUILT),true)
+TARGET_PREBUILT_KERNEL := device/samsung/j3xnlte/kernel
+TARGET_PREBUILT_DTB := device/samsung/j3xnlte/dt.img
+endif
 
 TARGET_KERNEL_SOURCE := kernel/samsung/j3xnlte
-#TARGET_KERNEL_CONFIG := j3xnlte_defconfig
+
+ifeq ($(PERMISSIVE_KERNEL),true)
 TARGET_KERNEL_CONFIG := j3xnlte_permissive_defconfig
+else
+TARGET_KERNEL_CONFIG := j3xnlte_defconfig
+endif
+
 TARGET_KERNEL_HAVE_EXFAT := true
 TARGET_KERNEL_HAVE_NTFS := true
 NEED_KERNEL_MODULE_ROOT := true
