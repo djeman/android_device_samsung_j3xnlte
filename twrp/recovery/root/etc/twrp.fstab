@@ -1,4 +1,4 @@
-# mount point	fstype    device    	[device2]
+# mount point  fstype    device      [device2]
 
 /boot        emmc        /dev/block/platform/sdio_emmc/by-name/KERNEL
 /system      ext4        /dev/block/platform/sdio_emmc/by-name/SYSTEM
@@ -14,7 +14,6 @@
 /l_ldsp      emmc        /dev/block/platform/sdio_emmc/by-name/l_ldsp
 /l_gdsp      emmc        /dev/block/platform/sdio_emmc/by-name/l_gdsp
 /persdata    ext4        /dev/block/platform/sdio_emmc/by-name/PERSDATA
-/pmsys	     emmc        /dev/block/platform/sdio_emmc/by-name/pm_sys
+/pmsys       emmc        /dev/block/platform/sdio_emmc/by-name/pm_sys
 /l_warm      emmc        /dev/block/platform/sdio_emmc/by-name/l_warm
 /nvitem      emmc        /dev/block/platform/sdio_emmc/by-name/l_fixnv2
-
