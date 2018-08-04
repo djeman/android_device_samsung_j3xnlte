@@ -13,7 +13,7 @@ usage() {
 while getopts "har" arg; do
 	case $arg in
 	a) # Apply patches.
-		p=1
+		a=1
 		;;
 	r) # Remove patches.
 		r=1
@@ -37,7 +37,7 @@ for FILE in $PATCHES/*.diff; do
 
 	cd "$BASE/$RELPATH"
 	echo -e "\\e[36m* Select directory ${RELPATH}\\e[39m"
-	if [ $p ]; then
+	if [ $a ]; then
 		patch -p1 <"$PATCHES/$FILENAME"
 		echo -e "\\e[32mDirectory ${RELPATH} patched\\e[39m\\n"
 	elif [ $r ]; then
@@ -46,7 +46,7 @@ for FILE in $PATCHES/*.diff; do
 	fi
 done
 
-if [ $p ]; then
+if [ $a ]; then
 	echo -e "\\e[32m-- All patches applied --\\e[39m\\n"
 elif [ $r ]; then
 	echo -e "\\e[32m-- All patches removed --\\e[39m\\n"
