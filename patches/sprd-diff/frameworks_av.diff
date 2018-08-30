@@ -4972,6 +4972,20 @@ index adb7370..ab13885 100644
  #ifdef QTI_FLAC_DECODER
      { "OMX.qti.audio.decoder.flac", "flacdec", "audio_decoder.flac" },
  #endif
+diff --git a/media/libstagefright/wifi-display/source/Converter.cpp b/media/libstagefright/wifi-display/source/Converter.cpp
+index 471152e..67ee7d5 100644
+--- a/media/libstagefright/wifi-display/source/Converter.cpp
++++ b/media/libstagefright/wifi-display/source/Converter.cpp
+@@ -169,7 +169,8 @@ status_t Converter::initEncoder() {
+         mOutputFormat->setInt32("bitrate", audioBitrate);
+     } else {
+         mOutputFormat->setInt32("bitrate", videoBitrate);
+-        mOutputFormat->setInt32("bitrate-mode", OMX_Video_ControlRateConstant);
++        // sprd encoder do not support OMX_Video_ControlRateConstant
++        mOutputFormat->setInt32("bitrate-mode", OMX_Video_ControlRateVariable);
+         mOutputFormat->setInt32("frame-rate", 30);
+         mOutputFormat->setInt32("i-frame-interval", 15);  // Iframes every 15 secs
+ 
 diff --git a/media/mtp/MtpDataPacket.cpp b/media/mtp/MtpDataPacket.cpp
 index 0e9bc34..a6f721f 100644
 --- a/media/mtp/MtpDataPacket.cpp
@@ -5005,7 +5019,7 @@ index e184d48..6584e62 100644
      return true;
  }
 diff --git a/services/audioflinger/Threads.cpp b/services/audioflinger/Threads.cpp
-index e8c80c1..2417ddb 100644
+index 5c37263..a838944 100644
 --- a/services/audioflinger/Threads.cpp
 +++ b/services/audioflinger/Threads.cpp
 @@ -488,6 +488,9 @@ String8 devicesToString(audio_devices_t devices)
