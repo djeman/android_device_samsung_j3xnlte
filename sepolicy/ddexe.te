@@ -3,3 +3,18 @@ type ddexe_exec, exec_type, file_type;
 
 init_daemon_domain(ddexe)
 
+allow ddexe init:unix_stream_socket connectto;
+allow ddexe property_socket:sock_file write;
+allow ddexe radio_prop:property_service set;
+allow ddexe self:capability setuid;
+allow ddexe system_data_file:dir { remove_name write };
+allow ddexe system_data_file:sock_file unlink;
+
+allow ddexe serial_device:chr_file { ioctl open read write };
+allow ddexe sysfs:file { open read };
+allow ddexe system_data_file:dir add_name;
+allow ddexe system_data_file:sock_file create;
+
+allow ddexe efs_file:dir search;
+allow ddexe app_efs_file:dir search;
+allow ddexe app_efs_file:file { open read getattr };

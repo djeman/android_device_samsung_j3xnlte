@@ -29,3 +29,8 @@ allow gpsd self:netlink_socket create_socket_perms;
 # Set and get routes directly via netlink.
 allow gpsd self:netlink_route_socket nlmsg_write;
 allow gpsd system_app:unix_stream_socket { connectto read write sendto getattr};
+
+allow gpsd system_data_file:fifo_file { open write read };
+allow gpsd system_data_file:file { open lock };
+
+allow gpsd rild:unix_stream_socket connectto;

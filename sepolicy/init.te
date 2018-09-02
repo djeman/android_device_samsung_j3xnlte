@@ -55,7 +55,6 @@ allow init engpc:unix_stream_socket { connectto };
 allow init input_device:chr_file { getattr ioctl };
 allow init sensors_device:chr_file { write ioctl };
 allow init wcnd:unix_stream_socket { connectto };
-allow init factorytest:unix_stream_socket { connectto };
 allow init self:capability { sys_nice };
 allow init gps_device:chr_file { write ioctl };
 allow init self:capability2 { block_suspend };
@@ -66,3 +65,6 @@ allow init serial_device:chr_file { read write open ioctl };
 allow init bluetooth_data_file:file { create read write open unlink rename getattr setattr };
 allow init audio_device:fifo_file { create open write read };
 allow init storage_file:lnk_file read;
+
+allow init device:fifo_file create;
+allow init proc:dir write;

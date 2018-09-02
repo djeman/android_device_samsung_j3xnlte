@@ -3,3 +3,13 @@ type macloader_exec, exec_type, file_type;
 
 init_daemon_domain(macloader)
 
+allow macloader rootfs:file { open read };
+allow macloader self:capability { dac_override sys_module };
+allow macloader system_data_file:file { getattr open read };
+allow macloader wifi_efs_file:dir { read search write };
+allow macloader wifi_efs_file:file { open read };
+
+allow macloader self:capability { net_admin net_raw };
+allow macloader self:udp_socket { create ioctl };
+
+allow macloader efs_file:dir search;

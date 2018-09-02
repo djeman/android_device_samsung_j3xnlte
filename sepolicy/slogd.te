@@ -150,10 +150,6 @@ allow slogd proc:file {write};
 
 allow slogd slogd:capability2 syslog;
 
-allow slogd srtd:dir {open read getattr search};
-allow slogd srtd:file {open read};
-allow slogd srtd:lnk_file {getattr read};
-
 allow slogd log_device:chr_file read;
 
 allow slogd system_server:dir {getattr search open read};
@@ -214,7 +210,6 @@ allow slogd tombstone_data_file:dir {read setattr search};
 allow slogd logcat_exec:file {getattr execute read open execute_no_trans};
 allow slogd proc_sysrq:file {getattr};
 
-allow slogd iqfeed:dir {search getattr read};
 allow slogd slogd:netlink_socket create;
 
 allow slogd aprd:dir {open search getattr};

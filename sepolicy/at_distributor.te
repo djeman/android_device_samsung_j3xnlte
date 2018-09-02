@@ -3,3 +3,28 @@ type at_distributor_exec, exec_type, file_type;
 
 init_daemon_domain(at_distributor)
 
+allow at_distributor radio_prop:property_service set;
+allow at_distributor system_data_file:file getattr;
+
+allow at_distributor engpc:unix_stream_socket connectto;
+allow at_distributor rild:unix_stream_socket connectto;
+allow at_distributor self:capability dac_override;
+allow at_distributor system_data_file:file { open read };
+allow at_distributor system_data_file:sock_file write;
+
+allow at_distributor ddexe:unix_stream_socket connectto;
+allow at_distributor init:unix_stream_socket connectto;
+allow at_distributor property_socket:sock_file write;
+allow at_distributor self:capability { chown fowner };
+allow at_distributor sysfs_wake_lock:file { open read write };
+
+allow at_distributor proc:file { getattr open read };
+allow at_distributor self:capability setuid;
+
+allow at_distributor radio_data_file:file { getattr open read };
+allow at_distributor efs_file:dir search;
+allow at_distributor radio_data_file:dir search;
+allow at_distributor app_efs_file:dir { getattr search };
+allow at_distributor app_efs_file:file { open read write getattr setattr };
+allow at_distributor imei_efs_file:dir { open read search setattr };
+

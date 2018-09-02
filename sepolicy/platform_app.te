@@ -1,6 +1,5 @@
 allow platform_app init:unix_stream_socket connectto;
 allow platform_app rild:unix_stream_socket connectto;
-allow platform_app srtd:unix_stream_socket connectto;
 allow platform_app srt_socket:sock_file write;
 allow platform_app hprofs_file:dir { open create read write getattr search add_name remove_name };
 allow platform_app hprofs_file:file { open create read write getattr unlink };

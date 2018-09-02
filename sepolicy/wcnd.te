@@ -30,7 +30,7 @@ allow wcnd block_device:dir search;
 allow wcnd download:unix_stream_socket { connectto };
 allow wcnd ctl_default_prop:property_service set;
 allow wcnd system_prop:property_service set;
-allow wcnd proc:file write;
+allow wcnd proc:file { open read write };
 
 allow wcnd wcnd:netlink_socket { create setopt bind getattr write read };
 allow wcnd wcnd:udp_socket { ioctl create setopt bind getattr write read };
@@ -55,3 +55,12 @@ allow wcnd fm_device:chr_file { open read write ioctl };
 allow wcnd platform_app:dir search;
 allow wcnd platform_app:file { read open };
 allow wcnd platform_app:process { signal };
+
+allow wcnd proc_net:file { getattr open read };
+allow wcnd shell_exec:file getattr;
+allow wcnd sysfs:dir { open read };
+allow wcnd toolbox_exec:file { execute execute_no_trans getattr open read };
+allow wcnd wifi_efs_file:dir search;
+allow wcnd wifi_efs_file:file { open read getattr };
+
+allow wcnd efs_file:dir search;

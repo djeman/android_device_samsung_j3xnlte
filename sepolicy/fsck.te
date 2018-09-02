@@ -4,3 +4,6 @@ allow fsck self:capability dac_override;
 
 allow fsck kmsg_device:chr_file {open write};
 allow fsck device:dir write;
+
+allow fsck efs_block_device:blk_file rw_file_perms;
+allow fsck prod_block_device:blk_file rw_file_perms;
