@@ -288,7 +288,6 @@ PRODUCT_PACKAGES += \
     libstagefrighthw_cm \
     libstagefrighthw \
     libomxvpu \
-    iwnpi \
     liboemcrypto \
     modem_control \
     cp_diskserver \
