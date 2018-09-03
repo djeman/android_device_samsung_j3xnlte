@@ -68,3 +68,6 @@ allow init storage_file:lnk_file read;
 
 allow init device:fifo_file create;
 allow init proc:dir write;
+
+# LD_SHIM_LIBS
+allow init gpsd:process noatsecure;
