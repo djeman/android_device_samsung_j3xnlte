@@ -168,6 +168,9 @@
 # nfc
 /data/nfc(/.*)? u:object_r:nfc_data_file:s0
 
+# pers_data
+/persdata/absolute(/.*)? u:object_r:abt_pers_data_file:s0
+
 ####################################
 # efs files
 /efs/FactoryApp(/.*)?        u:object_r:app_efs_file:s0

@@ -20,6 +20,8 @@ type mlog_file, file_type, data_file_type;
 #GNSS
 type gnss_file, file_type, data_file_type;
 
+type abt_pers_data_file, file_type, data_file_type;
+
 ####################################
 # efs files
 type app_efs_file, file_type;

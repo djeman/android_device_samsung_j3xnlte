@@ -7,6 +7,6 @@ allow audioserver media_data_file:file { getattr open read write };
 allow audioserver media_prop:file { getattr open read };
 allow audioserver property_socket:sock_file write;
 
-allow audioserver media_data_file:fifo_file { open read setattr };
+allow audioserver media_data_file:fifo_file { open read setattr create };
 allow audioserver rild:unix_stream_socket connectto;
 allow audioserver spipe_device:chr_file { open read write };

@@ -1,5 +1,5 @@
 allow gpsd sysfs_wake_lock:file { open read write };
-allow gpsd serial_device:chr_file { open ioctl read write };
+allow gpsd serial_device:chr_file { open ioctl read write getattr };
 allow gpsd gps_data_file:dir { create };
 allow gpsd tmpfs:dir { add_name write };
 allow gpsd gpsd_tmpfs:file { create };
