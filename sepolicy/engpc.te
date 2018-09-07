@@ -99,6 +99,12 @@ allow engpc media_data_file:file { create open read write setattr getattr };
 allow engpc cg_file:dir { search add_name open read write remove_name };
 allow engpc cg_file:file { read write open create getattr setattr append unlink };
 allow engpc cg_file:sock_file { setattr unlink create write };
-allow engpc GPSenseEngine:unix_stream_socket { connectto };
 allow engpc gnss_file:dir { create search add_name open read write remove_name };
 allow engpc gnss_file:file { read write open create getattr setattr append unlink };
+
+allow engpc devpts:chr_file setattr;
+allow engpc shell_exec:file getattr;
+allow engpc toolbox_exec:file { execute execute_no_trans getattr open read };
+
+allow engpc proc:file { open read };
+allow engpc system_data_file:file { lock open read };

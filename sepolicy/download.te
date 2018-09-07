@@ -12,7 +12,7 @@ allow download slog_device:chr_file { read write open };
 allow download init:unix_stream_socket { read write connectto sendto };
 allow download ctl_default_prop:property_service { set };
 allow download system_prop:property_service { set };
-allow download proc:file { read write };
+allow download proc:file { read write open };
 
 
 allow download download:netlink_socket { create setopt bind getattr write read };
@@ -29,3 +29,4 @@ allow download prod_file:dir { search open write add_name };
 allow download prod_file:file { create read write open rw_file_perms setattr };
 
 allow download property_socket:sock_file { write read };
+

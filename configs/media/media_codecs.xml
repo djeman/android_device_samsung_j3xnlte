@@ -76,18 +76,14 @@ Only the three quirks included above are recognized at this point:
 -->
 
 <MediaCodecs>
-    <Decoders>
-	<MediaCodec name="OMX.google.imaadpcm.decoder" type="audio/ima-adpcm" />
-    </Decoders>
-    <Include href="media_codecs_google_audio.xml" />
-    <Include href="media_codecs_google_telephony.xml" />
     <Settings>
-        <Setting name="max-video-encoder-input-buffers" value="18" />
+       <Setting name="max-video-encoder-input-buffers" value="5" />
     </Settings>
-    <Decoders>
+    <Decoders>       
         <MediaCodec name="OMX.sprd.mpeg4.decoder" type="video/mp4v-es">
             <Quirk name="requires-allocate-on-output-ports" />
-            <Quirk name="needs-flush-before-disable" />
+            <Quirk name="needs-flush-before-disable"/>
+            <Quirk name="video-controller-check-enable" />
             <!-- profiles and levels: Advance Simple Profile : Level5 -->
             <Limit name="size" min="64x64" max="1920x1088" />
             <Limit name="alignment" value="2x2" />
@@ -98,7 +94,8 @@ Only the three quirks included above are recognized at this point:
         </MediaCodec>
         <MediaCodec name="OMX.sprd.h263.decoder" type="video/3gpp">
             <Quirk name="requires-allocate-on-output-ports" />
-            <Quirk name="needs-flush-before-disable" />
+            <Quirk name="needs-flush-before-disable"/>
+            <Quirk name="video-controller-check-enable" />
             <!-- profiles and levels: ProfileBaseline : Level70 -->
             <Limit name="size" min="64x64" max="1920x1088" />
             <Limit name="alignment" value="2x2" />
@@ -109,18 +106,20 @@ Only the three quirks included above are recognized at this point:
         </MediaCodec>
         <MediaCodec name="OMX.sprd.h264.decoder" type="video/avc">
             <Quirk name="requires-allocate-on-output-ports" />
-            <Quirk name="needs-flush-before-disable" />
+            <Quirk name="needs-flush-before-disable"/>
+            <Quirk name="video-controller-check-enable" />
             <Limit name="size" min="64x64" max="1920x1088" />
             <Limit name="alignment" value="2x2" />
             <Limit name="block-size" value="16x16" />
             <Limit name="blocks-per-second" range="1-245760" />
             <Limit name="bitrate" range="1-50000000" />
-            <Limit name="concurrent-instances" max="16" />
+			<Limit name="concurrent-instances" max="16" />
             <Feature name="adaptive-playback" />
         </MediaCodec>
         <MediaCodec name="OMX.sprd.vpx.decoder" type="video/x-vnd.on2.vp8">
             <Quirk name="requires-allocate-on-output-ports" />
-            <Quirk name="needs-flush-before-disable" />
+            <Quirk name="needs-flush-before-disable"/>
+            <Quirk name="video-controller-check-enable" />
             <Limit name="size" min="64x64" max="1920x1088" />
             <Limit name="alignment" value="2x2" />
             <Limit name="block-size" value="16x16" />
@@ -128,71 +127,11 @@ Only the three quirks included above are recognized at this point:
             <Limit name="bitrate" range="1-40000000" />
             <Feature name="adaptive-playback" />
         </MediaCodec>
-        <!-- C&M Supported decoder BEGIN-->
-<!--
-        <MediaCodec name="OMX.vpu.video_decoder.avc" type="video/avc">
-            <Quirk name="requires-allocate-on-output-ports" />
-            <Limit name="size" min="64x64" max="1920x1088" />
-            <Limit name="alignment" value="16x16" />
-            <Limit name="block-size" value="16x16" />
-            <Limit name="blocks-per-second" range="1-245760" />
-            <Limit name="bitrate" range="1-50000000" />
-            <Feature name="adaptive-playback" />
-        </MediaCodec>
-        <MediaCodec name="OMX.vpu.video_decoder.mpeg2" type="video/mpeg2">
-            <Quirk name="requires-allocate-on-output-ports" />
-            <Limit name="size" min="64x64" max="1920x1088" />
-            <Limit name="alignment" value="16x16" />
-            <Limit name="block-size" value="16x16" />
-            <Limit name="blocks-per-second" range="1-245760" />
-            <Limit name="bitrate" range="1-40000000" />
-            <Feature name="adaptive-playback" />
-        </MediaCodec>
-        <MediaCodec name="OMX.vpu.video_decoder.h263" type="video/3gpp">
-            <Quirk name="requires-allocate-on-input-ports" />
-        </MediaCodec>
-        <MediaCodec name="OMX.vpu.video_decoder.hevc" type="video/hevc">
-            <Quirk name="requires-allocate-on-input-ports" />
-        </MediaCodec>
-        <MediaCodec name="OMX.vpu.video_decoder.mpeg4" type="video/mp4v-es">
-            <Quirk name="requires-allocate-on-input-ports" />
-        </MediaCodec>
-        <MediaCodec name="OMX.vpu.video_decoder.vp8" type="video/x-vnd.on2.vp8">
-            <Quirk name="requires-allocate-on-input-ports" />
-        </MediaCodec>
-        <MediaCodec name="OMX.vpu.video_decoder.avs" type="video/avs-video">
-            <Quirk name="requires-allocate-on-input-ports" />
-        </MediaCodec>
-        <MediaCodec name="OMX.vpu.video_decoder.msmpeg" type="video/x-msvideo">
-            <Quirk name="requires-allocate-on-input-ports" />
-        </MediaCodec>
-        <MediaCodec name="OMX.vpu.video_decoder.wmv" type="video/x-ms-wmv">
-            <Quirk name="requires-allocate-on-input-ports" />
-        </MediaCodec>
-        <MediaCodec name="OMX.vpu.video_decoder.rv" type="video/vnd.rn-realvideo">
-            <Quirk name="requires-allocate-on-input-ports" />
-        </MediaCodec>
-        <MediaCodec name="OMX.vpu.video_decoder.vc1" type="video/vc1">
-            <Quirk name="requires-allocate-on-input-ports" />
-        </MediaCodec>
-        <MediaCodec name="OMX.vpu.video_decoder.msmpeg" type="video/ffmpeg">
-            <Quirk name="requires-allocate-on-input-ports" />
-        </MediaCodec>
-        <MediaCodec name="OMX.vpu.video_decoder.mpeg4" type="video/x-flv">
-            <Quirk name="requires-allocate-on-input-ports" />
-        </MediaCodec>
--->
-        <!-- C&M Supported decoder END-->
-<!--
-        <MediaCodec name="OMX.sprd.soft.mpeg4.decoder" type="video/mp4v-es" />
-        <MediaCodec name="OMX.sprd.soft.h263.decoder" type="video/3gpp" />
-        <MediaCodec name="OMX.sprd.soft.h264.decoder" type="video/avc" />
--->
-        <MediaCodec name="OMX.google.mjpg.decoder" type="video/mjpg" />
     </Decoders>
 
     <Encoders>
         <MediaCodec name="OMX.sprd.mpeg4.encoder" type="video/mp4v-es">
+            <Quirk name="video-controller-check-enable" />
             <!-- profiles and levels:  Simple Profile : Level5 -->
             <Limit name="size" min="176x144" max="1920x1088" />
             <Limit name="alignment" value="16x16" />
@@ -201,6 +140,7 @@ Only the three quirks included above are recognized at this point:
             <Limit name="bitrate" range="1-40000000" />
         </MediaCodec>
         <MediaCodec name="OMX.sprd.h263.encoder" type="video/3gpp">
+            <Quirk name="video-controller-check-enable" />
             <!-- profiles and levels:  ProfileBaseline : Level70 -->
             <Limit name="size" min="176x144" max="1920x1088" />
             <Limit name="alignment" value="16x16" />
@@ -209,6 +149,7 @@ Only the three quirks included above are recognized at this point:
             <Limit name="bitrate" range="1-40000000" />
         </MediaCodec>
         <MediaCodec name="OMX.sprd.h264.encoder" type="video/avc">
+            <Quirk name="video-controller-check-enable" />
             <!-- profiles and levels:  ProfileBaseline : Level2 -->
             <Limit name="size" min="176x144" max="1920x1088" />
             <Limit name="alignment" value="16x16" />
@@ -217,5 +158,7 @@ Only the three quirks included above are recognized at this point:
             <Limit name="bitrate" range="1-40000000" />
         </MediaCodec>
     </Encoders>
-    <Include href="media_codecs_google_video.xml" />
+    <Include href="media_codecs_google_video_le.xml" />
+    <Include href="media_codecs_google_audio.xml" />
+    <Include href="media_codecs_google_telephony.xml" />
 </MediaCodecs>

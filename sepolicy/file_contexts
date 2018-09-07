@@ -44,18 +44,22 @@
 /dev/stty_td[0-9]*       u:object_r:tty_device:s0
 /dev/stty_lte[0-9]*      u:object_r:tty_device:s0
 
+/dev/rfkill              u:object_r:rfkill_device:s0
+/dev/pn547               u:object_r:nfc_device:s0
+
 /dev/Trout_FM            u:object_r:audio_device:s0
 /dev/pipe                u:object_r:audio_device:s0
 /dev/block/mmcblk0p[0-9]* u:object_r:mmcblk_device:s0
 /dev/block/mmcblk0boot0  u:object_r:mmcblk_device:s0
 /dev/block/mmcblk0boot1  u:object_r:mmcblk_device:s0
-/dev/block/mmcblk0p17    u:object_r:mmcblk_device:s0
-/dev/block/mmcblk0p18    u:object_r:frp_block_device:s0
+/dev/block/mmcblk0p17    u:object_r:efs_block_device:s0
+/dev/block/mmcblk0p18    u:object_r:prod_block_device:s0
 /dev/block/mmcblk0p19    u:object_r:mmcblk_device:s0
 /dev/block/mmcblk0p20    u:object_r:mmcblk_device:s0
 /dev/block/mmcblk0p21    u:object_r:mmcblk_device:s0
-/dev/block/mmcblk0p22    u:object_r:mmcblk_device:s0
-/dev/block/mmcblk0p23    u:object_r:mmcblk_device:s0
+/dev/block/mmcblk0p22    u:object_r:frp_block_device:s0
+/dev/block/mmcblk0p23    u:object_r:persist_block_device:s0
+/dev/block/mmcblk0p24    u:object_r:cache_block_device:s0
 /dev/block/mmcblk1p1    u:object_r:mmcblk_device:s0
 /dev/sprd_efuse_otp      u:object_r:efuse_device:s0
 /dev/slog_wcn            u:object_r:slog_device:s0
@@ -66,9 +70,14 @@
 /dev/spipe_lte[0-9]*     u:object_r:spipe_device:s0
 /dev/power_ctl       u:object_r:wcn_device:s0
 /dev/download        u:object_r:wcn_device:s0
-/dev/block/platform/sdio_emmc/by-name/boot  u:object_r:boot_block_device:s0
-/dev/block/platform/sdio_emmc/by-name/recovery  u:object_r:recovery_block_device:s0
-/dev/block/platform/sdio_emmc/by-name/persist  u:object_r:frp_block_device:s0
+
+/dev/block/platform/sdio_emmc/by-name/CACHE u:object_r:cache_block_device:s0
+/dev/block/platform/sdio_emmc/by-name/SBOOT u:object_r:boot_block_device:s0
+/dev/block/platform/sdio_emmc/by-name/PERSDATA u:object_r:persist_block_device:s0
+/dev/block/platform/sdio_emmc/by-name/PERSISTENT u:object_r:frp_block_device:s0
+/dev/block/platform/sdio_emmc/by-name/RECOVERY u:object_r:recovery_block_device:s0
+/dev/block/platform/sdio_emmc/by-name/efs u:object_r:efs_block_device:s0
+/dev/block/platform/sdio_emmc/by-name/prodnv u:object_r:prod_block_device:s0
 
 /dev/gnss_download        u:object_r:wcn_device:s0
 /dev/gnss_dbg        u:object_r:wcn_device:s0
@@ -76,18 +85,14 @@
 /dev/cgxdrv          u:object_r:gps_device:s0
 /dev/ttyV0           u:object_r:gps_device:s0
 /dev/spipe_lte9      u:object_r:modemdriver_vpad_device:s0
+
 #############################
 # System files
 #
-/system/bin/data_on.sh  u:object_r:data_on_exec:s0
-/system/bin/data_off.sh u:object_r:data_off_exec:s0
-/system/bin/mplayer     u:object_r:mediaserver_exec:s0
 /system/bin/wcnd     	u:object_r:wcnd_exec:s0
 /system/bin/engpc       u:object_r:engpc_exec:s0
-/system/bin/autotest    u:object_r:autotest_exec:s0
 /system/bin/charge u:object_r:charge_exec:s0
 /system/xbin/zram.sh 	u:object_r:zram_exec:s0
-/system/xbin/srtd    	u:object_r:srtd_exec:s0
 /system/bin/refnotify   u:object_r:refnotify_exec:s0
 /system/bin/modemd      u:object_r:rild_exec:s0
 /system/bin/phoneserver u:object_r:rild_exec:s0
@@ -97,11 +102,9 @@
 /system/bin/download    u:object_r:download_exec:s0
 /system/bin/gnss_download    u:object_r:gnss_download_exec:s0
 /system/bin/slogmodem	u:object_r:slogmodem_exec:s0
-/system/bin/factorytest u:object_r:factorytest_exec:s0
 /system/bin/phasecheckserver u:object_r:phasecheckserver_exec:s0
 /system/bin/tune2fs       u:object_r:fsck_exec:s0
 /system/bin/resize2fs     u:object_r:fsck_exec:s0
-/system/bin/GPSenseEngine       u:object_r:GPSenseEngine_exec:s0
 
 /system/bin/IPSecService       u:object_r:IPSecService_exec:s0
 /system/bin/at_distributor     u:object_r:at_distributor_exec:s0
@@ -120,17 +123,18 @@
 
 /data/modem_log(/.*)?	u:object_r:slogmodem_data:s0
 /data/local/englog(/.*)?    u:object_r:engpc_data:s0
-/system/bin/thermald        u:object_r:thermald_exec:s0
-############################
-#for sharkl64
-#
-/dev/epl2182_pls        u:object_r:sensors_device:s0
 
 # for core dump
 /data/corefile(/.*)?    u:object_r:coredump_file:s0
 
 # for hprofiles
 /data/misc/hprofs(/.*)?   u:object_r:hprofs_file:s0
+
+# for rild
+/data/misc/radio(/.*)?   u:object_r:radio_data_file:s0
+
+# gps
+/data/system/gps(/.*)? u:object_r:gps_data_file:s0
 
 # CP time synchronization FIFO
 /data/w_timesyncfifo	u:object_r:ts_fifo:s0
@@ -144,7 +148,7 @@
 /system/bin/slog u:object_r:slogd_exec:s0
 /data/slog(/.*)? u:object_r:slog_file:s0
 
-#add for data/local/media
+# add for data/local/media
 /data/local/media(/.*)? u:object_r:media_data_file:s0
 
 # apr files
@@ -155,12 +159,28 @@
 # for mlog
 /data/mlog(/.*)? u:object_r:mlog_file:s0
 
-#charge test file
+# charge test file
 /data/.battery_nv		u:object_r:self_system_data_file:s0
 
-#for ylog
-/system/bin/ylog u:object_r:ylog_exec:s0
-/data/ylog(/.*)? u:object_r:ylog_file:s0
-
-#GNSS
+# GNSS
 /data/gnss(/.*)? u:object_r:gnss_file:s0
+
+# nfc
+/data/nfc(/.*)? u:object_r:nfc_data_file:s0
+
+# pers_data
+/persdata/absolute(/.*)? u:object_r:abt_pers_data_file:s0
+
+####################################
+# efs files
+/efs/FactoryApp(/.*)?        u:object_r:app_efs_file:s0
+/efs/FactoryApp/baro_delta   u:object_r:baro_delta_factoryapp_efs_file:s0
+/efs/FactoryApp/factorymode  u:object_r:factorymode_factoryapp_efs_file:s0
+/efs/FactoryApp/fdata        u:object_r:radio_factoryapp_efs_file:s0
+/efs/FactoryApp/hist_nv      u:object_r:radio_factoryapp_efs_file:s0
+/efs/FactoryApp/test_nv      u:object_r:radio_factoryapp_efs_file:s0
+
+/efs/bluetooth(/.*)?         u:object_r:bluetooth_efs_file:s0
+/efs/imei(/.*)?              u:object_r:imei_efs_file:s0
+/efs/wifi(/.*)?              u:object_r:wifi_efs_file:s0
+

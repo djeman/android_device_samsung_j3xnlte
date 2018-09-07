@@ -53,8 +53,6 @@ allow rild wcnd:dir search;
 allow rild wcnd:file { write read open };
 allow rild init:dir search ;
 allow rild init:file { write read open };
-allow rild srtd:dir search;
-allow rild srtd:file { write read open };
 allow rild zygote:dir search;
 allow rild zygote:file { write read open };
 allow rild system_server:dir search ;
@@ -77,7 +75,7 @@ allow rild device:dir remove_name;
 allow rild device:lnk_file unlink;
 allow rild tty_device:chr_file { read write open };
 allow rild slog_device:chr_file { read write open };
-allow rild system_data_file:dir {write add_name };
+allow rild system_data_file:dir {write add_name remove_name };
 allow rild dhcp_data_file:dir search;
 allow rild dhcp_data_file:file { open read getattr };
 allow rild download:dir search;
@@ -103,6 +101,15 @@ allow rild modemdriver_vpad:file { read open};
 allow rild aprd:dir search;
 allow rild aprd:file {read open};
 allow rild slogd:dir search;
-allow rild ylog:dir search;
 allow rild slogd:file {read open};
-allow rild ylog:file {read open};
+
+allow rild ctl_rildaemon_prop:property_service set;
+allow rild proc_net:file write;
+allow rild radio_data_file:lnk_file read;
+
+allow rild modemdriver_vpad_device:chr_file { open read write };
+
+allow rild app_efs_file:dir search;
+allow rild app_efs_file:file { open read getattr };
+allow rild imei_efs_file:dir search;
+allow rild imei_efs_file:file { open read getattr };

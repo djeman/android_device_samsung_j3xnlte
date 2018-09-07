@@ -3,3 +3,9 @@ type ext_symlink_exec, exec_type, file_type;
 
 init_daemon_domain(ext_symlink)
 
+allow ext_symlink shell_exec:file getattr;
+allow ext_symlink shell_exec:file read;
+allow ext_symlink toolbox_exec:file { execute execute_no_trans getattr open read };
+
+allow ext_symlink device:dir { add_name remove_name write };
+allow ext_symlink device:lnk_file { create unlink };

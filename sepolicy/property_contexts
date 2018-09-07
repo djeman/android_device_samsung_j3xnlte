@@ -4,6 +4,7 @@
 #
 
 persist.msms.           u:object_r:radio_prop:s0
+persist.ril.            u:object_r:radio_prop:s0
 
 media.dump.switch u:object_r:media_prop:s0
 media.dump.path u:object_r:media_prop:s0

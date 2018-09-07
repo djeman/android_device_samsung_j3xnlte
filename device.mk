@@ -276,8 +276,6 @@ PRODUCT_PACKAGES += \
     libstagefright_sprd_soft_h264dec \
     libstagefright_sprd_soft_mpeg4dec \
     libstagefright_sprd_vpxdec \
-    libstagefright_soft_imaadpcmdec \
-    libstagefright_soft_mjpgdec \
     libdumpdata \
     libnvexchange \
     libvbpga \
@@ -289,7 +287,6 @@ PRODUCT_PACKAGES += \
     libstagefrighthw_cm \
     libstagefrighthw \
     libomxvpu \
-    iwnpi \
     liboemcrypto \
     modem_control \
     cp_diskserver \

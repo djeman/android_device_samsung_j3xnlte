@@ -13,3 +13,8 @@ type zram_block_device, dev_type;
 
 type fm_device, dev_type, mlstrustedobject;
 type autotest_device, dev_type;
+
+type rfkill_device, dev_type;
+type persist_block_device, dev_type;
+type efs_block_device, dev_type;
+type prod_block_device, dev_type;

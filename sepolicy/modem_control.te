@@ -37,5 +37,5 @@ allow modem_control cache_file:file { write open create read unlink };
 allow modem_control proc_sysrq:file { write open create read };
 allow modem_control cp_diskserver:dir search;
 allow modem_control cp_diskserver:file { read open};
-allow modem_control proc:file {write setattr};
+allow modem_control proc:file { write setattr open read };
 allow modem_control spipe_device:chr_file { read write open };

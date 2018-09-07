@@ -147,13 +147,13 @@ void vendor_load_properties()
 		property_override("ro.product.device", "j3xnlte");
 		break;
 	case J320F:
-		property_override("ro.product.device", "j3xlte");
+		property_override("ro.product.device", "j3xltejt");
 		break;
 	case J320G:
-		property_override("ro.product.device", "j3xlte");
+		property_override("ro.product.device", "j3xltedx");
 		break;
 	case J320M:
-		property_override("ro.product.device", "j3xlte");
+		property_override("ro.product.device", "j3xlteub");
 		break;
 	}
 }

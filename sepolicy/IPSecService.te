@@ -3,3 +3,6 @@ type IPSecService_exec, exec_type, file_type;
 
 init_daemon_domain(IPSecService)
 
+allow IPSecService self:capability net_admin;
+allow IPSecService self:key_socket { create read write };
+
