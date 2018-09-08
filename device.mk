@@ -134,6 +134,7 @@ PRODUCT_PACKAGES += \
 # Samsung
 PRODUCT_PACKAGES += \
     SamsungServiceMode \
+    SamsungDoze \
     Torch
 
 # Filesystem
@@ -234,16 +235,16 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     libexif \
     libexifa \
-    libjpega 
+    libjpega
 
 # KeyUtils
 PRODUCT_PACKAGES += \
     libkeyutils
-    
+
 #libdmverity_hashgen
 PRODUCT_PACKAGES += \
-    libdmverity_hashgen  
- 
+    libdmverity_hashgen
+
 # dm_verity_hash
 PRODUCT_PACKAGES += \
     dm_verity_hash

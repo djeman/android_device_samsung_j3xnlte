@@ -1,39 +1,66 @@
 #!/bin/bash
+#
+# Copyright (C) 2016 The CyanogenMod Project
+# Copyright (C) 2017 The LineageOS Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
 set -e
 
-export VENDOR=samsung
-export DEVICE=j3xnlte
+DEVICE=j3xnlte
+VENDOR=samsung
 
-function extract() {
-    for FILE in `egrep -v '(^#|^$)' $1`; do
-        OLDIFS=$IFS IFS=":" PARSING_ARRAY=($FILE) IFS=$OLDIFS
-        FILE=`echo ${PARSING_ARRAY[0]} | sed -e "s/^-//g"`
-        DEST=${PARSING_ARRAY[1]}
-        if [ -z $DEST ]; then
-            DEST=$FILE
-        fi
-        DIR=`dirname $FILE`
-        if [ ! -d $2/$DIR ]; then
-            mkdir -p $2/$DIR
-        fi
-        # Try CM target first
-        adb pull /system/$DEST $2/$DEST
-        # if file does not exist try OEM target
-        if [ "$?" != "0" ]; then
-            adb pull /system/$FILE $2/$DEST
-        fi
-    done
-}
+# Load extract_utils and do some sanity checks
+MY_DIR="${BASH_SOURCE%/*}"
+if [[ ! -d "$MY_DIR" ]]; then MY_DIR="$PWD"; fi
 
+CM_ROOT="$MY_DIR"/../../..
 
-BASE=../../../vendor/$VENDOR/$DEVICE/proprietary
-rm -rf $BASE/*
+HELPER="$CM_ROOT"/vendor/cm/build/tools/extract_utils.sh
+if [ ! -f "$HELPER" ]; then
+	echo "Unable to find helper script at $HELPER"
+	exit 1
+fi
+. "$HELPER"
 
-DEVBASE=../../../vendor/$VENDOR/$DEVICE/proprietary
-rm -rf $DEVBASE/*
+# Default to sanitizing the vendor folder before extraction
+CLEAN_VENDOR=true
 
-extract ../../$VENDOR/$DEVICE/proprietary-files.txt $DEVBASE
+while [ "$1" != "" ]; do
+	case $1 in
+	-n | --no-cleanup)
+		CLEAN_VENDOR=false
+		;;
+	-s | --section)
+		shift
+		SECTION=$1
+		CLEAN_VENDOR=false
+		;;
+	*)
+		SRC=$1
+		;;
+	esac
+	shift
+done
 
-./../../$VENDOR/$DEVICE/setup-makefiles.sh
+if [ -z "$SRC" ]; then
+	SRC=adb
+fi
 
+# Initialize the helper
+setup_vendor "$DEVICE" "$VENDOR" "$CM_ROOT" false "$CLEAN_VENDOR"
+
+extract "$MY_DIR"/proprietary-files.txt "$SRC" "$SECTION"
+
+"$MY_DIR"/setup-makefiles.sh

@@ -10,7 +10,7 @@ ro.nfc.sec_hal=true
 
 ro.product_ship=true
 ro.chipname=SC9830I
-ro.build.official.release=false
+ro.build.official.release=true
 
 ro.sf.lcd_density=320
 ro.sf.lcd_width=62

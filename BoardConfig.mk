@@ -14,10 +14,12 @@ TARGET_ARCH_VARIANT := armv7-a-neon
 TARGET_CPU_VARIANT := cortex-a7
 TARGET_CPU_SMP := true
 ARCH_ARM_HAVE_TLS_REGISTER := true
-WITH_SU := true
+WITH_SU := false
+PERMISSIVE_KERNEL := false
 
-# Remove "system.new.dat" format.System files are now in "system" folder of the ROM Package.(Easy for development purpose)
-BLOCK_BASED_OTA := false
+BLOCK_BASED_OTA := true
+
+USE_PREBUILT := false
 
 BOARD_NEEDS_MEMORYHEAPION_SPRD := true
 BOARD_USE_EMMC := true
@@ -29,12 +31,19 @@ TARGET_BOOTLOADER_BOARD_NAME := SC9830I
 # Include path
 TARGET_SPECIFIC_HEADER_PATH := device/samsung/j3xnlte/include
 
-#TARGET_PREBUILT_KERNEL := device/samsung/j3xnlte/kernel
-#TARGET_PREBUILT_DTB := device/samsung/j3xnlte/dt.img
+ifeq ($(USE_PREBUILT),true)
+TARGET_PREBUILT_KERNEL := device/samsung/j3xnlte/kernel
+TARGET_PREBUILT_DTB := device/samsung/j3xnlte/dt.img
+endif
 
 TARGET_KERNEL_SOURCE := kernel/samsung/j3xnlte
+
+ifeq ($(PERMISSIVE_KERNEL),true)
+TARGET_KERNEL_CONFIG := j3xnlte_permissive_defconfig
+else
 TARGET_KERNEL_CONFIG := j3xnlte_defconfig
-#TARGET_KERNEL_CONFIG := j3xnlte_permissive_defconfig
+endif
+
 TARGET_KERNEL_HAVE_EXFAT := true
 TARGET_KERNEL_HAVE_NTFS := true
 NEED_KERNEL_MODULE_ROOT := true
@@ -272,39 +281,16 @@ BOARD_SEPOLICY_DIRS += \
 TARGET_SYSTEM_PROP := device/samsung/j3xnlte/system.prop
 
 #######################################################
-# TWRP
+# Recovery
 RECOVERY_VARIANT := twrp
-
-# Display
-TW_THEME := portrait_hdpi
-TARGET_RECOVERY_PIXEL_FORMAT := "ABGR_8888"
-RECOVERY_GRAPHICS_FORCE_SINGLE_BUFFER := true
-TW_MAX_BRIGHTNESS := 255
-TW_DEFAULT_BRIGHTNESS := 162
-
-# Storage
-RECOVERY_SDCARD_ON_DATA := true
 
 # Keys
 BOARD_CUSTOM_RECOVERY_KEYMAPPING := ../../device/samsung/j3xnlte/recovery/recovery_keys.c
 BOARD_HAS_NO_SELECT_BUTTON := true
 
-# Crypto.
-TW_INCLUDE_CRYPTO := true
-
-# Misc.
-TW_BRIGHTNESS_PATH := "/sys/class/backlight/panel/brightness"
-TW_NO_REBOOT_BOOTLOADER := true
-TW_HAS_DOWNLOAD_MODE := true
-TW_NO_EXFAT_FUSE := true
-TW_NEW_ION_HEAP := true
-TW_MTP_DEVICE := "/dev/mtp_usb"
-TW_EXCLUDE_SUPERSU := true
-TW_CUSTOM_CPU_TEMP_PATH := "/sys/class/thermal/thermal_zone1/temp"
 BOARD_RECOVERY_SWIPE := true
 
-# twrp recovery fstab
-ifeq ($(RECOVERY_VARIANT), twrp)
-PRODUCT_COPY_FILES += device/samsung/j3xnlte/twrp.fstab:recovery/root/etc/twrp.fstab
+# TWRP Support - Optional
+ifeq ($(RECOVERY_VARIANT),twrp)
+-include $(LOCAL_PATH)/twrp.mk
 endif
-
