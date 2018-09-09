@@ -10,7 +10,7 @@ $(call inherit-product, device/common/gps/gps_eu_supl.mk)
 $(call inherit-product-if-exists, vendor/samsung/j3xnlte/j3xnlte-vendor.mk)
 
 # Overlays
-PRODUCT_PACKAGE_OVERLAYS += device/samsung/j3xnlte/overlay
+PRODUCT_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay
 
 # Sprd proprietaries drm libomx
 $(call inherit-product, vendor/sprd/proprietaries/proprietaries-scx35l.mk)
@@ -248,6 +248,10 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     dm_verity_hash
 
+# Camera
+PRODUCT_PACKAGES += \
+    Snap
+
 PRODUCT_PACKAGES += \
     charger_res_images
 
@@ -355,7 +359,7 @@ $(call inherit-product, frameworks/native/build/phone-xhdpi-1024-dalvik-heap.mk)
 
 # Prebuilt kernel
 ifeq ($(TARGET_PREBUILT_KERNEL),)
-    LOCAL_KERNEL := device/samsung/j3xnlte/kernel
+    LOCAL_KERNEL := $(LOCAL_PATH)/kernel
 else
     LOCAL_KERNEL := $(TARGET_PREBUILT_KERNEL)
     PRODUCT_COPY_FILES += \
