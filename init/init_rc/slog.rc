@@ -1,5 +1,0 @@
-service slog /system/bin/slog -t
-    class main
-    user system
-    group system shell radio log sdcard_r sdcard_rw media_rw
-    disabled

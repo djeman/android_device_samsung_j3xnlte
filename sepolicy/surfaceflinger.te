@@ -1,3 +1,0 @@
-allow surfaceflinger system_data_file:dir { write add_name };
-
-allow surfaceflinger slogd:binder {call transfer};

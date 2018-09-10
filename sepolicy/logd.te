@@ -1,2 +1,0 @@
-allow logd console_device:chr_file { read write };
-allow logd log_device:chr_file { read write };

@@ -1,5 +1,0 @@
-service autotest /system/bin/autotest
-    class main
-    disabled
-    user root
-    oneshot

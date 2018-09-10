@@ -1,8 +1,0 @@
-allow cameraserver sensors_device:chr_file { open read write };
-allow cameraserver system_file:file execmod;
-
-allow cameraserver camera_device:chr_file { ioctl open read write };
-allow cameraserver graphics_device:chr_file { ioctl open read write };
-allow cameraserver sensors_device:chr_file ioctl;
-
-allow cameraserver graphics_device:dir search;
