@@ -25,6 +25,6 @@
 
 LOCAL_PATH := $(call my-dir)
 
-ifneq ($(filter j3xnlte j3xlte,$(TARGET_DEVICE)),)
+ifneq ($(filter j3xnlte,$(TARGET_DEVICE)),)
 include $(call all-makefiles-under,$(LOCAL_PATH))
 endif

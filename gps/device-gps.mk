@@ -1,5 +1,5 @@
 
-LOCAL_PATH := device/samsung/sharkls-common/gps
+LOCAL_PATH := device/samsung/j3xnlte/gps
 
 PRODUCT_COPY_FILES += \
 	$(LOCAL_PATH)/gpsd:system/bin/gpsd \

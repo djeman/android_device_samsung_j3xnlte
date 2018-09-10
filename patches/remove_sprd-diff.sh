@@ -3,7 +3,7 @@
 set -e
 
 VENDOR=samsung
-DEVICE=sharkls-common
+DEVICE=j3xnlte
 
 cd ../../../..
 

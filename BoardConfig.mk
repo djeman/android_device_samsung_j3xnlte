@@ -1,7 +1,10 @@
 
 TARGET_OTA_ASSERT_DEVICE := j3xnlte,j3xnltexx,j2xlte,j2xltedd,j3xlte
 
-PLATFORM_PATH := device/samsung/sharkls-common
+# inherit from the proprietary version
+-include vendor/samsung/j3xnlte/BoardConfigVendor.mk
+
+PLATFORM_PATH := device/samsung/j3xnlte
 
 TARGET_ARCH := arm
 TARGET_NO_BOOTLOADER := true
@@ -28,7 +31,12 @@ TARGET_BOOTLOADER_BOARD_NAME := SC9830I
 # Include path
 TARGET_SPECIFIC_HEADER_PATH := $(PLATFORM_PATH)/include
 
-TARGET_KERNEL_SOURCE := kernel/samsung/sharkls
+#TARGET_PREBUILT_KERNEL := $(PLATFORM_PATH)/kernel
+#TARGET_PREBUILT_DTB := $(PLATFORM_PATH)/dt.img
+
+TARGET_KERNEL_SOURCE := kernel/samsung/j3xnlte
+TARGET_KERNEL_CONFIG := j3xnlte_defconfig
+#TARGET_KERNEL_CONFIG := j3xnlte_permissive_defconfig
 TARGET_KERNEL_HAVE_EXFAT := true
 TARGET_KERNEL_HAVE_NTFS := true
 NEED_KERNEL_MODULE_ROOT := true
@@ -82,6 +90,10 @@ BOARD_HARDWARE_CLASS := hardware/samsung/cmhw/
 # Bionic
 TARGET_NEEDS_PLATFORM_TEXT_RELOCATIONS := true
 
+# Init
+TARGET_INIT_VENDOR_LIB := libinit_j3lte
+TARGET_RECOVERY_DEVICE_MODULES := libinit_j3lte
+
 # Boot animation
 TARGET_SCREEN_HEIGHT := 1280
 TARGET_SCREEN_WIDTH := 720
@@ -115,6 +127,10 @@ TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/devices/20200000.usb/gadget/lun%d/file"
 
 # Sensors
 TARGET_NO_SENSOR_PERMISSION_CHECK := true
+
+# NFC
+BOARD_NFC_CHIPSET := pn548
+TARGET_USES_NQ_NFC := true
 
 #######################################################
 # camera configs
@@ -257,10 +273,6 @@ BOARD_SEPOLICY_DIRS += \
 # build.prop
 TARGET_SYSTEM_PROP := $(PLATFORM_PATH)/system.prop
 
-# Recovery
-TARGET_RECOVERY_DEVICE_DIRS := $(PLATFORM_PATH)
-TARGET_RECOVERY_FSTAB := $(PLATFORM_PATH)/recovery/recovery.fstab
-
 #######################################################
 # TWRP
 RECOVERY_VARIANT := twrp
@@ -295,6 +307,6 @@ BOARD_RECOVERY_SWIPE := true
 
 # twrp recovery fstab
 ifeq ($(RECOVERY_VARIANT), twrp)
-PRODUCT_COPY_FILES += $(PLATFORM_PATH)/recovery/twrp.fstab:recovery/root/etc/twrp.fstab
+PRODUCT_COPY_FILES += $(PLATFORM_PATH)/twrp.fstab:recovery/root/etc/twrp.fstab
 endif
 
