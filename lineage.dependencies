@@ -1,5 +1,20 @@
 [
   {
+    "repository": "djeman/android_kernel_samsung_j3xnlte",
+    "target_path": "kernel/samsung/j3xnlte",
+    "revision": "cm-14.1"
+  },
+  {
+    "repository": "djeman/android_vendor_samsung_common",
+    "target_path": "vendor/samsung/common",
+    "revision": "cm-14.1"
+  },
+  {
+    "repository": "djeman/android_vendor_sprd",
+    "target_path": "vendor/sprd",
+    "revision": "cm-14.1"
+  },
+  {
     "repository": "LineageOS/android_external_busybox",
     "target_path": "external/busybox",
     "revision": "cm-14.1"
@@ -28,40 +43,5 @@
     "repository": "omnirom/android_bootable_recovery",
     "target_path": "bootable/recovery-twrp",
     "revision": "android-7.1"
-  },
-  {
-    "repository": "LineageOS/android_vendor_nxp-nfc_opensource_Nfc",
-    "target_path": "vendor/nxp-nfc/opensource/Nfc",
-    "revision": "cm-14.1"
-  },
-  {
-    "repository": "LineageOS/android_vendor_nxp-nfc_opensource_frameworks",
-    "target_path": "vendor/nxp-nfc/opensource/frameworks",
-    "revision": "cm-14.1"
-  },
-  {
-    "repository": "LineageOS/android_vendor_nxp-nfc_opensource_libnfc-nci",
-    "target_path": "vendor/nxp-nfc/opensource/libnfc-nci",
-    "revision": "cm-14.1"
-  },
-  {
-    "repository": "djeman/android_device_samsung_j3xnlte",
-    "target_path": "device/samsung/j3xnlte",
-    "revision": "cm-14.1"
-  },
-  {
-    "repository": "djeman/android_kernel_samsung_j3xnlte",
-    "target_path": "kernel/samsung/j3xnlte",
-    "revision": "cm-14.1"
-  },
-  {
-    "repository": "djeman/android_vendor_samsung_common",
-    "target_path": "vendor/samsung/common",
-    "revision": "cm-14.1"
-  },
-  {
-    "repository": "djeman/android_vendor_sprd",
-    "target_path": "vendor/sprd",
-    "revision": "cm-14.1"
   }
 ]
