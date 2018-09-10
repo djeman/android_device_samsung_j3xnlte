@@ -36,7 +36,7 @@ BOARD_VENDOR := samsung
 #TARGET_PREBUILT_KERNEL := device/samsung/j3xnlte/kernel
 #TARGET_PREBUILT_DTB := device/samsung/j3xnlte/dt.img
 
-TARGET_KERNEL_SOURCE := kernel/samsung/j3xnlte
+TARGET_KERNEL_SOURCE := kernel/samsung/sharkls
 #TARGET_KERNEL_CONFIG := j3xnlte_defconfig
 TARGET_KERNEL_CONFIG := j3xnlte_permissive_defconfig
 TARGET_KERNEL_HAVE_EXFAT := true
