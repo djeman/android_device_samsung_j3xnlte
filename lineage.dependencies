@@ -1,0 +1,7 @@
+[
+  {
+    "repository": "djeman/android_device_samsung_sharkls-common",
+    "target_path": "device/samsung/sharkls-common",
+    "revision": "lineage-15.1"
+  }
+]
