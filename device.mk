@@ -10,7 +10,7 @@ $(call inherit-product, device/common/gps/gps_eu_supl.mk)
 $(call inherit-product-if-exists, vendor/samsung/j3xnlte/j3xnlte-vendor.mk)
 
 # Overlays
-PRODUCT_PACKAGE_OVERLAYS += device/samsung/j3xnlte/overlay
+PRODUCT_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay
 
 # Sprd proprietaries drm libomx
 $(call inherit-product, vendor/sprd/proprietaries/proprietaries-scx35l.mk)
@@ -252,6 +252,10 @@ PRODUCT_PACKAGES += \
 
 PRODUCT_PACKAGES += \
     charger_res_images
+
+# Camera
+PRODUCT_PACKAGES += \
+    Snap
 
 PRODUCT_PACKAGES += \
     libgpsshim \

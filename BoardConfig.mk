@@ -4,6 +4,8 @@ TARGET_OTA_ASSERT_DEVICE := j3xnlte,j3xnltexx,j2xlte,j2xltedd,j3xlte
 # inherit from the proprietary version
 -include vendor/samsung/j3xnlte/BoardConfigVendor.mk
 
+PLATFORM_PATH := device/samsung/j3xnlte
+
 TARGET_ARCH := arm
 TARGET_NO_BOOTLOADER := true
 TARGET_NO_RADIOIMAGE := true
@@ -24,10 +26,10 @@ DEVICE_RESOLUTION := 720x1280
 TARGET_BOOTLOADER_BOARD_NAME := SC9830I
 
 # Include path
-TARGET_SPECIFIC_HEADER_PATH := device/samsung/j3xnlte/include
+TARGET_SPECIFIC_HEADER_PATH := $(PLATFORM_PATH)/include
 
-#TARGET_PREBUILT_KERNEL := device/samsung/j3xnlte/kernel
-#TARGET_PREBUILT_DTB := device/samsung/j3xnlte/dt.img
+#TARGET_PREBUILT_KERNEL := $(PLATFORM_PATH)/kernel
+#TARGET_PREBUILT_DTB := $(PLATFORM_PATH)/dt.img
 
 TARGET_KERNEL_SOURCE := kernel/samsung/j3xnlte
 #TARGET_KERNEL_CONFIG := j3xnlte_defconfig
@@ -61,7 +63,7 @@ BOARD_KERNEL_PAGESIZE := 2048
 BOARD_MKBOOTIMG_ARGS := --kernel_offset 0x00008000 --ramdisk_offset 0x01000000 --tags_offset 0x00000100 --cmdline 'console=ttyS1,115200n8'
 
 BOARD_CUSTOM_BOOTIMG := true
-BOARD_CUSTOM_BOOTIMG_MK := device/samsung/j3xnlte/bootimg.mk
+BOARD_CUSTOM_BOOTIMG_MK := $(PLATFORM_PATH)/bootimg.mk
 BOARD_KERNEL_SEPARATED_DT := true
 
 TARGET_CUSTOM_DTBTOOL := dtbToolSprd
@@ -101,7 +103,7 @@ TARGET_BOOTANIMATION_TEXTURE_CACHE := true
 BOARD_PROVIDES_LIBRIL := true
 BOARD_PROVIDES_RILD := true
 USE_BOOT_AT_DIAG := true
-BOARD_RIL_CLASS := ../../../device/samsung/j3xnlte/ril/java/
+BOARD_RIL_CLASS := ../../../$(PLATFORM_PATH)/ril/java/
 
 # lights
 TARGET_PROVIDES_LIBLIGHT := true
@@ -231,8 +233,8 @@ BOARD_HAVE_BLUETOOTH := true
 SPRD_WCNBT_CHISET := marlin
 BOARD_SPRD_WCNBT_MARLIN := true
 
-BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/j3xnlte/configs/bluetooth
-BOARD_BLUEDROID_VENDOR_CONF := device/samsung/j3xnlte/configs/bluetooth/libbt_vndcfg.txt
+BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := $(PLATFORM_PATH)/configs/bluetooth
+BOARD_BLUEDROID_VENDOR_CONF := $(PLATFORM_PATH)/configs/bluetooth/libbt_vndcfg.txt
 
 # WIFI configs
 BOARD_WPA_SUPPLICANT_DRIVER := NL80211
@@ -271,14 +273,14 @@ endif
 
 # SELinux
 BOARD_SEPOLICY_DIRS += \
-    device/samsung/j3xnlte/sepolicy
+    $(PLATFORM_PATH)/sepolicy
 
 # build.prop
-TARGET_SYSTEM_PROP := device/samsung/j3xnlte/system.prop
+TARGET_SYSTEM_PROP := $(PLATFORM_PATH)/system.prop
 
 # VINTF
-DEVICE_MANIFEST_FILE := device/samsung/j3xnlte/manifest.xml
-DEVICE_MATRIX_FILE := device/samsung/j3xnlte/compatibility_matrix.xml
+DEVICE_MANIFEST_FILE := $(PLATFORM_PATH)/manifest.xml
+DEVICE_MATRIX_FILE := $(PLATFORM_PATH)/compatibility_matrix.xml
 
 #######################################################
 # TWRP
@@ -295,7 +297,7 @@ TW_DEFAULT_BRIGHTNESS := 162
 RECOVERY_SDCARD_ON_DATA := true
 
 # Keys
-BOARD_CUSTOM_RECOVERY_KEYMAPPING := ../../device/samsung/j3xnlte/recovery/recovery_keys.c
+BOARD_CUSTOM_RECOVERY_KEYMAPPING := ../../$(PLATFORM_PATH)/recovery/recovery_keys.c
 BOARD_HAS_NO_SELECT_BUTTON := true
 
 # Crypto.
@@ -314,6 +316,6 @@ BOARD_RECOVERY_SWIPE := true
 
 # twrp recovery fstab
 ifeq ($(RECOVERY_VARIANT), twrp)
-PRODUCT_COPY_FILES += device/samsung/j3xnlte/twrp.fstab:recovery/root/etc/twrp.fstab
+PRODUCT_COPY_FILES += $(PLATFORM_PATH)/twrp.fstab:recovery/root/etc/twrp.fstab
 endif
 
