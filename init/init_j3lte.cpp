@@ -93,17 +93,40 @@ void vendor_load_properties()
     }
 
     std::string bootloader = property_get("ro.bootloader");
-    if (strstr(bootloader.c_str(), "J320FN")) {
-        /* SM-J320FN */
-        property_override("ro.product.model", "SM-J320FN");
-        property_override("ro.product.device", "j3xnlte");
-    } else if (strstr(bootloader.c_str(), "J320G")) {
-        property_override("ro.product.model", "SM-J320G");
+    if (strstr(bootloader.c_str(), "J320FN") == NULL) {
         property_override("ro.product.device", "j3xlte");
-    } else {
-        property_override("ro.product.model", "SM-J320F");
-        property_override("ro.product.device", "j3xlte");
-    }
+        if (strstr(bootloader.c_str(), "J320F")) {
+            /* SM-J320F */
+            property_override("ro.product.model", "SM-J320F");
+            property_override("ro.product.name", "j3xltejt");
+            property_override("ro.build.description", 
+                "j3xltejt-user 5.1.1 LMY47V J320FXXU0AQL2 release-keys");
+            property_override("ro.build.fingerprint", 
+                "samsung/j3xltejt/j3xlte:5.1.1/LMY47V/J320FXXU0AQL2:user/release-keys");
+            property_override("ro.bootimage.build.fingerprint", 
+                "samsung/j3xltejt/j3xlte:5.1.1/LMY47V/J320FXXU0AQL2:user/release-keys");
+        } else if (strstr(bootloader.c_str(), "J320G")) {
+            /* SM-J320G */
+            property_override("ro.product.model", "SM-J320G");
+            property_override("ro.product.name", "j3xltedx");
+            property_override("ro.build.description", 
+                "j3xltedx-user 5.1.1 LMY47V J320GXXS0AQL1 release-keys");
+            property_override("ro.build.fingerprint", 
+                "samsung/j3xltedx/j3xlte:5.1.1/LMY47V/J320GXXS0AQL1:user/release-keys");
+            property_override("ro.bootimage.build.fingerprint", 
+                "samsung/j3xltedx/j3xlte:5.1.1/LMY47V/J320GXXS0AQL1:user/release-keys");
+        } else {
+            /* SM-J320M */
+            property_override("ro.product.model", "SM-J320M");
+            property_override("ro.product.name", "j3xlteub");
+            property_override("ro.build.description", 
+                "j3xlteub-user 5.1.1 LMY47V J320MVJU0ARH1 release-keys");
+            property_override("ro.build.fingerprint", 
+                "samsung/j3xlteub/j3xlte:5.1.1/LMY47V/J320MVJU0ARH1:user/release-keys");
+            property_override("ro.bootimage.build.fingerprint", 
+                "samsung/j3xlteub/j3xlte:5.1.1/LMY47V/J320MVJU0ARH1:user/release-keys");
+        }
+}
 
     std::string device = property_get("ro.product.device");
     LOG(INFO) << "Found bootloader id " << bootloader.c_str() 
