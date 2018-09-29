@@ -1,5 +1,0 @@
-type IPSecService, domain;
-type IPSecService_exec, exec_type, file_type;
-
-init_daemon_domain(IPSecService)
-

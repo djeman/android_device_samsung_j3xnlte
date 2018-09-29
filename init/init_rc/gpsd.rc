@@ -1,7 +1,0 @@
-# GPS
-service gpsd /vendor/bin/gpsd -c /vendor/etc/gps.xml
-    class main
-    user gps
-    group system inet net_raw
-    ioprio be 0
-    setenv LD_SHIM_LIBS /vendor/bin/gpsd|libgpsshim.so

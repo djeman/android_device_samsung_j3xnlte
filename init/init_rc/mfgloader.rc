@@ -1,5 +1,0 @@
-# start for WiFi MFG (TestMode)
-service mfgloader /vendor/bin/mfgloader
-    class main
-    disabled
-    oneshot

@@ -1,6 +1,0 @@
-service prepare_param /vendor/bin/prepare_param.sh /dev/block/platform/sdio_emmc/by-name/PARAM
-    class core
-    user root
-    group root
-    seclabel u:r:prepare_param:s0
-    oneshot

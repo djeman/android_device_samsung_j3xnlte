@@ -1,3 +1,0 @@
-service umount_service /vendor/bin/umount /preload
-    disabled
-    oneshot

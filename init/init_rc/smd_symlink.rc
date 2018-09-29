@@ -1,5 +1,0 @@
-#create symlink
-service smd_symlink /vendor/bin/ext_symlink.sh -u
-    user root
-    disabled
-    oneshot

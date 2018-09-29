@@ -1,4 +1,0 @@
-service BCS-daemon /vendor/bin/connfwexe
-    class main
-    user root
-    group system radio inet net_raw

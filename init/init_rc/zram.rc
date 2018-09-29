@@ -1,3 +1,0 @@
-service zram /vendor/xbin/zram.sh
-    disabled
-    oneshot

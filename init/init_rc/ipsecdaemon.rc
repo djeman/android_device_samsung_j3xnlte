@@ -1,6 +1,0 @@
-#IPSec for VOLTE
-service ipsec-daemon /vendor/bin/IPSecService
-    class main
-    socket ipsec_socket stream 660 system system
-    user system
-    group system net_raw inet net_admin
