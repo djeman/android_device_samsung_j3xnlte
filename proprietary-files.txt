@@ -41,8 +41,8 @@ bin/macloader
 # etc
 etc/plmn_delta.bin
 etc/plmn_se13.bin
-etc/connectivity_calibration.ini
-etc/connectivity_configure.ini
+#etc/connectivity_calibration.ini
+#etc/connectivity_configure.ini
 etc/feature_default.xml
 etc/floating_feature.xml
 #etc/gps.xml
@@ -55,8 +55,8 @@ etc/.omxregister
 etc/somxreg.conf
 
 # Firmware
-etc/firmware/sc2331_fdl.bin
-etc/firmware/sc2331_fw.bin
+#etc/firmware/sc2331_fdl.bin
+#etc/firmware/sc2331_fw.bin
 
 #egl
 #lib/egl/libGLES_mali.so
