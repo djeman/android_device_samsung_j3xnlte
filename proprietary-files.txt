@@ -25,7 +25,7 @@ bin/scs
 #bin/radvd
 #bin/cp_diskserver
 #bin/batterysrv
-bin/calibration_init
+#bin/calibration_init
 #bin/sprd_res_monitor
 #bin/slog
 #bin/slogctl
